@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import useMissionStore from '../stores/missionStore'
 
 const STATUS_LABELS = {
@@ -24,6 +25,25 @@ export default function GlobalStatusBar() {
   const agentStatus = useMissionStore(s => s.agentStatus)
   const agentCycle = useMissionStore(s => s.agentCycle)
 
+  // MetMalaysia live-feed indicator (polls every 5 min, same TTL as backend cache)
+  const [metCount, setMetCount] = useState(null)
+  useEffect(() => {
+    let cancelled = false
+    const load = async () => {
+      try {
+        const r = await fetch('/api/live/warnings')
+        if (!r.ok) throw new Error('bad')
+        const j = await r.json()
+        if (!cancelled) setMetCount(typeof j?.count === 'number' ? j.count : 0)
+      } catch {
+        if (!cancelled) setMetCount(null)
+      }
+    }
+    load()
+    const id = setInterval(load, 5 * 60 * 1000)
+    return () => { cancelled = true; clearInterval(id) }
+  }, [])
+
   const activeCount = fleet.filter(u => u.status !== 'offline').length
   const avgPower = fleet.length > 0
     ? Math.round(fleet.reduce((s, u) => s + u.power, 0) / fleet.length)
@@ -44,7 +64,7 @@ export default function GlobalStatusBar() {
           ARUS
         </span>
         <span className="font-mono text-[10px]" style={{ color: 'rgba(255,255,255,0.35)' }}>
-          Malaysia Flood Command · Kelantan–Pahang Belt
+          Malaysia Flood Command · Kelantan + Johor Belt
         </span>
 
         <div className="flex items-center gap-2 px-2.5 py-0.5 rounded"
@@ -93,6 +113,22 @@ export default function GlobalStatusBar() {
             {objectivesFound}/{objectivesTotal}
           </span>
         </div>
+
+        {/* MetMalaysia LIVE badge — proof of Malaysia integration */}
+        {metCount !== null && (
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded"
+            style={{ background: metCount > 0 ? 'rgba(230,57,70,0.15)' : 'rgba(6,214,160,0.08)' }}
+            title={metCount > 0
+              ? `${metCount} active MetMalaysia warnings — feeding into the Assessor agent this cycle`
+              : 'MetMalaysia feed live · no active warnings'}>
+            <span className={`inline-block w-1.5 h-1.5 rounded-full ${metCount > 0 ? 'animate-pulse' : ''}`}
+              style={{ background: metCount > 0 ? '#E63946' : '#06D6A0' }} />
+            <span className="font-mono text-[10px] font-semibold"
+              style={{ color: metCount > 0 ? '#E63946' : '#06D6A0', letterSpacing: 1.5 }}>
+              METMY {metCount > 0 ? `LIVE ×${metCount}` : 'CLEAR'}
+            </span>
+          </div>
+        )}
 
         {/* AI status */}
         {agentStatus === 'thinking' && (
