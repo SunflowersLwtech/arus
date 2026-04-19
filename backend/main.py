@@ -18,6 +18,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import os
 from dotenv import load_dotenv
 load_dotenv()
 load_dotenv(".env.local", override=True)  # local dev convenience
@@ -228,7 +229,7 @@ async def _handle_ws_command(cmd: dict, client_id: str):
 
 # ─── Background Simulation Loop ────────────────────────────────
 
-AGENT_INTERVAL = 50  # ~10 seconds at 5Hz (reduced from 25 to avoid Gemini 429)
+AGENT_INTERVAL = int(os.environ.get("AGENT_INTERVAL", "200"))  # ~40s at 5Hz; raised from 50 to fit the free-tier Gemini 10 RPM budget
 
 
 async def simulation_loop():
