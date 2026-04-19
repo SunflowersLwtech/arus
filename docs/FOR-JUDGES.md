@@ -11,6 +11,11 @@ the same time** — the stage-5 "Agency Dispatcher" is the differentiator.
 
 **Track**: 2 — Citizens First (GovTech).
 
+## Interactive API explorer
+
+The full FastAPI auto-generated docs are live at:
+<https://arus-1030181742799.asia-southeast1.run.app/docs> (Swagger UI) · <https://arus-1030181742799.asia-southeast1.run.app/openapi.json> (raw OpenAPI schema).
+
 ## Try it in three clicks
 
 1. Open [`https://arus-1030181742799.asia-southeast1.run.app`](https://arus-1030181742799.asia-southeast1.run.app).
