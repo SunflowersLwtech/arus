@@ -62,6 +62,17 @@ curl -sL https://raw.githubusercontent.com/SunflowersLwtech/arus/main/scripts/ju
 
 Takes ~2 minutes. Exits non-zero if anything is unhealthy. Prints green/red checkmarks for every public endpoint plus a real handoff.
 
+## Timing expectations
+
+Arus runs on the free-tier Gemini 2.5 Flash quota (10 RPM). To fit inside it:
+
+- First agent cycle: starts ~5 seconds after `START MISSION` or `POST /api/demo/boot`.
+- Subsequent cycles: every ~40 seconds of simulation time (configurable via `AGENT_INTERVAL` env var).
+- Each cycle takes ~15-25 seconds to run all 5 stages through Gemini.
+- First bilingual hand-off on `/api/live/handoffs`: typically ~60-90 seconds after mission start.
+
+If you have a paid Gemini key, set `AGENT_INTERVAL=50` for a 10-second cadence.
+
 ## What to look at in the code
 
 | If you care about | Start here |
