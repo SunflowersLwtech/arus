@@ -34,7 +34,10 @@
 >   Hantar pasukan penyelamat untuk penilaian dan tindakan segera.
 >   Deploy rescue team for immediate assessment and action.
 > ```
-> — Not a mock. Run `curl -s https://arus-1030181742799.asia-southeast1.run.app/api/logs | jq '.data[] | select(.agent=="agency_dispatcher")'` to see the current live output.
+> — Not a mock. Get the latest structured bilingual hand-offs directly:
+> ```bash
+> curl -s https://arus-1030181742799.asia-southeast1.run.app/api/live/handoffs | jq .
+> ```
 
 <details><summary>🏗 Architecture diagram</summary>
 
