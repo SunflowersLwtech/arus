@@ -16,11 +16,30 @@
 
 **Project 2030: MyAI Future Hackathon · Track 2 — Citizens First (GovTech)**
 
-🔴 **Live at** [`arus-1030181742799.asia-southeast1.run.app`](https://arus-1030181742799.asia-southeast1.run.app) · 🎥 [3-min demo](./docs/slides/arus-demo.mp4) · 📊 [15-page deck](./docs/slides/arus-deck.pdf) · 🏗 [architecture](./docs/architecture.svg) · 📈 [impact model](./docs/impact-model.md)
+🔴 **Live at** [`arus-1030181742799.asia-southeast1.run.app`](https://arus-1030181742799.asia-southeast1.run.app) · 🎥 [3-min demo](./docs/slides/arus-demo.mp4) · 📊 [15-page deck](./docs/slides/arus-deck.pdf) · 🏗 [architecture](./docs/architecture.svg) · 📈 [impact model](./docs/impact-model.md) · ✅ [proof of life](./docs/proof-of-life.md)
 
 </div>
 
+![Dashboard — live Cloud Run deployment](./docs/dashboard-hero.png)
+
+> **Actual output from the 5th-stage agent on production Cloud Run:**
+> ```
+> AGENSI: BOMBA
+> KOORDINAT: (2, 16) — Kg. Kubang Puteh, Kuala Krai, Kelantan
+> KEUTAMAAN: TINGGI
+> RINGKASAN (BM): Mangsa telah dikesan di Kg. Kubang Puteh, Kuala Krai, Kelantan, memerlukan bantuan segera.
+> SUMMARY (EN): A victim has been detected at Kg. Kubang Puteh, Kuala Krai, Kelantan, requiring immediate assistance.
+> CADANGAN TINDAKAN / RECOMMENDED ACTION:
+>   Hantar pasukan penyelamat untuk penilaian dan tindakan segera.
+>   Deploy rescue team for immediate assessment and action.
+> ```
+> — Not a mock. Run `curl -s https://arus-1030181742799.asia-southeast1.run.app/api/logs | jq '.data[] | select(.agent=="agency_dispatcher")'` to see the current live output.
+
+<details><summary>🏗 Architecture diagram</summary>
+
 ![Architecture](./docs/architecture.svg)
+
+</details>
 
 ---
 
