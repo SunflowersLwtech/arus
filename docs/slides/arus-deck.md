@@ -155,31 +155,33 @@ AI that moves Malaysia's rescue faster than any human dispatcher can.
 
 # 5 Gemini agents turn chaos into dispatch.
 
-<div class="grid3" style="margin-top: 20px; grid-template-columns: repeat(5, 1fr); gap: 12px;">
-  <div class="card" style="padding:16px;">
-    <div class="eyebrow">Stage 01</div>
-    <h3 class="cyan">Assessor</h3>
-    <p class="muted" style="font-size:14px;">Reads fleet, coverage, hotspots, + <span class="gold">MetMalaysia</span></p>
+<p class="muted" style="font-size:18px; margin-top: -8px;">Each agent replaces a human role that saturates during surge.</p>
+
+<div class="grid3" style="margin-top: 14px; grid-template-columns: repeat(5, 1fr); gap: 12px;">
+  <div class="card" style="padding:14px;">
+    <div class="eyebrow">Stage 01 · replaces</div>
+    <h3 class="cyan" style="font-size:18px;">Fleet Ops Officer</h3>
+    <p class="muted" style="font-size:13px; margin-top:6px;"><strong>Assessor</strong> — reads fleet, coverage, hotspots + live <span class="gold">MetMalaysia</span> feed.</p>
   </div>
-  <div class="card" style="padding:16px;">
-    <div class="eyebrow">Stage 02</div>
-    <h3 class="cyan">Strategist</h3>
-    <p class="muted" style="font-size:14px;">Scores targets · power budget · relay plan</p>
+  <div class="card" style="padding:14px;">
+    <div class="eyebrow">Stage 02 · replaces</div>
+    <h3 class="cyan" style="font-size:18px;">Tactical Planner</h3>
+    <p class="muted" style="font-size:13px; margin-top:6px;"><strong>Strategist</strong> — scores targets, enforces power budget, plans relay.</p>
   </div>
-  <div class="card" style="padding:16px;">
-    <div class="eyebrow">Stage 03</div>
-    <h3 class="cyan">Dispatcher</h3>
-    <p class="muted" style="font-size:14px;">Commits missions · validates power round-trip</p>
+  <div class="card" style="padding:14px;">
+    <div class="eyebrow">Stage 03 · replaces</div>
+    <h3 class="cyan" style="font-size:18px;">Mission Controller</h3>
+    <p class="muted" style="font-size:13px; margin-top:6px;"><strong>Dispatcher</strong> — commits missions, validates round-trip fuel.</p>
   </div>
-  <div class="card" style="padding:16px;">
-    <div class="eyebrow">Stage 04</div>
-    <h3 class="cyan">Analyst</h3>
-    <p class="muted" style="font-size:14px;">One-screen SITREP + <code>list_detections</code></p>
+  <div class="card" style="padding:14px;">
+    <div class="eyebrow">Stage 04 · replaces</div>
+    <h3 class="cyan" style="font-size:18px;">Intel Analyst</h3>
+    <p class="muted" style="font-size:13px; margin-top:6px;"><strong>Analyst</strong> — one-screen SITREP + <code>list_detections</code>.</p>
   </div>
-  <div class="card card-gold" style="padding:16px;">
-    <div class="eyebrow">Stage 05</div>
-    <h3 class="gold">Agency Dispatcher</h3>
-    <p class="muted" style="font-size:14px;">BM/EN handoff → BOMBA / NADMA / APM / MMEA</p>
+  <div class="card card-gold" style="padding:14px;">
+    <div class="eyebrow">Stage 05 · replaces</div>
+    <h3 class="gold" style="font-size:18px;">Multi-Agency Liaison</h3>
+    <p class="muted" style="font-size:13px; margin-top:6px;"><strong>Agency Dispatcher</strong> — BM/EN brief to BOMBA / NADMA / APM / MMEA.</p>
   </div>
 </div>
 
