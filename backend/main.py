@@ -290,6 +290,32 @@ async def ops_reset():
     return {"status": "ok", "message": "Mission reset"}
 
 
+@app.post("/api/demo/boot")
+async def demo_boot():
+    """One-shot demo launcher: reset + start in a single call.
+
+    Intended for judges and share-links so they can kick off a fresh mission
+    with a single `curl -X POST`. Returns the mission_id so they can follow
+    the cycle history in Firestore if they want.
+    """
+    global simulation_running, world, agent_runner
+    simulation_running = False
+    agent_runner.cancel()
+    world = GridWorld(size=20, num_uavs=5, num_objectives=8, num_obstacles=15)
+    set_shared_world(world)
+    agent_runner = AgentRunner(world=world, broadcast_fn=manager.broadcast)
+    blackbox.clear()
+    simulation_running = True
+    world.mission_status = "running"
+    return {
+        "status": "ok",
+        "message": "Demo mission booted and running",
+        "mission_id": agent_runner.mission_id,
+        "dashboard": "/",
+        "hint": "Wait ~60-90s for the first full 5-stage cycle, then GET /api/live/handoffs",
+    }
+
+
 @app.get("/api/logs")
 async def get_logs():
     """Get recent reasoning logs from the blackbox."""
