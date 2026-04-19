@@ -309,16 +309,17 @@ export default function CommandConsole() {
 
         {agentLogs.length === 0 && (
           <div className="text-center py-8" style={{ color: 'rgba(255,255,255,0.2)' }}>
-            <div className="text-sm mb-2">Arus SAR</div>
-            <div className="text-[10px] leading-relaxed mb-4">
-              AI agent uses a 4-stage pipeline each cycle:<br />
+            <div className="text-sm mb-2">Arus · Multi-Agency AI Commander</div>
+            <div className="text-[10px] leading-relaxed mb-3">
+              Gemini 2.5 Flash · 5-stage SequentialAgent · per cycle:<br />
               <span style={{ color: '#4DA8DA' }}>1 Assess</span> {'\u2192 '}
               <span style={{ color: '#06D6A0' }}>2 Plan</span> {'\u2192 '}
               <span style={{ color: '#F4A261' }}>3 Execute</span> {'\u2192 '}
-              <span style={{ color: '#00D4FF' }}>4 Report</span>
+              <span style={{ color: '#00D4FF' }}>4 Report</span> {'\u2192 '}
+              <span style={{ color: '#FFCC00', fontWeight: 600 }}>5 BM/EN Handoff</span>
             </div>
             <div className="text-[10px]" style={{ color: 'rgba(255,255,255,0.15)' }}>
-              System events and MCP tool calls will appear here in real-time
+              System events, MCP tool calls and the bilingual agency handoffs will stream here.
             </div>
           </div>
         )}
