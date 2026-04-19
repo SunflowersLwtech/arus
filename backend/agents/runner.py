@@ -17,7 +17,7 @@ from google.adk.sessions import InMemorySessionService
 
 from backend.agents.commander import build_pipeline, MCP_URL
 from backend.core.grid_world import GridWorld
-from backend.services import firestore_sync
+from backend.services import firestore_sync, met_feed
 from backend.utils.blackbox import blackbox
 
 logger = logging.getLogger("arus.agent")
@@ -149,6 +149,13 @@ class AgentRunner:
                     f"power={u.power:.0f}%{mission_str}"
                 )
 
+            # Pull live MetMalaysia warnings (cached 5 min). Falls back silently on error.
+            try:
+                met_warnings = await met_feed.fetch_warnings(limit=3)
+            except Exception:
+                met_warnings = []
+            met_block = met_feed.summarise_for_prompt(met_warnings, max_items=3)
+
             briefing = (
                 f"Cycle {cycle} | Tick {self.world.tick} | "
                 f"Grid {self.world.size}x{self.world.size} | "
@@ -156,7 +163,8 @@ class AgentRunner:
                 f"Coverage {progress.coverage_pct:.1f}% | "
                 f"Objectives {progress.objectives_found}/{progress.objectives_total} | "
                 f"Fleet: {fleet.active}/{fleet.total} active, avg power {fleet.avg_power:.0f}%\n"
-                f"Drones:\n" + "\n".join(drone_lines)
+                f"Drones:\n" + "\n".join(drone_lines) + "\n\n"
+                + met_block
             )
 
             blackbox.log("system", f"Agent cycle {cycle} started: {briefing}")

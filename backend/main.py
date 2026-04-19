@@ -35,7 +35,7 @@ from backend.core.locality import locate, summarise_zone
 from backend.utils.blackbox import blackbox
 from backend.agents.runner import AgentRunner
 from backend.services.tool_server import set_shared_world
-from backend.services import firestore_sync, vision
+from backend.services import firestore_sync, vision, met_feed
 
 logger = logging.getLogger("arus")
 logging.basicConfig(level=logging.INFO)
@@ -336,6 +336,20 @@ async def vision_analyse(file: UploadFile = File(...)):
 async def mission_cycles(mission_id: str, limit: int = 20):
     """Recent agent cycles persisted to Firestore (audit trail for civil-defence reporting)."""
     return {"status": "ok", "data": firestore_sync.get_recent_cycles(mission_id, limit)}
+
+
+# ─── MetMalaysia Live Warning Feed ─────────────────────────────
+
+@app.get("/api/live/warnings")
+async def live_warnings(limit: int = 10):
+    """Real-time weather warnings from api.data.gov.my (BM + EN). Cached 5 min.
+
+    This is how Arus proves it is Malaysia-*integrated*, not Malaysia-*themed*:
+    the Assessor agent reads these warnings inside every cycle, and the
+    dashboard surfaces a 'MetMalaysia: LIVE' badge when warnings are active.
+    """
+    warnings = await met_feed.fetch_warnings(limit)
+    return {"status": "ok", "count": len(warnings), "data": warnings, "source": "api.data.gov.my/weather/warning"}
 
 
 # ─── Fleet Management API ──────────────────────────────────────
