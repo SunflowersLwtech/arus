@@ -202,7 +202,10 @@ class AgentRunner:
                     break  # Success — exit retry loop
                 except Exception as retry_err:
                     if attempt < max_retries and ("429" in str(retry_err) or "RESOURCE_EXHAUSTED" in str(retry_err)):
-                        wait = 5 * (attempt + 1)
+                        # Free-tier Gemini is 10 RPM. After a hit, we need to wait
+                        # ~60s for the rolling window to clear before the next pipeline
+                        # can fit all ~10-15 requests. 5s is too short.
+                        wait = 35 + 25 * attempt  # 35s, 60s
                         logger.warning(f"Rate limited (attempt {attempt+1}), retrying in {wait}s...")
                         blackbox.log("system", f"Rate limited — waiting {wait}s before retry")
                         await asyncio.sleep(wait)
@@ -248,9 +251,11 @@ class AgentRunner:
             logger.error(f"Agent cycle {cycle} failed: {err_str}", exc_info=True)
             blackbox.error("system", err_str)
 
-            # Rate limit: back off by skipping next cycles
+            # Rate limit: skip the next 6 cycles. With AGENT_INTERVAL=200 that
+            # gives the free-tier 10-RPM rolling window ~4 minutes to fully
+            # clear before we try again.
             if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str:
-                self._backoff_until = self._cycle + 3  # Skip 3 cycles
+                self._backoff_until = self._cycle + 6
                 logger.warning(f"Rate limited — backing off until cycle {self._backoff_until}")
 
             await self._broadcast({
