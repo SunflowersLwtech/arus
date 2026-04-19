@@ -1,0 +1,17 @@
+**/node_modules
+**/__pycache__
+**/*.pyc
+**/.pytest_cache
+.git
+.github
+.claude
+.env
+.env.local
+.env.*.local
+frontend/dist
+test
+*.md
+!README.md
+assets/**/*.psd
+.venv
+venv

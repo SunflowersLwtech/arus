@@ -1,0 +1,37 @@
+# Arus — Cloud Build + Cloud Run deployment config
+# Usage: gcloud builds submit --config=cloudbuild.yaml --region=asia-southeast1
+
+steps:
+  # Build container
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'asia-southeast1-docker.pkg.dev/${PROJECT_ID}/arus/app:$SHORT_SHA', '.']
+
+  # Push to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'asia-southeast1-docker.pkg.dev/${PROJECT_ID}/arus/app:$SHORT_SHA']
+
+  # Deploy to Cloud Run (region: asia-southeast1 = Singapore, closest to Malaysia)
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - arus
+      - --image=asia-southeast1-docker.pkg.dev/${PROJECT_ID}/arus/app:$SHORT_SHA
+      - --region=asia-southeast1
+      - --platform=managed
+      - --allow-unauthenticated
+      - --memory=1Gi
+      - --cpu=1
+      - --concurrency=20
+      - --timeout=3600
+      - --min-instances=0
+      - --max-instances=3
+      - --set-env-vars=GOOGLE_CLOUD_PROJECT=${PROJECT_ID},FIRESTORE_ENABLED=true,AGENT_MODEL=gemini-2.5-flash,VISION_MODEL=gemini-2.5-flash
+      - --set-secrets=GOOGLE_API_KEY=arus-gemini-key:latest
+
+images:
+  - 'asia-southeast1-docker.pkg.dev/${PROJECT_ID}/arus/app:$SHORT_SHA'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
