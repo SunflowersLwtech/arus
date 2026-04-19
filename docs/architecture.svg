@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 940" role="img" aria-labelledby="title desc">
+  <title id="title">Arus — multi-agent disaster response architecture</title>
+  <desc id="desc">Five-stage Google ADK Gemini pipeline coordinating Malaysian emergency agencies via MCP, deployed on Cloud Run with Firestore persistence and a live MetMalaysia warnings feed.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#0B1426"/>
+      <stop offset="100%" stop-color="#050814"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#00D4FF"/>
+    </marker>
+  </defs>
+
+  <rect width="1400" height="940" fill="url(#bg)"/>
+
+  <text x="50" y="60" font-family="Inter, sans-serif" font-size="34" font-weight="700" fill="#ffffff">Arus — architecture</text>
+  <text x="50" y="95" font-family="JetBrains Mono, monospace" font-size="15" fill="#00D4FF" letter-spacing="2">MULTI-AGENT GEMINI COORDINATOR · MALAYSIA MONSOON FLOOD RESPONSE</text>
+
+  <!-- Layer: Frontend -->
+  <rect x="80" y="130" width="1240" height="100" rx="14" fill="#111B2E" stroke="#06D6A0" stroke-width="1.5"/>
+  <text x="110" y="170" font-family="Inter, sans-serif" font-size="22" font-weight="700" fill="#06D6A0">Frontend</text>
+  <text x="110" y="200" font-family="JetBrains Mono, monospace" font-size="13" fill="rgba(255,255,255,0.7)">React 18 · R3F / three.js · Zustand · Tailwind · MetMalaysia LIVE badge · CommandConsole 5-stage stream</text>
+  <text x="1120" y="200" font-family="JetBrains Mono, monospace" font-size="13" fill="rgba(255,255,255,0.5)">WebSocket @ 5 Hz</text>
+
+  <!-- Layer: Gateway -->
+  <rect x="80" y="260" width="1240" height="100" rx="14" fill="#111B2E" stroke="#00D4FF" stroke-width="1.5"/>
+  <text x="110" y="300" font-family="Inter, sans-serif" font-size="22" font-weight="700" fill="#00D4FF">FastAPI Gateway on Cloud Run (asia-southeast1, single instance)</text>
+  <text x="110" y="328" font-family="JetBrains Mono, monospace" font-size="12" fill="rgba(255,255,255,0.7)">/ws/live · /api/ops/* · /api/demo/boot · /api/vision/analyse · /api/locality · /api/live/warnings · /api/live/handoffs · /api/state · /docs</text>
+
+  <!-- AI brain block -->
+  <rect x="80" y="390" width="800" height="250" rx="14" fill="#111B2E" stroke="#FFCC00" stroke-width="1.5"/>
+  <text x="110" y="430" font-family="Inter, sans-serif" font-size="22" font-weight="700" fill="#FFCC00">Google ADK · Sequential Gemini Pipeline (5 stages · gemini-2.5-flash)</text>
+
+  <g font-family="Inter, sans-serif" font-size="14" font-weight="600" fill="#ffffff">
+    <g transform="translate(110,460)"><rect width="140" height="70" rx="8" fill="#1a2340" stroke="#00D4FF"/>
+      <text x="70" y="28" text-anchor="middle">Assessor</text>
+      <text x="70" y="52" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.6)">situation_overview + MetMy feed</text></g>
+    <g transform="translate(260,460)"><rect width="140" height="70" rx="8" fill="#1a2340" stroke="#00D4FF"/>
+      <text x="70" y="28" text-anchor="middle">Strategist</text>
+      <text x="70" y="52" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.6)">frontier + plan_route</text></g>
+    <g transform="translate(410,460)"><rect width="140" height="70" rx="8" fill="#1a2340" stroke="#00D4FF"/>
+      <text x="70" y="28" text-anchor="middle">Dispatcher</text>
+      <text x="70" y="52" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.6)">assign / recall</text></g>
+    <g transform="translate(560,460)"><rect width="140" height="70" rx="8" fill="#1a2340" stroke="#00D4FF"/>
+      <text x="70" y="28" text-anchor="middle">Analyst</text>
+      <text x="70" y="52" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.6)">SITREP + list_detections</text></g>
+  </g>
+  <g transform="translate(110,555)">
+    <rect width="740" height="70" rx="8" fill="#3a2a00" stroke="#FFCC00"/>
+    <text x="20" y="32" font-family="Inter, sans-serif" font-size="16" font-weight="700" fill="#FFCC00">Agency Dispatcher · BM / EN handoff → BOMBA / NADMA / APM / MMEA</text>
+    <text x="20" y="54" font-family="JetBrains Mono, monospace" font-size="11" fill="#FFCC00" opacity="0.85">⚡ Malaysia pivot · Arus-only · parsed into /api/live/handoffs</text>
+  </g>
+
+  <!-- Right block: Vision + Firestore + MetMy -->
+  <rect x="910" y="390" width="410" height="80" rx="14" fill="#111B2E" stroke="#00D4FF" stroke-width="1.5"/>
+  <text x="930" y="425" font-family="Inter, sans-serif" font-size="20" font-weight="700" fill="#00D4FF">Gemini Vision</text>
+  <text x="930" y="448" font-family="JetBrains Mono, monospace" font-size="11" fill="rgba(255,255,255,0.7)">/api/vision/analyse · photo → victim_count + BM/EN + agency</text>
+  <text x="930" y="463" font-family="JetBrains Mono, monospace" font-size="10" fill="#00D4FF" opacity="0.8">async + 429 backoff + defensive JSON</text>
+
+  <rect x="910" y="485" width="410" height="80" rx="14" fill="#111B2E" stroke="#E63946" stroke-width="1.5"/>
+  <text x="930" y="520" font-family="Inter, sans-serif" font-size="20" font-weight="700" fill="#E63946">MetMalaysia live feed</text>
+  <text x="930" y="543" font-family="JetBrains Mono, monospace" font-size="11" fill="rgba(255,255,255,0.7)">api.data.gov.my/weather/warning · BM + EN</text>
+  <text x="930" y="558" font-family="JetBrains Mono, monospace" font-size="10" fill="#E63946" opacity="0.8">5-min TTL cache · injected into Assessor briefing</text>
+
+  <rect x="910" y="580" width="410" height="75" rx="14" fill="#111B2E" stroke="#8B5CF6" stroke-width="1.5"/>
+  <text x="930" y="612" font-family="Inter, sans-serif" font-size="20" font-weight="700" fill="#8B5CF6">Firestore — audit trail</text>
+  <text x="930" y="634" font-family="JetBrains Mono, monospace" font-size="11" fill="rgba(255,255,255,0.7)">/banjirswarm/{mission}/cycles + /handoffs</text>
+  <text x="930" y="648" font-family="JetBrains Mono, monospace" font-size="10" fill="#8B5CF6" opacity="0.8">civil-defence post-event reporting</text>
+
+  <!-- MCP layer -->
+  <rect x="80" y="670" width="1240" height="90" rx="14" fill="#111B2E" stroke="#F4A261" stroke-width="1.5"/>
+  <text x="110" y="710" font-family="Inter, sans-serif" font-size="22" font-weight="700" fill="#F4A261">MCP (Model Context Protocol) · 9 tools · runtime discovery</text>
+  <text x="110" y="740" font-family="JetBrains Mono, monospace" font-size="12" fill="rgba(255,255,255,0.7)">discover_fleet · get_situation_overview · get_frontier_targets · plan_route · assign_search_mission · assign_scan_mission · recall_drone · get_drone_status · list_detections</text>
+
+  <!-- Simulation layer -->
+  <rect x="80" y="790" width="1240" height="110" rx="14" fill="#111B2E" stroke="#E63946" stroke-width="1.5"/>
+  <text x="110" y="830" font-family="Inter, sans-serif" font-size="22" font-weight="700" fill="#E63946">Simulation engine · 20×20 flood zone (Kelantan + Johor belt)</text>
+  <text x="110" y="858" font-family="JetBrains Mono, monospace" font-size="12" fill="rgba(255,255,255,0.7)">Autonomous Drone agents · A* pathfinding · power-budget + repulsion scoring · Gaussian probability heatmap</text>
+  <text x="110" y="878" font-family="JetBrains Mono, monospace" font-size="12" fill="rgba(255,255,255,0.7)">Malaysian locality map: Gua Musang · Kuala Krai · Kota Tinggi · Segamat (16 real kampungs)</text>
+
+  <g stroke="#00D4FF" stroke-width="2" fill="none" marker-end="url(#arrow)">
+    <line x1="700" y1="230" x2="700" y2="258"/>
+    <line x1="700" y1="360" x2="700" y2="388"/>
+    <line x1="700" y1="640" x2="700" y2="668"/>
+    <line x1="700" y1="760" x2="700" y2="788"/>
+  </g>
+
+  <g stroke="#FFCC00" stroke-width="1.5" fill="none" opacity="0.6" stroke-dasharray="4 4">
+    <line x1="880" y1="430" x2="908" y2="430"/>
+    <line x1="880" y1="525" x2="908" y2="525"/>
+    <line x1="880" y1="617" x2="908" y2="617"/>
+  </g>
+</svg>
