@@ -178,12 +178,18 @@ class AgentRunner:
             # Stream events from the agent pipeline (retry on rate limit)
             max_retries = 2
             for attempt in range(max_retries + 1):
+                if self._cancelled:
+                    logger.info(f"Cycle {cycle} cancelled before run_async")
+                    return
                 try:
                     async for event in self._runner.run_async(
                         user_id="simulation",
                         session_id=self._session_id,
                         new_message=user_content,
                     ):
+                        if self._cancelled:
+                            logger.info(f"Cycle {cycle} cancelled mid-stream")
+                            return
                         await self._process_event(event, cycle)
                     break  # Success — exit retry loop
                 except Exception as retry_err:
@@ -200,6 +206,10 @@ class AgentRunner:
                         self._session_id = session.id
                     else:
                         raise  # Non-retryable or exhausted retries
+
+            if self._cancelled:
+                logger.info(f"Cycle {cycle} cancelled before persist")
+                return
 
             # Persist cycle to Firestore for audit trail (civil-defence reporting)
             try:

@@ -26,7 +26,7 @@ steps:
       - --concurrency=20
       - --timeout=3600
       - --min-instances=0
-      - --max-instances=3
+      - --max-instances=1
       - --set-env-vars=GOOGLE_CLOUD_PROJECT=${PROJECT_ID},FIRESTORE_ENABLED=true,AGENT_MODEL=gemini-2.5-flash,VISION_MODEL=gemini-2.5-flash
       - --set-secrets=GOOGLE_API_KEY=arus-gemini-key:latest
 

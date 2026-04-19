@@ -12,6 +12,7 @@ pulling a human analyst away from the command console.
 """
 from __future__ import annotations
 
+import asyncio
 import base64
 import json
 import logging
@@ -65,46 +66,97 @@ Respond STRICTLY as valid JSON matching the VisionAnalysis schema above.
 No markdown fences. No prose. JSON only."""
 
 
-async def analyse_image(image_bytes: bytes, mime_type: str = "image/jpeg") -> VisionAnalysis:
-    """Send a drone image to Gemini Vision and parse the structured response."""
-    client = _get_client()
-    resp = client.models.generate_content(
-        model=VISION_MODEL,
-        contents=[
-            types.Part.from_bytes(data=image_bytes, mime_type=mime_type),
-            PROMPT,
-        ],
-        config=types.GenerateContentConfig(
-            response_mime_type="application/json",
-            temperature=0.2,
-        ),
-    )
-    text = resp.text or "{}"
-    # Strip accidental code fences
-    text = re.sub(r"^```(?:json)?\s*|\s*```$", "", text.strip(), flags=re.MULTILINE)
+def _fallback_data(reason: str) -> dict:
+    return {
+        "victim_count": 0,
+        "severity": "LOW",
+        "description_bm": f"Analisis gagal: {reason}",
+        "description_en": f"Analysis failed: {reason}",
+        "recommended_agency": "NADMA",
+        "hazards": [],
+        "confidence": 0.0,
+    }
+
+
+def _coerce(data: dict) -> dict:
+    """Harden the Vision output so pydantic validation never 500s."""
+    out = {
+        "victim_count": 0,
+        "severity": "LOW",
+        "description_bm": "",
+        "description_en": "",
+        "recommended_agency": "NADMA",
+        "hazards": [],
+        "confidence": 0.5,
+    }
+    out.update({k: v for k, v in data.items() if v is not None})
     try:
-        data: dict[str, Any] = json.loads(text)
-    except json.JSONDecodeError:
-        logger.error(f"Vision returned non-JSON: {text[:200]}")
-        # Fallback minimal parse
-        data = {
-            "victim_count": 0,
-            "severity": "LOW",
-            "description_bm": "Analisis gagal",
-            "description_en": "Analysis failed",
-            "recommended_agency": "NADMA",
-            "hazards": [],
-            "confidence": 0.0,
-        }
+        out["victim_count"] = max(0, int(out.get("victim_count", 0)))
+    except (TypeError, ValueError):
+        out["victim_count"] = 0
+    out["severity"] = str(out.get("severity") or "LOW").upper()
+    if out["severity"] not in ("LOW", "MODERATE", "CRITICAL"):
+        out["severity"] = "LOW"
+    out["recommended_agency"] = str(out.get("recommended_agency") or "NADMA").upper()
+    if out["recommended_agency"] not in ("BOMBA", "NADMA", "APM", "MMEA"):
+        out["recommended_agency"] = "NADMA"
+    out["hazards"] = list(out.get("hazards") or [])
+    try:
+        out["confidence"] = float(out.get("confidence", 0.5))
+    except (TypeError, ValueError):
+        out["confidence"] = 0.5
+    out["description_bm"] = str(out.get("description_bm") or "")[:400]
+    out["description_en"] = str(out.get("description_en") or "")[:400]
+    return out
 
-    # Defensive coercion
-    data.setdefault("hazards", [])
-    data.setdefault("confidence", 0.5)
-    data["victim_count"] = int(data.get("victim_count", 0))
-    data["severity"] = str(data.get("severity", "LOW")).upper()
-    data["recommended_agency"] = str(data.get("recommended_agency", "NADMA")).upper()
 
-    return VisionAnalysis(**data)
+async def analyse_image(image_bytes: bytes, mime_type: str = "image/jpeg") -> VisionAnalysis:
+    """Send a drone image to Gemini Vision. Non-blocking + 429-aware + defensive."""
+    client = _get_client()
+
+    def _call():
+        return client.models.generate_content(
+            model=VISION_MODEL,
+            contents=[
+                types.Part.from_bytes(data=image_bytes, mime_type=mime_type),
+                PROMPT,
+            ],
+            config=types.GenerateContentConfig(
+                response_mime_type="application/json",
+                temperature=0.2,
+            ),
+        )
+
+    # Run blocking SDK call off the event loop. Retry twice on 429/RESOURCE_EXHAUSTED.
+    resp = None
+    last_err: Exception | None = None
+    for attempt in range(3):
+        try:
+            resp = await asyncio.to_thread(_call)
+            break
+        except Exception as e:
+            last_err = e
+            msg = str(e)
+            if "429" in msg or "RESOURCE_EXHAUSTED" in msg:
+                await asyncio.sleep(2 * (attempt + 1))
+                continue
+            break
+
+    if resp is None:
+        logger.exception(f"vision API failure: {last_err}")
+        return VisionAnalysis(**_coerce(_fallback_data("gemini_unavailable")))
+
+    text = (getattr(resp, "text", "") or "{}").strip()
+    text = re.sub(r"^```(?:json)?\s*|\s*```\s*$", "", text, flags=re.MULTILINE)
+    try:
+        data = json.loads(text)
+        if not isinstance(data, dict):
+            raise ValueError("vision returned non-object JSON")
+    except Exception as e:
+        logger.warning(f"Vision JSON parse failed ({e}): {text[:200]}")
+        data = _fallback_data("non_json_response")
+
+    return VisionAnalysis(**_coerce(data))
 
 
 def analyse_image_sync(image_b64: str, mime_type: str = "image/jpeg") -> dict:
