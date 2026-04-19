@@ -43,17 +43,26 @@
 
 ---
 
-## The Problem
+## Why this exists
 
-Every December–February, the northeast monsoon floods Kelantan, Pahang,
-Terengganu and Johor. In December 2024 alone, more than 150,000 people
-were displaced. Rescue assets — BOMBA swift-water teams, APM evacuation
-convoys, NADMA coordinators, MMEA maritime patrols — operate across
-overlapping districts with fragmented comms. Dispatchers manually chase
-where every team is, who can reach each stranded kampung, which drone
-still has fuel. **People die waiting for a human to add up the numbers.**
+> _Every December, Malaysia's agencies tell the same story: the fire brigade
+> found the survivor; the coast guard was closer; nobody told the coast guard.
+> The survivor drowned anyway._
 
-## The Solution
+The Dec 2024 east-coast monsoon displaced **148,024 Malaysians**. BOMBA,
+NADMA, APM and MMEA ran the rescue on parallel WhatsApp groups and
+hand-transcribed dispatch sheets. Nobody had end-to-end visibility. That is
+not a tool problem. That is **a coordination problem no single human
+dispatcher can hold in their head** — multiple agencies, overlapping
+districts, power-budgeted assets, bilingual briefs, bursty triangulated
+calls, all at once.
+
+**Arus replaces the role, not the human.** It is the one component Malaysia
+does not yet have: a coordinator that speaks Malay and English at the same
+time, reasons over all agencies simultaneously, and makes its decisions
+auditable before anyone acts on them.
+
+## How Arus does it
 
 **Arus** is a 5-stage Gemini agent pipeline, deployed on Google
 Cloud Run, that watches a live flood-zone grid and continuously:
