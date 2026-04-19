@@ -13,6 +13,7 @@
 [![Firestore](https://img.shields.io/badge/Firestore-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)](https://firebase.google.com/docs/firestore)
 [![MCP](https://img.shields.io/badge/MCP_Protocol-00D4FF?style=for-the-badge)](https://modelcontextprotocol.io/)
 [![MetMalaysia](https://img.shields.io/badge/data.gov.my-LIVE_FEED-E63946?style=for-the-badge)](https://api.data.gov.my/weather/warning)
+[![CI](https://github.com/SunflowersLwtech/arus/actions/workflows/ci.yml/badge.svg)](https://github.com/SunflowersLwtech/arus/actions/workflows/ci.yml)
 
 **Project 2030: MyAI Future Hackathon · Track 2 — Citizens First (GovTech)**
 
