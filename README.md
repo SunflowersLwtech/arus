@@ -17,7 +17,7 @@
 
 **Project 2030: MyAI Future Hackathon · Track 2 — Citizens First (GovTech)**
 
-🔴 **Live at** [`arus-1030181742799.asia-southeast1.run.app`](https://arus-1030181742799.asia-southeast1.run.app) · 🎥 [3-min demo](./docs/slides/arus-demo.mp4) · 📊 [15-page deck](./docs/slides/arus-deck.pdf) · 🏗 [architecture](./docs/architecture.svg) · 📈 [impact model](./docs/impact-model.md) · ✅ [proof of life](./docs/proof-of-life.md)
+🔴 **Live at** [`arus-1030181742799.asia-southeast1.run.app`](https://arus-1030181742799.asia-southeast1.run.app) · 🎥 [3-min demo](./docs/slides/arus-demo.mp4) · 📊 [15-page deck](./docs/slides/arus-deck.pdf) · 🏗 [architecture](./docs/architecture.svg) · 📈 [impact model](./docs/impact-model.md) · ✅ [proof of life](./docs/proof-of-life.md) · 👨‍⚖️ [for judges](./docs/FOR-JUDGES.md)
 
 </div>
 
