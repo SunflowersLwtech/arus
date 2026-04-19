@@ -249,7 +249,11 @@ async def simulation_loop():
             })
             # Agent dispatch only while an active mission is in flight.
             active = world.mission_status == "running"
-            if active and world.tick % AGENT_INTERVAL == 0 and agent_runner.try_start():
+            # Fire the FIRST cycle quickly (tick 25) so judges don't stare at an
+            # idle map; subsequent cycles use AGENT_INTERVAL to respect free-tier RPM.
+            first_cycle = world.tick == 25 and agent_runner._cycle == 0
+            periodic = world.tick > 0 and world.tick % AGENT_INTERVAL == 0
+            if active and (first_cycle or periodic) and agent_runner.try_start():
                 asyncio.create_task(agent_runner.run_cycle())
             # Auto-pause at completion so Gemini cycles stop burning.
             if world.mission_status == "completed":
