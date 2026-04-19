@@ -18,8 +18,8 @@ That means:
 2. Link a billing account (you already have "My Billing Account 1" —
    enable it).
 3. Open **<https://aistudio.google.com/apikey>**, confirm the existing
-   key `REDACTED-GEMINI-KEY` is now under the
-   billed project. If not, issue a new key from the billed project.
+   key is now under the billed project. If not, issue a new key from
+   the billed project.
 4. If the key changed, rotate the Secret Manager value:
    ```bash
    echo -n "NEW_KEY" | gcloud secrets versions add arus-gemini-key \
