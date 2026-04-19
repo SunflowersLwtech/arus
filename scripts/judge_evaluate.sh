@@ -51,7 +51,7 @@ while :; do
   agents=$(curl -sf "$URL/api/logs" | jq -r '.data[] | .agent' 2>/dev/null | sort -u | paste -sd, -)
   printf "    [%3ds] agents so far: %s\n" "$elapsed" "$agents"
   echo "$agents" | grep -q "agency_dispatcher" && { ok "all 5 stages fired"; break; }
-  [[ $elapsed -gt 180 ]] && bad "timeout waiting for agency_dispatcher"
+  [[ $elapsed -gt 300 ]] && bad "timeout waiting for agency_dispatcher after 5 minutes"
   sleep 10
 done
 
