@@ -27,10 +27,10 @@ zone=$(echo "$resp" | jq -r '.zone')
 hr "2. Malaysian locality (grid → kampung)"
 resp=$(curl -sf "$URL/api/locality/5/5")
 echo "$resp" | jq -r '.data.state' | grep -q "Kelantan" || bad "5,5 should be Kelantan"
-ok "(5,5) → $(echo "$resp" | jq -r '.data.kampung + \", \" + .data.district')"
+ok "(5,5) → $(echo "$resp" | jq -r '[.data.kampung, .data.district] | join(", ")')"
 resp=$(curl -sf "$URL/api/locality/15/15")
 echo "$resp" | jq -r '.data.state' | grep -q "Johor" || bad "15,15 should be Johor"
-ok "(15,15) → $(echo "$resp" | jq -r '.data.kampung + \", \" + .data.district')"
+ok "(15,15) → $(echo "$resp" | jq -r '[.data.kampung, .data.district] | join(", ")')"
 
 hr "3. MetMalaysia live feed"
 resp=$(curl -sf "$URL/api/live/warnings?limit=3")
@@ -60,11 +60,11 @@ resp=$(curl -sf "$URL/api/live/handoffs?limit=5")
 n=$(echo "$resp" | jq -r '.data | length')
 ok "captured $n bilingual hand-offs so far"
 if [[ "$n" -gt 0 ]]; then
-  echo "$resp" | jq -r '.data[0] | "    agency=\(.agency) · \(.coord)\n    BM: \(.bm)\n    EN: \(.en)"'
+  echo "$resp" | jq -r '.data[0] | "    agency=" + .agency + " · " + .coord + "\n    BM: " + .bm + "\n    EN: " + .en'
 fi
 
 hr "7. State snapshot"
 resp=$(curl -sf "$URL/api/state")
-echo "$resp" | jq -r '.data | "    tick=\(.tick) coverage=\(.coverage_pct)% victims=\(.objectives_found)/\(.objectives_total)"'
+echo "$resp" | jq -r '.data | "    tick=" + (.tick|tostring) + " coverage=" + (.coverage_pct|tostring) + "% victims=" + (.objectives_found|tostring) + "/" + (.objectives_total|tostring)'
 
 printf "\n\033[1;32m✓ Arus is production-healthy.\033[0m  %s\n\n" "$URL"
