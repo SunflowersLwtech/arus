@@ -101,15 +101,27 @@ analyst:
     - Strategy: {strategy}
     - Execution log: {execution_log}
 
-    Call `get_situation_overview` for final metrics, then produce:
+    STEP 1: Call `get_situation_overview` for metrics.
+    STEP 2: Call `list_detections` — this returns every victim found, each with
+    (x, y), kampung name, and the asset that detected it.
+
+    Produce EXACTLY this layout with real numbers (no placeholder letters):
 
     ## Situation Report
-    - **Zone Coverage**: X% overall (NW: X%, NE: X%, SW: X%, SE: X%)
-    - **Victims Located**: X of Y (time-critical if Y-X > 3)
-    - **Asset Status**: X operational, avg power X%
-    - **This Cycle**: X missions assigned, X accepted, X rejected (with reasons)
-    - **Weak Spots**: Which flooded areas remain uncovered and why
-    - **Next Priority**: Focus for the next cycle
+    - **Zone Coverage**: <pct>% overall (NW: <pct>%, NE: <pct>%, SW: <pct>%, SE: <pct>%)
+    - **Victims Located**: <n> of <total>
+    - **Asset Status**: <n> operational, avg power <pct>%
+    - **This Cycle**: <n> missions assigned, <n> accepted, <n> rejected (with reasons)
+    - **Weak Spots**: which flooded areas remain uncovered and why
+    - **Next Priority**: focus for the next cycle
+
+    Then ALWAYS include a DETECTIONS block built from `list_detections`.
+    Include EVERY entry that tool returns. Use this exact format:
+
+    ## Detections
+    - (x, y) — <kampung>, <district> — detected by <asset_id>
+    (one line per detection; if `list_detections` returned 0 entries, write the
+    single line: "- none this cycle")
 
     Keep it tight. Field commanders read this on mobile during chaos.
 

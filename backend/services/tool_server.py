@@ -200,6 +200,38 @@ async def plan_route(start_x: int, start_y: int, end_x: int, end_y: int, ctx: Co
     return {"status": "ok", "data": route.model_dump()}
 
 
+# ═══════════════════════════════════════════════════════════════
+#  Tool 9: List Detected Victims  (Arus-specific — Malaysia pivot)
+# ═══════════════════════════════════════════════════════════════
+
+@mcp.tool()
+async def list_detections(ctx: Context) -> dict:
+    """List every victim detected so far in the mission. Each entry has grid
+    coordinates (x, y), probability, the asset that detected it, and the nearest
+    Malaysian kampung/district. Use this in the ANALYST stage to populate the
+    Detections block, and again in the AGENCY DISPATCHER stage to decide
+    which Malaysian agency (BOMBA / NADMA / APM / MMEA) to route to."""
+    from backend.core.locality import locate
+    c = _connector(ctx)
+    detected = []
+    prob = c.world.objective_field.prob_matrix
+    for obj in c.world.objective_field.objectives.values():
+        if not getattr(obj, "detected", False):
+            continue
+        x, y = int(obj.x), int(obj.y)
+        loc = locate(x, y)
+        detected.append({
+            "id": obj.id,
+            "x": x,
+            "y": y,
+            "probability": round(float(prob[x, y]) if 0 <= x < prob.shape[0] and 0 <= y < prob.shape[1] else 0.0, 3),
+            "detected_by": obj.claimed_by,
+            "district": loc["district"],
+            "kampung": loc["kampung"],
+        })
+    return {"status": "ok", "count": len(detected), "detections": detected}
+
+
 # ─── Entry Point ────────────────────────────────────────────────
 
 if __name__ == "__main__":
