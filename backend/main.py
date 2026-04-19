@@ -232,7 +232,13 @@ AGENT_INTERVAL = 50  # ~10 seconds at 5Hz (reduced from 25 to avoid Gemini 429)
 
 
 async def simulation_loop():
-    """Background task: step simulation and broadcast state at ~5 Hz."""
+    """Background task: step simulation and broadcast state at ~5 Hz.
+
+    Cost safety: once the mission is `completed` or `idle`, the loop stops
+    dispatching new agent cycles. Keeps Gemini bills bounded during demo
+    day if nobody hits reset after a fleet succeeds.
+    """
+    global simulation_running
     while True:
         if simulation_running:
             world.step()
@@ -240,9 +246,13 @@ async def simulation_loop():
                 "type": "state_update",
                 "payload": world.get_state_snapshot(),
             })
-            # Agent dispatch with atomic start guard
-            if world.tick % AGENT_INTERVAL == 0 and agent_runner.try_start():
+            # Agent dispatch only while an active mission is in flight.
+            active = world.mission_status == "running"
+            if active and world.tick % AGENT_INTERVAL == 0 and agent_runner.try_start():
                 asyncio.create_task(agent_runner.run_cycle())
+            # Auto-pause at completion so Gemini cycles stop burning.
+            if world.mission_status == "completed":
+                simulation_running = False
         await asyncio.sleep(0.2 / max(simulation_speed, 0.1))
 
 
