@@ -141,6 +141,20 @@ Other (non-AI) libraries: FastAPI, React 18, React Three Fiber, NumPy, SciPy, Zu
 > Firestore persistence and Cloud Run deployment were developed during
 > the hackathon window inside Antigravity with Gemini assistance.
 
+## 30-second evaluation
+
+Judges — this is the fastest way to verify Arus is real:
+
+```bash
+# Exercises every endpoint, waits for one full 5-stage agent cycle, prints a bilingual handoff
+./scripts/judge_evaluate.sh
+
+# Or against a custom URL
+./scripts/judge_evaluate.sh https://arus-1030181742799.asia-southeast1.run.app
+```
+
+Takes ~2 minutes on cold start, ~30 seconds if the instance is warm.
+
 ## Quick Start (Local)
 
 ```bash
