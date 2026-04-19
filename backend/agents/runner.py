@@ -17,7 +17,7 @@ from google.adk.sessions import InMemorySessionService
 
 from backend.agents.commander import build_pipeline, MCP_URL
 from backend.core.grid_world import GridWorld
-from backend.services import firestore_sync, met_feed
+from backend.services import firestore_sync, met_feed, handoff_log
 from backend.utils.blackbox import blackbox
 
 logger = logging.getLogger("arus.agent")
@@ -278,6 +278,27 @@ class AgentRunner:
             # Reasoning text
             if hasattr(part, "text") and part.text:
                 blackbox.reasoning(agent_name, agent_name, part.text[:500])
+
+                # Stage-5 outputs structured BM/EN hand-offs — capture them
+                # into a dedicated ring buffer so judges can curl a clean
+                # endpoint instead of grepping /api/logs.
+                if agent_name == "agency_dispatcher":
+                    try:
+                        new_records = handoff_log.ingest_agency_text(
+                            part.text, cycle=cycle, mission_id=self.mission_id,
+                        )
+                        for rec in new_records:
+                            try:
+                                firestore_sync.log_handoff(
+                                    mission_id=self.mission_id,
+                                    agency=rec["agency"],
+                                    brief=rec,
+                                )
+                            except Exception as fs_err:
+                                logger.debug(f"handoff persist skipped: {fs_err}")
+                    except Exception as hi_err:
+                        logger.debug(f"handoff ingest failed: {hi_err}")
+
                 await self._broadcast({
                     "type": "agent_log",
                     "payload": {

@@ -35,7 +35,7 @@ from backend.core.locality import locate, summarise_zone
 from backend.utils.blackbox import blackbox
 from backend.agents.runner import AgentRunner
 from backend.services.tool_server import set_shared_world
-from backend.services import firestore_sync, vision, met_feed
+from backend.services import firestore_sync, vision, met_feed, handoff_log
 
 logger = logging.getLogger("arus")
 logging.basicConfig(level=logging.INFO)
@@ -336,6 +336,19 @@ async def vision_analyse(file: UploadFile = File(...)):
 async def mission_cycles(mission_id: str, limit: int = 20):
     """Recent agent cycles persisted to Firestore (audit trail for civil-defence reporting)."""
     return {"status": "ok", "data": firestore_sync.get_recent_cycles(mission_id, limit)}
+
+
+# ─── Agency Hand-off Log (for judges) ──────────────────────────
+
+@app.get("/api/live/handoffs")
+async def live_handoffs(limit: int = 20):
+    """Return the last N bilingual agency hand-offs emitted by stage-5.
+
+    Each record has: agency (BOMBA/NADMA/APM/MMEA), coord (with kampung),
+    priority, BM summary, EN summary, recommended action. Populated at
+    runtime as the agency_dispatcher agent emits structured blocks.
+    """
+    return {"status": "ok", "data": handoff_log.recent(limit)}
 
 
 # ─── MetMalaysia Live Warning Feed ─────────────────────────────
