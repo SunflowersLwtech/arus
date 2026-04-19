@@ -14,10 +14,11 @@ function sendOpsCommand(sendWs, type) {
 /* ── Pipeline stage metadata ─────────────────────────────── */
 
 const STAGES = {
-  assessor:   { step: 1, label: 'ASSESS',   verb: 'Reading situation',   color: '#4DA8DA', icon: '1' },
-  strategist: { step: 2, label: 'PLAN',     verb: 'Deciding strategy',   color: '#06D6A0', icon: '2' },
-  dispatcher: { step: 3, label: 'EXECUTE',  verb: 'Sending MCP commands',color: '#F4A261', icon: '3' },
-  analyst:    { step: 4, label: 'REPORT',   verb: 'Summarizing results', color: '#00D4FF', icon: '4' },
+  assessor:          { step: 1, label: 'ASSESS',   verb: 'Reading situation + MetMalaysia feed', color: '#4DA8DA', icon: '1' },
+  strategist:        { step: 2, label: 'PLAN',     verb: 'Deciding strategy',                    color: '#06D6A0', icon: '2' },
+  dispatcher:        { step: 3, label: 'EXECUTE',  verb: 'Sending MCP commands',                 color: '#F4A261', icon: '3' },
+  analyst:           { step: 4, label: 'REPORT',   verb: 'Summarizing + listing detections',     color: '#00D4FF', icon: '4' },
+  agency_dispatcher: { step: 5, label: 'ROUTE',    verb: 'Emitting BM/EN brief to BOMBA/NADMA/APM/MMEA', color: '#FFCC00', icon: '5' },
 }
 
 const MCP_TOOL_DESCRIPTIONS = {
@@ -26,9 +27,10 @@ const MCP_TOOL_DESCRIPTIONS = {
   assign_search_mission:      'COMMAND: Send drone to target',
   assign_scan_mission:        'COMMAND: Thermal scan at position',
   recall_drone:               'COMMAND: Return drone to base',
-  get_situation_overview:      'Read full situation (composite)',
-  get_frontier_targets:        'Read unexplored frontiers',
+  get_situation_overview:     'Read full situation (composite)',
+  get_frontier_targets:       'Read unexplored frontiers',
   plan_route:                 'Evaluate A* route cost',
+  list_detections:            'List victims detected (kampung + district)',
 }
 
 /* ── Markdown theme ──────────────────────────────────────── */
