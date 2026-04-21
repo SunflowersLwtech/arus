@@ -12,15 +12,29 @@ export default function StartScreen() {
         title: 'Banjir Drill',
         subtitle: 'Simulasi penyelarasan bencana untuk rakyat Malaysia',
         body: 'Anda ialah pegawai penyelaras NADMA malam Banjir Besar 2021. Empat agensi. Aset terhad. 7 minit bermain.',
+        howto_heading: 'Cara bermain',
+        howto: [
+          'Baca panggilan masuk. Pilih satu daripada 2–3 tindakan.',
+          'Setiap tindakan menggerakkan drone agensi yang betul di peta.',
+          'Semasa menunggu, klik drone di bar kiri → klik peta untuk hantar manual.',
+          'Tamat dalam 7 minit: kad taklimat + ulasan NADMA + data sebenar 2021.',
+        ],
         cta: 'Mula bermain',
-        cta_hint: 'Perlahan — ini akan diberi penjelasan selepas tamat.',
+        cta_hint: 'Perlahan — ulasan menunggu di akhir.',
       }
     : {
         title: 'Banjir Drill',
         subtitle: 'A disaster-coordination simulator for Malaysian citizens',
         body: 'You are NADMA\'s coordinating officer on the night of the 2021 Klang Valley floods. Four agencies. Limited assets. 7 minutes.',
+        howto_heading: 'How to play',
+        howto: [
+          'Read each incoming call. Pick one of 2–3 response options.',
+          'Your choice moves the matching agency\'s drone on the map.',
+          'Between calls: tap a drone in the left sidebar → tap the map to send it anywhere.',
+          'At the end: grade + NADMA commentary + real 2021 Shah Alam data.',
+        ],
         cta: 'Start drill',
-        cta_hint: 'Easy pace — a debrief waits at the end.',
+        cta_hint: 'Take your time — a full debrief waits at the end.',
       }
 
   const onStart = async () => {
@@ -70,7 +84,16 @@ export default function StartScreen() {
         </div>
 
         <div className="text-sm mb-2" style={{ color: '#9EB0C8' }}>{copy.subtitle}</div>
-        <div className="text-base leading-relaxed mb-8 text-white">{copy.body}</div>
+        <div className="text-base leading-relaxed mb-5 text-white">{copy.body}</div>
+
+        <div className="mb-6 p-3 rounded" style={{ background: '#0B1426', border: '1px solid #1E3A5F' }}>
+          <div className="text-[10px] uppercase tracking-widest mb-2" style={{ color: '#00D4FF' }}>
+            {copy.howto_heading}
+          </div>
+          <ol className="text-[13px] leading-relaxed space-y-1 pl-4 list-decimal" style={{ color: '#C4D4E6' }}>
+            {copy.howto.map((line, i) => <li key={i}>{line}</li>)}
+          </ol>
+        </div>
 
         <button
           onClick={onStart}

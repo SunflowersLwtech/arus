@@ -97,6 +97,16 @@ follow-up.
 Tone: educational, not judgemental. Never mock a poor performance — the
 point is for the player to feel the weight of coordination.
 
+CRITICAL FORMATTING RULES — any violation = the output is rejected:
+  • NEVER include internal identifiers like card_id or option_id in the
+    prose. Words like "c01_sri_muda", "send_bomba_now", "ask_mmea_boats",
+    "wait_daylight", "log_only" must NOT appear. Use natural English or
+    Bahasa Malaysia phrases only (e.g. "your decision to send BOMBA
+    immediately" not "your 'send_bomba_now' choice").
+  • NEVER include raw quotation marks wrapping action strings. Speak as
+    Datuk Nadia, not as a system log.
+  • NEVER use underscores in any user-visible word.
+
 Return a JSON object with EXACTLY two keys: "en" (English) and "bm"
 (Bahasa Malaysia). Each value is the full 3-paragraph commentary as one
 string with \\n\\n between paragraphs. No markdown. No extra fields."""
@@ -213,7 +223,12 @@ async def generate_intro(scenario, locale: str = "en") -> dict:
 async def generate_debrief(debrief: dict, locale: str = "en") -> dict:
     """Return {en, bm, source} for 3-paragraph end-of-game commentary."""
     choices = debrief.get("choices", [])
-    choices_summary = "; ".join(f"{c['card_id']}→{c['option_id']}" for c in choices) or "(no choices made)"
+    # Use human-readable labels, not raw card_id/option_id, so Gemini never
+    # paraphrases identifiers into its prose.
+    choices_summary = "; ".join(
+        f"chose \"{(c.get('option_label_en') or c['option_id']).strip()}\" for \"{(c.get('card_title_en') or c['card_id']).strip()}\""
+        for c in choices
+    ) or "(no choices made)"
 
     prompt = DEBRIEF_PROMPT.format(
         status=debrief.get("status", "partial"),
@@ -226,5 +241,26 @@ async def generate_debrief(debrief: dict, locale: str = "en") -> dict:
     )
     data = await _call_gemini_json(prompt)
     if data and data.get("en") and data.get("bm"):
-        return {"en": str(data["en"])[:4000], "bm": str(data["bm"])[:4000], "source": "gemini"}
+        return {
+            "en": _scrub_action_ids(str(data["en"]))[:4000],
+            "bm": _scrub_action_ids(str(data["bm"]))[:4000],
+            "source": "gemini",
+        }
     return _fallback_debrief(debrief)
+
+
+_SNAKE_CASE_RX = None
+
+
+def _scrub_action_ids(text: str) -> str:
+    """Safety net: strip snake_case tokens (card_id / option_id leaks).
+
+    Converts 'send_bomba_now' → 'send bomba now' and unwraps surrounding
+    quotes so Gemini's hallucinated identifiers read naturally.
+    """
+    import re
+    global _SNAKE_CASE_RX
+    if _SNAKE_CASE_RX is None:
+        # match words with at least one underscore between alphanum chars
+        _SNAKE_CASE_RX = re.compile(r"[\"'`]?([A-Za-z]+(?:_[A-Za-z0-9]+)+)[\"'`]?")
+    return _SNAKE_CASE_RX.sub(lambda m: m.group(1).replace("_", " "), text)

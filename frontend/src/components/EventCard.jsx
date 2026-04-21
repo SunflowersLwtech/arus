@@ -63,24 +63,34 @@ export default function EventCard() {
   const locale = useMissionStore(s => s.locale)
   const [busy, setBusy] = useState(false)
   const [pressureRemaining, setPressureRemaining] = useState(CARD_PRESSURE_SECONDS)
+  const startTimeRef = useRef(null)
   const cardIdRef = useRef(null)
 
+  // Date.now-based countdown — immune to React re-renders and setInterval drift
+  // (the previous setInterval-accumulator approach plateaued near the end).
   useEffect(() => {
     if (!card) return
     if (cardIdRef.current !== card.id) {
       cardIdRef.current = card.id
+      startTimeRef.current = Date.now()
       setPressureRemaining(CARD_PRESSURE_SECONDS)
     }
-    const tick = setInterval(() => {
-      setPressureRemaining(prev => Math.max(0, prev - 0.25))
-    }, 250)
-    return () => clearInterval(tick)
+    const compute = () => {
+      const elapsed = (Date.now() - (startTimeRef.current || Date.now())) / 1000
+      setPressureRemaining(Math.max(0, CARD_PRESSURE_SECONDS - elapsed))
+    }
+    compute()
+    const handle = setInterval(compute, 150)
+    return () => clearInterval(handle)
   }, [card?.id])
 
   if (!card) return null
 
   const pressurePct = Math.max(0, Math.min(100, (pressureRemaining / CARD_PRESSURE_SECONDS) * 100))
   const pressureColor = pressureRemaining < 10 ? '#FF4F5E' : pressureRemaining < 20 ? '#FFB84D' : '#00D4FF'
+  const displaySeconds = pressureRemaining >= 1
+    ? Math.floor(pressureRemaining)
+    : pressureRemaining.toFixed(1)
 
   const lang = locale === 'bm' ? 'bm' : 'en'
   const title = card[`title_${lang}`] || card.title_en
@@ -121,7 +131,7 @@ export default function EventCard() {
             📞 {locale === 'bm' ? 'Panggilan masuk' : 'Incoming call'} — ({card.coord?.[0]}, {card.coord?.[1]})
           </div>
           <div className="text-[10px] font-mono" style={{ color: pressureColor }}>
-            {Math.ceil(pressureRemaining)}s
+            {displaySeconds}s
           </div>
         </div>
         <div className="text-lg font-semibold text-white">{title}</div>

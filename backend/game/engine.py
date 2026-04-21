@@ -143,13 +143,13 @@ class GameEngine:
                     })
                     break
 
-        # Between-card filler: every ~12 s while no card is open, emit a
-        # passive atmospheric log entry so the NADMA Radio panel keeps
-        # moving and the map doesn't feel abandoned.
+        # Atmospheric radio chatter: every ~12 s, emit a passive log entry
+        # so the NADMA Radio panel keeps moving. We fire this whether a
+        # card is open or not — the illusion of a live situation room
+        # breaks the moment the radio goes silent.
         if (
-            self._pending_card is None
-            and tick - self._last_passive_tick >= PASSIVE_INTERVAL_TICKS
-            and tick > 20  # let the intro breathe
+            tick - self._last_passive_tick >= PASSIVE_INTERVAL_TICKS
+            and tick > 20
         ):
             line = PASSIVE_TICKS[self._passive_index % len(PASSIVE_TICKS)]
             self._passive_index += 1

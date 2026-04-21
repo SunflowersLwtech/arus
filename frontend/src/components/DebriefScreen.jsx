@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import useMissionStore from '../stores/missionStore'
 import { fetchDebrief, startGame } from '../hooks/useGameApi'
+import LanguageToggle from './LanguageToggle'
 
 export default function DebriefScreen() {
   const gameStatus = useMissionStore(s => s.gameStatus)
@@ -80,8 +81,12 @@ export default function DebriefScreen() {
           }}
         >
           <div className="p-6 border-b" style={{ borderColor: '#1E3A5F' }}>
-            <div className="text-xs uppercase tracking-widest mb-1" style={{ color: '#00D4FF' }}>
-              {copy.heading}
+            <div className="flex items-start justify-between gap-3 mb-1">
+              <div className="text-xs uppercase tracking-widest" style={{ color: '#00D4FF' }}>
+                {copy.heading}
+              </div>
+              {/* In-overlay BM/EN toggle — the nav-bar one is covered by this overlay. */}
+              <LanguageToggle />
             </div>
             <div className="text-2xl font-bold text-white mb-2">{copy.status[debrief.status] || debrief.status}</div>
             <div className="flex items-center gap-4 mt-3">
@@ -145,7 +150,7 @@ export default function DebriefScreen() {
               <div className="mt-3 text-[11px]" style={{ color: '#7A8BA3' }}>
                 {locale === 'bm' ? 'Sumber:' : 'Sources:'}{' '}
                 {real.sources.map((s, i) => (
-                  <a key={i} href={s} target="_blank" rel="noreferrer" className="underline mr-2" style={{ color: '#00D4FF' }}>
+                  <a key={i} href={s} target="_blank" rel="noopener noreferrer" className="underline mr-2" style={{ color: '#00D4FF' }}>
                     [{i + 1}]
                   </a>
                 ))}
@@ -162,7 +167,7 @@ export default function DebriefScreen() {
                   key={k}
                   href={url}
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                   className="px-3 py-2 rounded text-center"
                   style={{ background: '#1E3A5F', color: '#E6F0FA', border: '1px solid #2E5480' }}
                 >

@@ -58,11 +58,11 @@ export default function GlobalStatusBar() {
       style={{ background: '#111B2E', borderColor: '#1E3A5F' }}>
 
       {/* Left: Identity & mission status */}
-      <div className="flex items-center gap-4">
-        <span className="font-mono text-sm font-bold" style={{ color: '#00D4FF' }}>
+      <div className="flex items-center gap-4 min-w-0">
+        <span className="font-mono text-sm font-bold shrink-0" style={{ color: '#00D4FF' }}>
           ARUS
         </span>
-        <span className="font-mono text-[10px]" style={{ color: 'rgba(255,255,255,0.35)' }}>
+        <span className="font-mono text-[10px] hidden md:inline" style={{ color: 'rgba(255,255,255,0.35)' }}>
           Malaysia Flood Command · Kelantan + Johor Belt
         </span>
 
@@ -81,9 +81,9 @@ export default function GlobalStatusBar() {
       </div>
 
       {/* Right: Key metrics */}
-      <div className="flex items-center gap-1">
-        {/* Fleet */}
-        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded cursor-help"
+      <div className="flex items-center gap-1 shrink-0 overflow-x-auto">
+        {/* Fleet (hidden on phone to keep header tidy) */}
+        <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded cursor-help"
           style={{ background: 'rgba(6,214,160,0.08)' }}
           title={`Unmanned aerial vehicles online — ${activeCount} of ${fleet.length} drones active, average battery ${avgPower}%. Drones fly rescue missions when you pick a dispatch option.`}>
           <span className="text-[10px] font-mono" style={{ color: 'rgba(255,255,255,0.4)' }}>UAV</span>
@@ -95,8 +95,8 @@ export default function GlobalStatusBar() {
           </span>
         </div>
 
-        {/* Coverage */}
-        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded cursor-help"
+        {/* Coverage (hidden on phone) */}
+        <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded cursor-help"
           style={{ background: 'rgba(0,212,255,0.08)' }}
           title={`Coverage — percentage of the 20×20 flood grid scanned so far (${coverage.toFixed(1)}%). Higher coverage = fewer blind spots.`}>
           <span className="text-[10px] font-mono" style={{ color: 'rgba(255,255,255,0.4)' }}>COV</span>
@@ -105,8 +105,8 @@ export default function GlobalStatusBar() {
           </span>
         </div>
 
-        {/* Objectives */}
-        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded cursor-help"
+        {/* Objectives (hidden on phone) */}
+        <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded cursor-help"
           style={{ background: objectivesFound > 0 ? 'rgba(6,214,160,0.08)' : 'rgba(244,162,97,0.08)' }}
           title={`Objectives — victim detection markers on the map (${objectivesFound} found of ${objectivesTotal} total).`}>
           <span className="text-[10px] font-mono" style={{ color: 'rgba(255,255,255,0.4)' }}>OBJ</span>

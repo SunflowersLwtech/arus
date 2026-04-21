@@ -54,6 +54,10 @@ const useMissionStore = create((set, get) => ({
 
   applyGameSnapshot: (g) => set(state => {
     if (!g) return {}
+    // Client-authoritative: once the user is on the Start screen we
+    // ignore server snapshots entirely (avoids hijacking visitors into a
+    // previous player's session on a single-instance Cloud Run).
+    if (state.gameStatus === 'not_started') return {}
     return {
       scenario: g.scenario ?? state.scenario,
       gauges: g.gauges ?? state.gauges,
@@ -61,7 +65,8 @@ const useMissionStore = create((set, get) => ({
       gameStatusReason: g.status_reason ?? state.gameStatusReason,
       currentCard: g.current_card ?? state.currentCard,
       choiceHistory: g.history ?? state.choiceHistory,
-      locale: g.locale ?? state.locale,
+      // locale is owned by the client — never let the server's initial
+      // locale overwrite the user's BM/EN toggle.
       nextCardTick: g.next_card_tick ?? state.nextCardTick,
       currentTick: g.tick ?? state.currentTick,
     }
