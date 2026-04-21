@@ -1,0 +1,166 @@
+import { useEffect, useState } from 'react'
+import useMissionStore from '../stores/missionStore'
+import { fetchDebrief, startGame } from '../hooks/useGameApi'
+
+export default function DebriefScreen() {
+  const gameStatus = useMissionStore(s => s.gameStatus)
+  const debrief = useMissionStore(s => s.debrief)
+  const resetGame = useMissionStore(s => s.resetGame)
+  const locale = useMissionStore(s => s.locale)
+  const [loaded, setLoaded] = useState(false)
+
+  useEffect(() => {
+    if ((gameStatus === 'won' || gameStatus === 'partial' || gameStatus === 'failed') && !debrief && !loaded) {
+      setLoaded(true)
+      fetchDebrief().catch(e => console.error('debrief fetch failed', e))
+    }
+  }, [gameStatus, debrief, loaded])
+
+  if (!debrief) return null
+
+  const lang = locale === 'bm' ? 'bm' : 'en'
+  const copy = locale === 'bm' ? {
+    heading: 'Ringkasan Misi',
+    yours: 'Keputusan anda',
+    real: 'Apa yang sebenarnya berlaku',
+    next: 'Teruskan pembelajaran',
+    again: 'Main semula',
+    saved: 'Diselamatkan',
+    target: 'Sasaran',
+    trust: 'Kepercayaan',
+    assets: 'Aset tinggal',
+    grade: 'Gred',
+    status: {
+      won: 'Anda berjaya selaraskan penyelamatan di tengah kekacauan.',
+      partial: 'Anda menyelamatkan sebahagian. Banyak yang masih tidak dijawab.',
+      failed: 'Penyelarasan runtuh sebelum misi tamat.',
+    },
+  } : {
+    heading: 'Mission Debrief',
+    yours: 'Your results',
+    real: 'What actually happened',
+    next: 'Keep learning',
+    again: 'Play again',
+    saved: 'Saved',
+    target: 'Target',
+    trust: 'Trust',
+    assets: 'Assets left',
+    grade: 'Grade',
+    status: {
+      won: 'You coordinated rescue under pressure. Cleanly done.',
+      partial: 'You saved some. Many calls went unanswered.',
+      failed: 'Coordination collapsed before the session ended.',
+    },
+  }
+
+  const real = debrief.real_event || {}
+  const lessons = real.key_lessons?.[lang] || real.key_lessons?.en || []
+
+  const onRestart = async () => {
+    resetGame()
+    try {
+      await startGame('shah_alam_hard', locale)
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  return (
+    <div className="absolute inset-0 z-50 overflow-y-auto" style={{ background: 'rgba(6,13,27,0.96)' }}>
+      <div className="min-h-full flex items-start justify-center p-6">
+        <div
+          className="w-[min(720px,96vw)] my-8 rounded-xl"
+          style={{
+            background: 'linear-gradient(180deg, #112346 0%, #0B1426 100%)',
+            border: '1px solid #00D4FF40',
+          }}
+        >
+          <div className="p-6 border-b" style={{ borderColor: '#1E3A5F' }}>
+            <div className="text-xs uppercase tracking-widest mb-1" style={{ color: '#00D4FF' }}>
+              {copy.heading}
+            </div>
+            <div className="text-2xl font-bold text-white mb-2">{copy.status[debrief.status] || debrief.status}</div>
+            <div className="flex items-center gap-4 mt-3">
+              <div className="text-5xl font-bold" style={{ color: '#00D4FF' }}>{debrief.grade}</div>
+              <div className="text-xs" style={{ color: '#7A8BA3' }}>{copy.grade}</div>
+            </div>
+          </div>
+
+          {/* Your numbers */}
+          <div className="p-6 border-b" style={{ borderColor: '#1E3A5F' }}>
+            <div className="text-xs uppercase tracking-widest mb-3" style={{ color: '#00D4FF' }}>{copy.yours}</div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+              <Stat label={copy.saved} value={`${debrief.gauges.saved} / ${debrief.target_saved}`} />
+              <Stat label={copy.trust} value={`${Math.round(debrief.gauges.trust)}%`} />
+              <Stat label={copy.assets} value={`${Math.round(debrief.gauges.assets)}%`} />
+              <Stat label={copy.target} value={debrief.target_saved} />
+            </div>
+          </div>
+
+          {/* Real comparison */}
+          <div className="p-6 border-b" style={{ borderColor: '#1E3A5F' }}>
+            <div className="text-xs uppercase tracking-widest mb-2" style={{ color: '#00D4FF' }}>{copy.real}</div>
+            <div className="text-sm font-semibold text-white mb-2">{real[`name_${lang}`] || real.name_en}</div>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-xs mb-4" style={{ color: '#9EB0C8' }}>
+              {real.displaced != null && <Stat label={locale === 'bm' ? 'Dipindahkan' : 'Displaced'} value={real.displaced.toLocaleString()} />}
+              {real.deaths != null && <Stat label={locale === 'bm' ? 'Meninggal' : 'Deaths'} value={real.deaths} />}
+              {real.response_time_hours_median != null && <Stat label={locale === 'bm' ? 'Waktu respons (jam)' : 'Response time (h)'} value={real.response_time_hours_median} />}
+              {real.agencies_involved != null && <Stat label={locale === 'bm' ? 'Agensi' : 'Agencies'} value={real.agencies_involved} />}
+            </div>
+            <ul className="list-disc pl-5 text-sm space-y-1" style={{ color: '#C4D4E6' }}>
+              {lessons.map((l, i) => <li key={i}>{l}</li>)}
+            </ul>
+            {real.sources && real.sources.length > 0 && (
+              <div className="mt-3 text-[11px]" style={{ color: '#7A8BA3' }}>
+                {locale === 'bm' ? 'Sumber:' : 'Sources:'}{' '}
+                {real.sources.map((s, i) => (
+                  <a key={i} href={s} target="_blank" rel="noreferrer" className="underline mr-2" style={{ color: '#00D4FF' }}>
+                    [{i + 1}]
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Extension links */}
+          <div className="p-6 border-b" style={{ borderColor: '#1E3A5F' }}>
+            <div className="text-xs uppercase tracking-widest mb-3" style={{ color: '#00D4FF' }}>{copy.next}</div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm">
+              {Object.entries(debrief.extension_links || {}).map(([k, url]) => (
+                <a
+                  key={k}
+                  href={url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="px-3 py-2 rounded text-center"
+                  style={{ background: '#1E3A5F', color: '#E6F0FA', border: '1px solid #2E5480' }}
+                >
+                  {k.replace(/_/g, ' ')}
+                </a>
+              ))}
+            </div>
+          </div>
+
+          <div className="p-6">
+            <button
+              onClick={onRestart}
+              className="w-full px-6 py-3 rounded-md font-semibold"
+              style={{ background: '#00D4FF', color: '#0B1426' }}
+            >
+              {copy.again}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function Stat({ label, value }) {
+  return (
+    <div>
+      <div className="text-[10px] uppercase tracking-wider" style={{ color: '#7A8BA3' }}>{label}</div>
+      <div className="text-base font-semibold text-white">{value}</div>
+    </div>
+  )
+}

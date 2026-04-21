@@ -1,14 +1,13 @@
 /**
  * Module-level WebSocket singleton — immune to React StrictMode.
  *
- * The connection lives at module scope, completely outside React lifecycle.
- * Components call useWebSocket() to get sendCommand; the hook only
- * subscribes/unsubscribes (cheap & idempotent), never owns the socket.
+ * Handles inbound state_update / game_card / player_command_result / game_over
+ * messages from the backend simulation loop. Game commands themselves go
+ * via REST (see hooks/useGameApi.js), not WS.
  */
 import { useEffect } from 'react'
 import useMissionStore from '../stores/missionStore'
 
-// Auto-detect ws:// vs wss:// based on page protocol (HTTPS on Render)
 const WS_PROTO = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
 const WS_URL = `${WS_PROTO}//${window.location.host}/ws/live`
 const MAX_ATTEMPTS = 10
@@ -21,12 +20,16 @@ function handleMessage(event) {
   try {
     const msg = JSON.parse(event.data)
     const store = useMissionStore.getState()
+
     if (msg.type === 'state_update' || msg.type === 'initial_state') {
       store.updateState(msg.payload)
-    } else if (msg.type === 'agent_log') {
-      store.addLog(msg.payload)
-    } else if (msg.type === 'agent_status') {
-      store.setAgentStatus(msg.payload.status, msg.payload.cycle)
+      if (msg.game !== undefined) store.applyGameSnapshot(msg.game)
+    } else if (msg.type === 'game_card') {
+      store.presentCard(msg.payload)
+    } else if (msg.type === 'player_command_result') {
+      if (msg.payload?.ok) store.applyChoiceResult(msg.payload)
+    } else if (msg.type === 'game_over') {
+      store.setGameOver(msg.payload)
     }
   } catch (e) {
     console.error('[WS] Parse error:', e)
@@ -62,32 +65,15 @@ function connect() {
   }
 }
 
-/** Send a command via WebSocket. Returns true if sent. */
-export function sendCommand(type, payload) {
-  if (ws?.readyState === WebSocket.OPEN) {
-    ws.send(JSON.stringify({ type, payload }))
-    return true
-  }
-  return false
-}
-
-// Defer first connection to avoid racing with Vite proxy startup
 setTimeout(connect, 100)
 
-/**
- * React hook — ensures reconnection if module was loaded before
- * the backend was ready. Components use this for sendCommand access.
- */
 export default function useWebSocket() {
   useEffect(() => {
-    // If not connected, kick off a reconnect
     if (!ws || ws.readyState === WebSocket.CLOSED) {
       attempt = 0
       clearTimeout(timer)
       connect()
     }
-    // No cleanup needed — singleton lives for page lifetime
   }, [])
-
-  return { sendCommand }
+  return {}
 }

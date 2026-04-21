@@ -22,8 +22,6 @@ export default function GlobalStatusBar() {
   const objectivesFound = useMissionStore(s => s.objectivesFound)
   const objectivesTotal = useMissionStore(s => s.objectivesTotal)
   const connected = useMissionStore(s => s.connected)
-  const agentStatus = useMissionStore(s => s.agentStatus)
-  const agentCycle = useMissionStore(s => s.agentCycle)
 
   // MetMalaysia live-feed indicator (polls every 5 min, same TTL as backend cache)
   const [metCount, setMetCount] = useState(null)
@@ -126,17 +124,6 @@ export default function GlobalStatusBar() {
             <span className="font-mono text-[10px] font-semibold"
               style={{ color: metCount > 0 ? '#E63946' : '#06D6A0', letterSpacing: 1.5 }}>
               METMY {metCount > 0 ? `LIVE ×${metCount}` : 'CLEAR'}
-            </span>
-          </div>
-        )}
-
-        {/* AI status */}
-        {agentStatus === 'thinking' && (
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded"
-            style={{ background: 'rgba(77,168,218,0.12)' }}>
-            <span className="inline-block w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-            <span className="font-mono text-[10px] font-semibold" style={{ color: '#4DA8DA' }}>
-              AI #{agentCycle}
             </span>
           </div>
         )}

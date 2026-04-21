@@ -1,0 +1,52 @@
+{
+  "shah_alam_2021": {
+    "name_en": "Shah Alam / Taman Sri Muda, December 2021",
+    "name_bm": "Shah Alam / Taman Sri Muda, Disember 2021",
+    "displaced": 40000,
+    "deaths": 54,
+    "agencies_involved": 4,
+    "response_time_hours_median": 16,
+    "helicopters_deployed": 31,
+    "lawsuit": {"claimants": 1500, "amount_myr": 3700000, "target": "Selangor state + utility"},
+    "sources": [
+      "https://www.mdpi.com/2073-4441/17/4/513",
+      "https://en.wikipedia.org/wiki/2021-2022_Malaysian_floods",
+      "https://thediplomat.com/2021/12/frustration-grows-in-malaysia-over-governments-slow-flood-response/"
+    ],
+    "key_lessons": {
+      "en": [
+        "Public awareness and inter-agency coordination were named as systemic gaps in the MDPI 2025 post-mortem.",
+        "Residents waited 16+ hours on roofs before rescue because no single agency had end-to-end visibility.",
+        "Four rescue agencies (BOMBA, NADMA, APM, MMEA) each ran parallel WhatsApp groups; handoffs failed."
+      ],
+      "bm": [
+        "Kesedaran awam dan penyelarasan antara agensi dikenal pasti sebagai jurang sistemik dalam post-mortem MDPI 2025.",
+        "Penduduk menunggu lebih 16 jam di atas bumbung sebelum diselamatkan kerana tiada agensi mempunyai visibiliti hujung-ke-hujung.",
+        "Empat agensi penyelamat menjalankan kumpulan WhatsApp selari; pertukaran maklumat gagal."
+      ]
+    }
+  },
+  "kelantan_2024": {
+    "name_en": "Kelantan northeast monsoon, December 2024",
+    "name_bm": "Monsun timur laut Kelantan, Disember 2024",
+    "displaced": 148024,
+    "deaths": 30,
+    "agencies_involved": 4,
+    "relief_centres": 633,
+    "personnel": 83000,
+    "sources": [
+      "https://reliefweb.int/disaster/fl-2024-000218-mys",
+      "https://ahacentre.org/flash-update/flash-update-no-01-flooding-in-malaysia-and-southern-thailand-28-november-2024/"
+    ],
+    "key_lessons": {
+      "en": [
+        "Worst floods since 2014 (per Deputy PM Ahmad Zahid).",
+        "100+ Orang Asli families were cut off in Johor — helicopter food drops only for 4 days."
+      ],
+      "bm": [
+        "Banjir paling teruk sejak 2014 (menurut TPM Ahmad Zahid).",
+        "Lebih 100 keluarga Orang Asli terputus hubungan di Johor — hanya jatuhan makanan helikopter selama 4 hari."
+      ]
+    }
+  }
+}

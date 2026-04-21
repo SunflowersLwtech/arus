@@ -1,0 +1,253 @@
+# Event-card deck for Arus Banjir Drill.
+# Each card pops at its trigger_tick. Simulation runs at ~5 Hz (200 ms/tick),
+# so tick 150 ≈ 30 seconds of wall time.
+#
+# Delta conventions (applied to Gauges in backend/game/score.py):
+#   saved   — integer, lives rescued (added)
+#   assets  — percentage points (can be negative)
+#   trust   — percentage points (can be negative)
+# map_action is advisory only; GameEngine uses it to trigger a drone mission
+# on the existing GridWorld so the 3D scene reflects the player's choice.
+
+scenarios:
+  shah_alam_hard:
+    name_bm: "Banjir Lembah Klang 2021 — Mod Sukar"
+    name_en: "Klang Valley Floods 2021 — Hard Mode"
+    real_event_key: shah_alam_2021
+    target_saved: 14
+    duration_seconds: 420    # 7-minute play session
+    intro_hook_bm: "Paras sungai Klang melepasi paras bahaya. Anda ialah pegawai penyelaras NADMA malam ini."
+    intro_hook_en: "The Klang River just crossed danger level. You are NADMA's coordinating officer tonight."
+    cards:
+      - c01_sri_muda
+      - c02_kg_tengah_rooftop
+      - c03_bernas_warehouse
+      - c04_media_call
+      - c05_bomba_fatigue
+      - c06_orang_asli_cutoff
+      - c07_power_grid
+      - c08_final_surge
+
+cards:
+
+  c01_sri_muda:
+    trigger_tick: 30
+    coord: [6, 8]
+    title_bm: "Panggilan: Taman Sri Muda"
+    title_en: "Incoming: Taman Sri Muda"
+    body_bm: "Air sudah sampai paras dada. 60+ penduduk di atas bumbung. 3 orang tua tidak boleh memanjat."
+    body_en: "Water at chest level. 60+ residents on rooftops. 3 elderly cannot climb up."
+    options:
+      - id: send_bomba_now
+        label_bm: "Hantar BOMBA segera (ETA 25 min)"
+        label_en: "Deploy BOMBA immediately (ETA 25 min)"
+        deltas: {saved: 8, assets: -22, trust: 8}
+        flavor_bm: "Pasukan penyelamat mara dengan bot penyelamat. Sri Muda mendapat keutamaan pertama."
+        flavor_en: "Swift-water team mobilising. Sri Muda takes first priority."
+        map_action: dispatch_rescue
+      - id: ask_mmea_boats
+        label_bm: "Minta bantuan bot MMEA (ETA 15 min tapi bukan bidang mereka)"
+        label_en: "Request MMEA boats (ETA 15 min, off their remit)"
+        deltas: {saved: 8, assets: -15, trust: -12}
+        flavor_bm: "MMEA datang, tetapi Ketua Pengarah mereka mempertikai protokol — isu politik bermula."
+        flavor_en: "MMEA responds, but their DG contests the tasking — political friction starts."
+        map_action: dispatch_rescue
+      - id: log_only
+        label_bm: "Rekod sahaja — tiada aset tersedia"
+        label_en: "Log only — no asset available"
+        deltas: {saved: 0, assets: 0, trust: -20}
+        flavor_bm: "Sri Muda menunggu 16 jam di atas bumbung. Ini fakta 2021 yang sebenar."
+        flavor_en: "Sri Muda waits 16 hours on rooftops. This is the actual 2021 outcome."
+
+  c02_kg_tengah_rooftop:
+    trigger_tick: 90
+    coord: [9, 5]
+    title_bm: "Bumbung roboh: Kg. Tengah"
+    title_en: "Rooftop collapse: Kg. Tengah"
+    body_bm: "Bumbung menunjukkan tanda-tanda runtuh. 2 kanak-kanak, 1 dewasa. Jarak dari pangkalan: 4 km."
+    body_en: "Rooftop showing collapse signs. 2 children, 1 adult. 4 km from base."
+    options:
+      - id: helicopter
+        label_bm: "Hantar helikopter APM (cepat tapi bahaya malam)"
+        label_en: "Send APM helicopter (fast but risky at night)"
+        deltas: {saved: 3, assets: -30, trust: 5}
+        flavor_bm: "Helikopter tiba tepat masa. Penyelamatan berjaya — tetapi bahan api hampir habis."
+        flavor_en: "Helicopter arrives in time. Successful rescue — but fuel nearly gone."
+        map_action: dispatch_rescue
+      - id: boat_relay
+        label_bm: "Relay bot melalui 2 pasukan (ETA 18 min)"
+        label_en: "Boat relay via 2 teams (ETA 18 min)"
+        deltas: {saved: 3, assets: -18, trust: 10}
+        flavor_bm: "Penyelarasan lancar. Bumbung bertahan."
+        flavor_en: "Clean coordination. Rooftop holds."
+        map_action: dispatch_rescue
+      - id: wait_daylight
+        label_bm: "Tunggu subuh (keselamatan pasukan)"
+        label_en: "Wait for daylight (team safety)"
+        deltas: {saved: 1, assets: 0, trust: -15}
+        flavor_bm: "Satu kanak-kanak terselamat. Dua lagi tidak."
+        flavor_en: "One child survives. Two do not."
+
+  c03_bernas_warehouse:
+    trigger_tick: 140
+    coord: [12, 10]
+    title_bm: "Gudang BERNAS: 2000 tan beras"
+    title_en: "BERNAS warehouse: 2000 t of rice"
+    body_bm: "KPN meminta aset untuk menyelamatkan stok beras strategik negara. Anda ada aset terhad."
+    body_en: "Chief Secretary asks for assets to save the national strategic rice stockpile. Assets are tight."
+    options:
+      - id: save_rice
+        label_bm: "Alihkan 1 pasukan ke gudang beras"
+        label_en: "Redirect 1 team to rice warehouse"
+        deltas: {saved: 0, assets: -10, trust: 5}
+        flavor_bm: "Stok selamat. Keutamaan politik diutamakan — penduduk menunggu."
+        flavor_en: "Stock saved. Political ask prioritised — residents wait."
+      - id: refuse
+        label_bm: "Menolak — nyawa dahulu"
+        label_en: "Refuse — lives first"
+        deltas: {saved: 2, assets: 0, trust: -8}
+        flavor_bm: "Anda menentang KPN secara terbuka. Kerugian politik, tapi 2 keluarga diselamatkan."
+        flavor_en: "You override the Chief Secretary. Political blowback, 2 families saved."
+      - id: delegate_bernas
+        label_bm: "Serahkan kepada pasukan keselamatan peribadi BERNAS"
+        label_en: "Hand off to BERNAS's private security"
+        deltas: {saved: 2, assets: -2, trust: 3}
+        flavor_bm: "Penyelesaian bersifat politikal. Semua pihak menang sedikit."
+        flavor_en: "Diplomatic fix. Everyone wins a little."
+
+  c04_media_call:
+    trigger_tick: 190
+    coord: [0, 0]
+    title_bm: "Astro Awani: temu ramah langsung"
+    title_en: "Astro Awani: live interview request"
+    body_bm: "Siaran langsung, 3 minit. Mesej awam kini akan membentuk naratif 48 jam akan datang."
+    body_en: "Live broadcast, 3 minutes. Your public message now shapes the next 48 hours of narrative."
+    options:
+      - id: transparent
+        label_bm: "Jawab secara jujur — akui kelemahan"
+        label_en: "Answer honestly — acknowledge shortfalls"
+        deltas: {saved: 0, assets: 0, trust: 15}
+        flavor_bm: "Media menghargai kejujuran. Kepercayaan antara agensi meningkat."
+        flavor_en: "Media respects the candour. Inter-agency trust rises."
+      - id: deflect
+        label_bm: "Rangka positif — 'Kami di bawah kawalan'"
+        label_en: "Positive frame — 'We have it under control'"
+        deltas: {saved: 0, assets: 0, trust: -10}
+        flavor_bm: "Twitter tidak percaya. Kepercayaan awam menurun."
+        flavor_en: "Twitter doesn't buy it. Public trust erodes."
+      - id: skip_interview
+        label_bm: "Tolak — fokus operasi"
+        label_en: "Decline — stay on ops"
+        deltas: {saved: 1, assets: 0, trust: -5}
+        flavor_bm: "Anda menyelamatkan seorang lagi — tetapi kekosongan maklumat menjadi teori konspirasi."
+        flavor_en: "You save one more life — but the info vacuum becomes conspiracy theory."
+
+  c05_bomba_fatigue:
+    trigger_tick: 240
+    coord: [5, 5]
+    title_bm: "Pasukan BOMBA: 14 jam bertugas tanpa rehat"
+    title_en: "BOMBA team: 14 hours on duty, no rest"
+    body_bm: "Ketua pasukan memohon giliran. Tiada pasukan gantian yang sedia."
+    body_en: "Team lead requests rotation. No standby team available."
+    options:
+      - id: rotate
+        label_bm: "Benarkan rehat — hentikan operasi 30 min"
+        label_en: "Allow rest — pause ops for 30 min"
+        deltas: {saved: -1, assets: 5, trust: 10}
+        flavor_bm: "Satu panggilan terlepas dalam tempoh ini, tetapi moral pasukan dipulihkan."
+        flavor_en: "One call missed during break, but team morale restored."
+      - id: push_through
+        label_bm: "Teruskan — 'kita tak boleh berhenti sekarang'"
+        label_en: "Push through — 'we can't stop now'"
+        deltas: {saved: 2, assets: -10, trust: -15}
+        flavor_bm: "2 nyawa diselamatkan, tetapi seorang anggota tercedera kerana keletihan."
+        flavor_en: "2 lives saved, but one responder injured from exhaustion."
+      - id: call_reinforcement
+        label_bm: "Panggil sukarelawan JKKK kampung (belum dilatih)"
+        label_en: "Call untrained kampung JKKK volunteers"
+        deltas: {saved: 1, assets: 0, trust: -5}
+        flavor_bm: "Sukarelawan membantu, tetapi kawalan hilang ke atas lokasi."
+        flavor_en: "Volunteers help, but you lose site control."
+
+  c06_orang_asli_cutoff:
+    trigger_tick: 290
+    coord: [15, 15]
+    title_bm: "Orang Asli terputus hubungan: Kg. Pos Bihai"
+    title_en: "Orang Asli cut off: Kg. Pos Bihai"
+    body_bm: "40 keluarga, tiada telefon sejak 18 jam. Akses jalan raya tertutup."
+    body_en: "40 families, no phone contact in 18 hours. Road access blocked."
+    options:
+      - id: air_drop
+        label_bm: "Jatuhan udara — makanan + radio (tidak dapat dilihat kesannya)"
+        label_en: "Air drop — food + radio (can't see impact)"
+        deltas: {saved: 5, assets: -20, trust: 5}
+        flavor_bm: "Komuniti bertahan. Radio mengaktifkan semula komunikasi."
+        flavor_en: "Community holds. Radio restores comms."
+      - id: ground_clear
+        label_bm: "Kerahkan jentera berat buka jalan (12 jam)"
+        label_en: "Deploy heavy equipment to clear road (12 hours)"
+        deltas: {saved: 3, assets: -25, trust: 8}
+        flavor_bm: "Laluan darat dibuka sebelum fajar. Bantuan berterusan boleh masuk."
+        flavor_en: "Road opens before dawn. Sustained aid can flow."
+      - id: wait_tomorrow
+        label_bm: "Tunda ke esok — kapasiti terhad"
+        label_en: "Defer to tomorrow — capacity limited"
+        deltas: {saved: 0, assets: 0, trust: -25}
+        flavor_bm: "Realiti 2024: 100+ keluarga Orang Asli menunggu 4 hari di Johor. Kepercayaan runtuh."
+        flavor_en: "2024 reality: 100+ Orang Asli families waited 4 days in Johor. Trust collapses."
+
+  c07_power_grid:
+    trigger_tick: 340
+    coord: [10, 2]
+    title_bm: "Grid kuasa TNB gagal — Hospital Klang"
+    title_en: "TNB power grid down — Klang Hospital"
+    body_bm: "Hospital bertukar ke kuasa diesel. Bahan api cukup untuk 6 jam."
+    body_en: "Hospital switched to diesel. Fuel lasts 6 hours."
+    options:
+      - id: escort_fuel
+        label_bm: "Iring lori tangki TNB melalui air banjir"
+        label_en: "Escort TNB tanker through floodwater"
+        deltas: {saved: 3, assets: -12, trust: 10}
+        flavor_bm: "Tangki tiba. Hospital kekal beroperasi."
+        flavor_en: "Tanker delivered. Hospital stays online."
+      - id: evacuate_patients
+        label_bm: "Mula pemindahan pesakit kritikal"
+        label_en: "Begin critical patient evacuation"
+        deltas: {saved: 2, assets: -20, trust: 0}
+        flavor_bm: "Pemindahan lambat. 3 ventilator kehabisan bateri."
+        flavor_en: "Evacuation is slow. 3 ventilators lose battery."
+      - id: coordinate_tnb
+        label_bm: "Serahkan kepada TNB — ini isu mereka"
+        label_en: "Hand off to TNB — this is their problem"
+        deltas: {saved: 0, assets: 2, trust: -10}
+        flavor_bm: "TNB tidak sampai tepat pada masanya. Seorang pesakit meninggal dunia."
+        flavor_en: "TNB doesn't reach in time. One patient dies."
+
+  c08_final_surge:
+    trigger_tick: 380
+    coord: [11, 11]
+    title_bm: "Gelombang akhir: paras air naik 1.2m dalam 20 minit"
+    title_en: "Final surge: water rises 1.2 m in 20 minutes"
+    body_bm: "Semua zon dibanjiri semula. Anda hanya ada masa untuk SATU arahan penyelamatan terakhir."
+    body_en: "All zones re-flooded. Time for ONE final rescue command."
+    options:
+      - id: save_school
+        label_bm: "Sekolah rendah — 80 kanak-kanak"
+        label_en: "Primary school — 80 children"
+        deltas: {saved: 6, assets: -30, trust: 10}
+        flavor_bm: "Pilihan yang berisiko dan berharga. Kanak-kanak selamat."
+        flavor_en: "High-risk, high-value call. The kids make it."
+        map_action: dispatch_rescue
+      - id: save_wardsick
+        label_bm: "Rumah pesakit yang tidak dapat bergerak — 15 orang"
+        label_en: "Home-bound critically-ill — 15 people"
+        deltas: {saved: 4, assets: -25, trust: 8}
+        flavor_bm: "Penyelamatan klinikal dan tenang. Hampir semua terselamat."
+        flavor_en: "Clinical, quiet rescue. Most survive."
+        map_action: dispatch_rescue
+      - id: evacuate_team
+        label_bm: "Tarik balik pasukan — mereka juga berisiko"
+        label_en: "Recall team — they're at risk too"
+        deltas: {saved: 0, assets: 10, trust: -5}
+        flavor_bm: "Anda menyelamatkan 4 anggota penyelamat. Tiada orang awam diselamatkan pada pusingan akhir ini."
+        flavor_en: "You save 4 responders' lives. No civilians rescued this final round."
