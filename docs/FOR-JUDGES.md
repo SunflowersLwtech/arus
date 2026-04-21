@@ -4,23 +4,53 @@ One-page guide to evaluating Arus without reading source code.
 
 ## What it is
 
-**A 7-minute Malaysian flood-coordination simulator** you play in a
-browser. Citizens play NADMA liaison officer Datuk Nadia during the
-December 2021 Klang Valley floods. Eight incoming calls, three response
-options each, four gauges (lives saved · assets · trust · time). Gemini
-2.5 Flash narrates the intro and a personalised debrief in Bahasa
-Malaysia + English.
+**A three-mode Malaysian flood-coordination simulator** on one
+GridWorld engine:
+
+- **PLAY** — you are Datuk Nadia, NADMA liaison officer, 7-minute card
+  game (8 incoming calls, 3 options each, 4 gauges).
+- **COACH** — same game plus a 2-stage Google ADK mentor that streams
+  its reasoning on every card, queries fleet state via 9 MCP tools, and
+  paints a ghost drone on the 3D map over the suggested target.
+- **AUTO** — the classic v1 5-stage ADK pipeline dispatches drones
+  autonomously via MCP. No cards, no player input. Pure agentic demo.
+
+Bilingual BM/EN throughout — narrator intro, COACH reasoning, AUTO
+BM/EN Agency Brief stage, debrief commentary.
 
 **Track**: 2 — Citizens First (GovTech).
 
-## Try it in 90 seconds
+## Try all 3 modes in ~2 minutes
 
-1. On any phone: open [`https://arus-1030181742799.asia-southeast1.run.app`](https://arus-1030181742799.asia-southeast1.run.app).
-2. Toggle **BM/EN** top-right if you want Bahasa Malaysia.
-3. Tap **Start drill**.
-4. Read Datuk Nadia's briefing (Gemini-authored).
-5. Wait ~10 seconds → first card appears. Pick an option. Watch gauges move.
-6. Field 7 more cards across 7 minutes. Read the debrief.
+Open [`https://arus-1030181742799.asia-southeast1.run.app`](https://arus-1030181742799.asia-southeast1.run.app) on any phone.
+
+### COACH — recommended first (~60 s)
+1. Pick **Coach** on the Start screen. Toggle BM if you prefer Bahasa.
+2. Tap **Start drill**. Wait ~10 s for the first card.
+3. Watch the right panel fill with:
+   - an MCP tool call (`get_situation_overview`)
+   - streaming reasoning from the Assessor stage
+   - the Recommender's structured JSON output
+4. Look at the map: a yellow **ghost drone** appears at the suggested
+   coordinate with a dashed path from the recommended drone.
+5. The suggested option on the card glows yellow with "🤖 AI suggests".
+   Accept or pick a different one. Your gauges move. Continue.
+
+### AUTO — watch the full pipeline (~60 s)
+1. Hit Play Again / refresh, pick **Watch AI**, tap Start.
+2. Right panel shows the 5-stage progress bar. Every ~40 s, the stages
+   light up in sequence (Assess → Strategise → Dispatch → Analyse →
+   BM/EN Brief). Drones fly autonomously on the map.
+
+### PLAY — the control condition (~60 s)
+1. Play Again → **Play** → Start. No hints, no ghosts.
+2. Manually dispatch idle drones between cards: click a drone in the
+   left sidebar, click a map cell. Each confirmed victim = +1 life
+   (cap +5). Map is a real second scoring axis.
+
+End-of-game debrief compares your numbers to the real 2021 Klang
+Valley flood statistics (MDPI 2025 post-mortem) and links to Portal
+Bencana / Public InfoBanjir / MetMalaysia for real-world follow-up.
 
 ## Interactive API explorer (optional)
 

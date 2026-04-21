@@ -5,10 +5,13 @@
 ### _arus_ (Bahasa Malaysia, n.) — the current of a river; the flow of people, information, and intent.
 
 **When the monsoon drowned Taman Sri Muda in 2021, residents waited 16 hours on rooftops.**
-**Arus is a 7-minute simulator that lets a Malaysian citizen feel exactly why.**
+**Arus is a 7-minute three-mode simulator that lets a Malaysian citizen *feel* why —**
+**and watch an AI expert think through the same tradeoffs in real time.**
 
 [![Google Antigravity](https://img.shields.io/badge/Built_in_Antigravity-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://antigravity.google.com)
 [![Gemini 2.5 Flash](https://img.shields.io/badge/Gemini_2.5_Flash-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white)](https://ai.google.dev/)
+[![Google ADK](https://img.shields.io/badge/Google_ADK-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://google.github.io/adk-docs/)
+[![MCP](https://img.shields.io/badge/MCP_Protocol-00D4FF?style=for-the-badge)](https://modelcontextprotocol.io/)
 [![Cloud Run](https://img.shields.io/badge/Cloud_Run-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white)](https://cloud.google.com/run)
 [![MetMalaysia](https://img.shields.io/badge/data.gov.my-LIVE_FEED-E63946?style=for-the-badge)](https://api.data.gov.my/weather/warning)
 
@@ -23,10 +26,23 @@
 ## What this is
 
 **Arus — Banjir Drill** is a browser-playable Malaysian flood-coordination
-simulator. You are Datuk Nadia, NADMA liaison officer on the night of the
-December 2021 Klang Valley floods. Over 7 minutes you field 8 incoming
-calls from BOMBA / APM / MMEA / media / utilities and pick between 2-3
-response options each. Four gauges move under your decisions:
+simulator with **three interactive learning modes**:
+
+- **PLAY** — you are Datuk Nadia, NADMA liaison officer on the night of
+  the December 2021 Klang Valley floods. Over 7 minutes you field 8
+  incoming calls from BOMBA / APM / MMEA / media / utilities and pick
+  between 2-3 response options each.
+- **COACH** — same game, with an AI mentor. When a call comes in, a
+  2-stage Google ADK agent (Assess → Recommend) streams its reasoning
+  live to the right panel, queries the fleet state via 9 MCP tools, and
+  paints a **ghost drone** on the map showing the target it would pick.
+  Follow or override. The AI speaks BM + EN.
+- **AUTO** — the full v1 5-stage ADK pipeline dispatches drones
+  autonomously via MCP every 40 seconds. Watch the AI work the problem
+  end-to-end across Assessor → Strategist → Dispatcher → Analyst →
+  bilingual Agency Dispatcher. No player cards — pure technical demo.
+
+Four gauges move under your decisions:
 
 - **Lives saved** — 0 to target (Hard mode: 14 of 14)
 - **Assets** — % of deployable resources left
@@ -57,57 +73,87 @@ SEADPRI already deploy paper Disaster Risk Reduction modules in
 primary schools; Arus is the digital-native counterpart those modules
 need.
 
-## Architecture
+## Architecture (v3 — three modes over one simulation engine)
 
 ```
-┌───────────────────────────────────────────────────────────────────┐
-│  Frontend (React 18 + R3F + Zustand, mobile-friendly)             │
-│   Start screen → game loop → debrief. BM/EN toggle live.          │
-│   Event cards overlay the 3D tactical map. 4 gauges always-on.    │
-└─────────────────────────────┬─────────────────────────────────────┘
-                              │ WebSocket (state 5 Hz) + REST
-┌─────────────────────────────▼─────────────────────────────────────┐
-│  FastAPI Gateway (Cloud Run, asia-southeast1)                     │
-│   /api/game/{start,choose,state,debrief,scenarios}                │
-│   /api/live/warnings (MetMalaysia real feed) · /api/vision/analyse│
-│   /api/locality/{x}/{y}  (grid → kampung)                         │
-└────────┬───────────────────────────────────┬──────────────────────┘
-         │                                   │
-┌────────▼────────────────────┐   ┌──────────▼─────────────────────┐
-│  Game Engine (deterministic)│   │  Gemini Narrator (off-loop)    │
-│   - Gauges, event queue     │   │   - NADMA intro (per scenario) │
-│   - 8-card scenario YAML    │   │   - Personalised debrief        │
-│   - Score + grade           │   │   - Cache, fallback, retry      │
-└────────┬────────────────────┘   └────────────────────────────────┘
-         │
-┌────────▼──────────────────────────────────────────────────────────┐
-│  GridWorld simulation (20×20, Malaysian kampung mapping)          │
-│   - Floods, obstacles, autonomous drone path execution            │
-│   - Real kampung names in Kelantan / Pahang / Johor flood belt    │
-└───────────────────────────────────────────────────────────────────┘
+┌─────────────────────── Frontend (React 18 + R3F) ────────────────────────┐
+│  StartScreen (mode: PLAY | COACH | AUTO)                                 │
+│  ┌──────────────┐ ┌────────────────────────┐ ┌──────────────────────┐   │
+│  │ AgencyPanel  │ │ 3D TacticalMap         │ │ RightPanel (mode-dep)│   │
+│  │ click-to-    │ │ • agency-coloured drones│ │ • NarratorPanel (PLAY)│  │
+│  │ dispatch     │ │ • GhostDrones (COACH)  │ │ • CoachConsole (COACH)│  │
+│  │              │ │ • busy-status rings    │ │   └ streams live CoT │   │
+│  └──────────────┘ └────────────────────────┘ │ • AutoWatcher (AUTO) │   │
+│                                               │   └ 5-stage progress │   │
+└─────────────────────────────┬─────────────────────────────────────────────┘
+                              │ WebSocket /ws/live + REST /api/game/*
+┌─────────────────────────────▼─────────────────────────────────────────────┐
+│  FastAPI Gateway (Cloud Run asia-southeast1, port 8000)                   │
+│  ┌──────────────────┐ ┌─────────────────────┐ ┌──────────────────────┐   │
+│  │ GameEngine       │ │ CoachAgent (ADK)    │ │ AutoRunner (ADK)     │   │
+│  │ • cards, gauges  │ │ 2-stage: Assess →   │ │ 5-stage: Assess →    │   │
+│  │ • scout bonus    │ │   Recommend         │ │   Strategise →       │   │
+│  │ • dispatch       │ │ BM/EN JSON output   │ │   Dispatch →         │   │
+│  │   degradation    │ │ streams CoT         │ │   Analyse → BM/EN    │   │
+│  │ PLAY + COACH     │ │ COACH               │ │ AUTO                 │   │
+│  └────────┬─────────┘ └──────────┬──────────┘ └──────────┬───────────┘   │
+│           │                      │                       │                │
+│           └──────────────────────┴───────────────────────┘                │
+│                                  │                                         │
+│  ┌───────────────────────────────▼────────────────────────────────────┐  │
+│  │  MCP Tool Server (port 8001, same process)                         │  │
+│  │   9 tools: discover_fleet · get_drone_status · assign_search_mission│  │
+│  │   · assign_scan_mission · recall_drone · get_situation_overview    │  │
+│  │   · get_frontier_targets · plan_route · list_detections            │  │
+│  │   Dynamic tool discovery via `tools/list_changed` — no hard-coded   │  │
+│  │   drone IDs; agents adapt when fleet changes at runtime.           │  │
+│  └──────────────────────────────┬──────────────────────────────────────┘  │
+│                                 │                                          │
+│  ┌──────────────────────────────▼──────────────────────────────────────┐  │
+│  │  GridWorld (20×20, Malaysian kampung mapping, A* + power budgets)  │  │
+│  └─────────────────────────────────────────────────────────────────────┘  │
+└────────────────────────────────────────────────────────────────────────────┘
 ```
 
-**Why Gemini is off-loop**: LLMs in a 200 ms game tick are a 2024
-mistake. Arus runs a fully deterministic game engine (zero latency,
-predictable) and uses Gemini 2.5 Flash only at session boundaries —
-intro narration + end-of-game commentary. The [CESCG 2025 LIGS paper
-on LLM-infused game systems](https://cescg.org/wp-content/uploads/2025/04/A-Quest-for-Information-Enhancing-Game-Based-Learning-with-LLM-Driven-NPCs-2.pdf)
-frames this as the 2026 pattern.
+**Why keep the engine deterministic and the agents off-loop**: LLMs in
+a 200 ms game tick are a 2024 mistake. In PLAY mode, Arus runs a fully
+deterministic game engine with zero latency. Gemini 2.5 Flash writes the
+intro and the end-of-game debrief, both off the critical path. In COACH
+mode, the 2-stage ADK agent fires once per card (not every tick), so
+the player experiences a pause-to-think pattern, not a stutter. In AUTO
+mode, the 5-stage pipeline runs at ~40 s cadence by design. The
+[CESCG 2025 LIGS paper](https://cescg.org/wp-content/uploads/2025/04/A-Quest-for-Information-Enhancing-Game-Based-Learning-with-LLM-Driven-NPCs-2.pdf)
+argues this as the 2026 pattern for LLM-infused games.
+
+**Why MCP matters**: both the COACH agent and the AUTO commander
+discover fleet tools at runtime via MCP's `tools/list_changed` signal —
+no hard-coded drone IDs. Add a drone mid-mission and both agents adapt
+the next cycle. This is a wire-protocol moat that most hackathon
+submissions won't have.
 
 ## 30-second evaluation
 
-Judges — **open the live URL on any phone and play it**. That's the
+Judges — **open the live URL on any phone** and pick a mode. That's the
 evaluation.
 
 ```
 https://arus-1030181742799.asia-southeast1.run.app
 ```
 
-1. Tap **Start drill**. Toggle BM / EN in the top-right at any time.
-2. Wait ~10 seconds for the first "Incoming call" card.
-3. Pick an option. Your 4 gauges move. The 3D map animates a rescue.
-4. Field 7 more cards over 7 minutes.
-5. Read the debrief: your numbers + Gemini-authored NADMA commentary
+1. On the Start screen, pick **Play · Coach · or Watch AI** (top row).
+   Toggle BM / EN at any time.
+2. Tap **Start drill**. Wait ~10 s for the first "Incoming call".
+3. **COACH mode only**: watch the right panel fill with the AI's
+   streaming reasoning + an MCP `get_situation_overview` tool call,
+   then see a yellow ghost drone appear on the map over the suggested
+   coordinate and the "🤖 AI suggests" badge light up on an option.
+4. **AUTO mode only**: no cards fire. Watch the 5-stage progress bar
+   cycle every ~40 s as the commander pipeline assesses, strategises,
+   dispatches (via MCP), analyses, and emits a bilingual hand-off.
+5. **PLAY / COACH**: field 7 more cards over 7 minutes. Manually
+   dispatch idle drones between cards to scout hotspots — each
+   confirmed victim gives +1 life (cap +5).
+6. Read the debrief: your numbers + Gemini-authored NADMA commentary
    + the real 2021 Klang Valley flood facts that shaped the scenario.
 
 ## Design spine (research-backed)
@@ -176,11 +222,14 @@ _(as required by the hackathon rules — disclosed in full.)_
 
 | Tool | Where | Why |
 |---|---|---|
-| **Google Antigravity** | Primary IDE for the entire hackathon window (2026-03-15 → 2026-04-21, extended to 2026-04-24) | Mandated by rule |
-| **Google AI Studio** | Prompt design iteration for `backend/services/narrator.py` | Prompt engineering |
-| **Gemini 2.5 Flash** | Narrator (intro + debrief) + Vision (optional bonus) | Off-loop writing |
+| **Google Antigravity** | Primary IDE for the entire hackathon window (2026-03-15 → 2026-04-24) | Mandated by rule |
+| **Google AI Studio** | Prompt design for `narrator.py` + `agents/prompts.yaml` (7 agent stages) | Prompt engineering |
+| **Gemini 2.5 Flash** | Narrator (intro + debrief) + COACH 2-stage agent + AUTO 5-stage commander + Vision endpoint | LLM backbone |
+| **Google ADK 1.27.1** | `SequentialAgent` / `LlmAgent` orchestration for COACH + AUTO pipelines | Agentic framework |
+| **MCP 1.26.0 + fastmcp 3.1.1** | 9-tool fleet server on port 8001, wire-protocol tool discovery | Open protocol |
 | **Google Cloud Run** | Deployment (asia-southeast1) | Mandated by rule |
 | **Google Secret Manager** | `GOOGLE_API_KEY` storage | Standard hygiene |
+| **Google Artifact Registry** | Container image registry | Cloud Build target |
 
 > **AI-assistance disclosure**: Arus — Banjir Drill was built end-to-end
 > inside Google Antigravity during the hackathon window (2026-03-15 →
@@ -190,51 +239,58 @@ _(as required by the hackathon rules — disclosed in full.)_
 
 ## Project evolution
 
-The repository first shipped an autonomous-agent coordinator (5-stage
-ADK pipeline) — preserved for reference at git tag `v1-coordinator`.
-On 2026-04-21 we pivoted the product to a player-controlled simulator
-after re-reading Track 2's citizen-facing framing and the MDPI 2025
-post-mortem that names public awareness as a documented policy gap. The
-simulation engine (grid_world, locality, terrain, objective,
-pathplanner) was preserved across the pivot; only the agent
-orchestration layer was replaced.
+The repository went through three architectures in the hackathon window:
 
-## Repo layout
+- **v1** — autonomous 5-stage ADK coordinator. Preserved at git tag
+  `v1-coordinator`. Track 2 alignment was weak (B2G backend).
+- **v2** — player-driven card game (Banjir Drill). Citizen-facing
+  (good Track 2 fit) but the 3D map was decorative and judges read
+  it as a quiz.
+- **v3** (current) — the PLAY card loop, plus **COACH** (2-stage ADK
+  advisor that streams CoT on every card) and **AUTO** (v1 revived as
+  a demo-able technical-depth mode). MCP + ADK brought back, game
+  mechanics extended with scout scoring and dispatch-duration
+  degradation so the map genuinely matters.
+
+## Repo layout (v3)
 
 ```
 arus/
 ├── backend/
-│   ├── main.py                 FastAPI + WS broadcaster + game tick loop
-│   ├── core/                   simulation engine (reused from v1)
-│   │   ├── grid_world.py
-│   │   ├── uav.py, drone.py, terrain.py, objective.py, pathplanner.py
-│   │   └── locality.py         grid → real Malaysian kampung names
-│   ├── game/                   NEW — player-driven game
-│   │   ├── engine.py           GameEngine (deterministic tick)
-│   │   ├── scenario.py         YAML loader, real-stats loader
-│   │   ├── score.py            gauge math, grade computation
-│   │   ├── cards.yaml          8-card Shah Alam 2021 hard scenario
-│   │   └── real_stats.json     2021 Shah Alam + 2024 Kelantan facts
-│   ├── routes/
-│   │   └── game.py             /api/game/* endpoints
+│   ├── main.py                    FastAPI + WS broadcaster + MCP lifespan
+│   ├── core/                      simulation engine (reused across versions)
+│   ├── game/
+│   │   ├── engine.py              deterministic tick — PLAY + COACH
+│   │   ├── scenario.py · cards.yaml · score.py · real_stats.json
+│   │   └── agencies.py            UAV ↔ BOMBA/APM/MMEA/NADMA mapping
+│   ├── agents/                    v3 — restored from v1-coordinator
+│   │   ├── auto_commander.py      5-stage SequentialAgent for AUTO
+│   │   ├── auto_runner.py         AutoRunner (MCP + CoT streaming)
+│   │   ├── coach.py               2-stage COACH advisor (NEW in v3)
+│   │   └── prompts.yaml           5 AUTO stages + 2 COACH stages
+│   ├── routes/game.py             POST /api/game/{start,choose,dispatch}
 │   └── services/
-│       ├── narrator.py         NEW — Gemini intro + debrief (off-loop)
-│       ├── vision.py           bonus: /api/vision/analyse
-│       └── met_feed.py         MetMalaysia real warnings feed
-├── frontend/
-│   └── src/
-│       ├── scene/              3D R3F tactical map (reused from v1)
-│       ├── panels/GlobalStatusBar.jsx
-│       ├── components/         NEW — game UI
-│       │   ├── StartScreen.jsx  BM/EN + Start button
-│       │   ├── EventCard.jsx    Reigns-style decision card
-│       │   ├── GaugePanel.jsx   4 always-on meters
-│       │   ├── NarratorPanel.jsx NADMA radio log
-│       │   ├── DebriefScreen.jsx 3-section end-of-game screen
-│       │   └── LanguageToggle.jsx
-│       └── hooks/, stores/
-├── cloudbuild.yaml · Dockerfile
-├── docs/FOR-JUDGES.md · docs/slides/
+│       ├── tool_server.py         MCP server on :8001, 9 tools
+│       ├── fleet_connector.py     MCP ↔ GridWorld adapter
+│       ├── narrator.py            Gemini intro + debrief (off-loop)
+│       ├── vision.py · met_feed.py · handoff_log.py
+│   └── utils/blackbox.py          CoT capture
+├── frontend/src/
+│   ├── scene/                     R3F tactical map
+│   │   ├── TacticalMap.jsx · FleetRenderer.jsx · TargetingLayer.jsx
+│   │   └── GhostDrones.jsx        AI-recommended drone preview (NEW)
+│   ├── panels/GlobalStatusBar.jsx
+│   ├── components/
+│   │   ├── StartScreen.jsx · ModeSelector.jsx (NEW)
+│   │   ├── EventCard.jsx · GaugePanel.jsx · AgencyStatusPanel.jsx
+│   │   ├── NarratorPanel.jsx · DebriefScreen.jsx
+│   │   ├── CoachConsole.jsx       streams CoT + recommendation (NEW)
+│   │   ├── AutoWatcher.jsx        5-stage progress + CoT (NEW)
+│   │   └── LanguageToggle.jsx · NextCallEta.jsx
+│   ├── hooks/                     useWebSocket, useGameApi
+│   └── stores/missionStore.js     Zustand
+├── cloudbuild.yaml · Dockerfile · requirements.txt
+├── docs/FOR-JUDGES.md · docs/slides/ · docs/architecture.svg
 └── README.md
 ```
 
