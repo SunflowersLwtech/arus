@@ -32,6 +32,7 @@ export async function chooseOption(cardId, optionId) {
       option_id: data.option_id,
       flavor: data.flavor,
       gauges: data.gauges,
+      deltas: data.deltas,
     })
   }
   return data

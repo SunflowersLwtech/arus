@@ -82,22 +82,54 @@ const useMissionStore = create((set, get) => ({
 
   presentCard: (card) => set({ currentCard: card }),
 
-  applyChoiceResult: ({ card_id, option_id, flavor, gauges }) => set(state => {
+  applyChoiceResult: ({ card_id, option_id, flavor, gauges, deltas }) => set(state => {
     const resolved = state.currentCard
+    const base = Date.now()
+
+    const summaryParts = { en: [], bm: [] }
+    if (deltas?.saved) {
+      const s = deltas.saved > 0 ? `+${deltas.saved}` : `${deltas.saved}`
+      summaryParts.en.push(`${s} lives`)
+      summaryParts.bm.push(`${s} nyawa`)
+    }
+    if (deltas?.assets) {
+      const s = deltas.assets > 0 ? `+${deltas.assets}` : `${deltas.assets}`
+      summaryParts.en.push(`${s}% assets`)
+      summaryParts.bm.push(`${s}% aset`)
+    }
+    if (deltas?.trust) {
+      const s = deltas.trust > 0 ? `+${deltas.trust}` : `${deltas.trust}`
+      summaryParts.en.push(`${s}% trust`)
+      summaryParts.bm.push(`${s}% kepercayaan`)
+    }
+    const summaryEn = summaryParts.en.length ? `⚙️  ${summaryParts.en.join(' · ')}` : ''
+    const summaryBm = summaryParts.bm.length ? `⚙️  ${summaryParts.bm.join(' · ')}` : ''
+
+    const flavorEntry = {
+      id: `${card_id}-${option_id}-${base}`,
+      timestamp: base,
+      speaker: resolved ? (resolved.title_en || card_id) : card_id,
+      text_en: flavor?.en || '',
+      text_bm: flavor?.bm || '',
+      tone: 'choice_result',
+    }
+    const systemEntry = summaryEn || summaryBm ? [{
+      id: `${card_id}-${option_id}-sys-${base}`,
+      timestamp: base + 1,
+      speaker: 'Dispatcher log',
+      text_en: summaryEn,
+      text_bm: summaryBm,
+      tone: 'system',
+    }] : []
+
     return {
       gauges: gauges ?? state.gauges,
       currentCard: null,
-      choiceHistory: [...state.choiceHistory, { card_id, option_id, flavor }],
+      choiceHistory: [...state.choiceHistory, { card_id, option_id, flavor, deltas }],
       narratorLog: [
         ...state.narratorLog.slice(-30),
-        {
-          id: `${card_id}-${option_id}-${Date.now()}`,
-          timestamp: Date.now(),
-          speaker: resolved ? (resolved.title_en || card_id) : card_id,
-          text_en: flavor?.en || '',
-          text_bm: flavor?.bm || '',
-          tone: 'choice_result',
-        },
+        flavorEntry,
+        ...systemEntry,
       ],
     }
   }),

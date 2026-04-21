@@ -14,7 +14,7 @@ scenarios:
     name_bm: "Banjir Lembah Klang 2021 — Mod Sukar"
     name_en: "Klang Valley Floods 2021 — Hard Mode"
     real_event_key: shah_alam_2021
-    target_saved: 14
+    target_saved: 22         # 85% of theoretical max — tight by design
     duration_seconds: 420    # 7-minute play session
     intro_hook_bm: "Paras sungai Klang melepasi paras bahaya. Anda ialah pegawai penyelaras NADMA malam ini."
     intro_hook_en: "The Klang River just crossed danger level. You are NADMA's coordinating officer tonight."
@@ -41,14 +41,14 @@ cards:
       - id: send_bomba_now
         label_bm: "Hantar BOMBA segera (ETA 25 min)"
         label_en: "Deploy BOMBA immediately (ETA 25 min)"
-        deltas: {saved: 8, assets: -22, trust: 8}
+        deltas: {saved: 6, assets: -22, trust: 8}
         flavor_bm: "Pasukan penyelamat mara dengan bot penyelamat. Sri Muda mendapat keutamaan pertama."
         flavor_en: "Swift-water team mobilising. Sri Muda takes first priority."
         map_action: dispatch_rescue
       - id: ask_mmea_boats
         label_bm: "Minta bantuan bot MMEA (ETA 15 min tapi bukan bidang mereka)"
         label_en: "Request MMEA boats (ETA 15 min, off their remit)"
-        deltas: {saved: 8, assets: -15, trust: -12}
+        deltas: {saved: 6, assets: -15, trust: -12}
         flavor_bm: "MMEA datang, tetapi Ketua Pengarah mereka mempertikai protokol — isu politik bermula."
         flavor_en: "MMEA responds, but their DG contests the tasking — political friction starts."
         map_action: dispatch_rescue
@@ -180,7 +180,7 @@ cards:
       - id: air_drop
         label_bm: "Jatuhan udara — makanan + radio (tidak dapat dilihat kesannya)"
         label_en: "Air drop — food + radio (can't see impact)"
-        deltas: {saved: 5, assets: -20, trust: 5}
+        deltas: {saved: 4, assets: -20, trust: 5}
         flavor_bm: "Komuniti bertahan. Radio mengaktifkan semula komunikasi."
         flavor_en: "Community holds. Radio restores comms."
       - id: ground_clear
@@ -234,7 +234,7 @@ cards:
       - id: save_school
         label_bm: "Sekolah rendah — 80 kanak-kanak"
         label_en: "Primary school — 80 children"
-        deltas: {saved: 6, assets: -30, trust: 10}
+        deltas: {saved: 5, assets: -30, trust: 10}
         flavor_bm: "Pilihan yang berisiko dan berharga. Kanak-kanak selamat."
         flavor_en: "High-risk, high-value call. The kids make it."
         map_action: dispatch_rescue

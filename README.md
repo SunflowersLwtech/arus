@@ -121,6 +121,18 @@ https://arus-1030181742799.asia-southeast1.run.app
 
 Sources consolidated in [docs/FOR-JUDGES.md](./docs/FOR-JUDGES.md).
 
+## Classroom deployment path
+
+Banjir Drill is designed for direct citizen access (Track 2 / B2C).
+Teachers who want to embed it as a structured assessment can integrate
+via the `GET /api/game/debrief` endpoint, which returns a fully
+structured JSON debrief (gauges, grade, choice history, Gemini
+commentary in BM + EN, real-event statistics). The payload is
+LMS-friendly and has been designed with Cervantes (Cambridge EduX
+hackathon formative-assessment platform) as the reference integration
+target — assignment launch via query params (`?session_for=<teacher_id>`)
+plus score writeback is a post-hackathon add-on.
+
 ## Quick start (local)
 
 ```bash

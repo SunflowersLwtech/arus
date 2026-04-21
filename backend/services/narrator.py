@@ -83,7 +83,9 @@ Real 2021 Klang Valley flood facts for grounding:
   - MDPI 2025 post-mortem named "public awareness" and "coordination &
     communication" as systemic gaps
 
-Write a three-paragraph debrief in BOTH English and Bahasa Malaysia.
+Write a three-paragraph debrief in BOTH English AND natural Bahasa Malaysia.
+The two versions must be semantically equivalent, not a literal word-for-word
+translation. Both fields are mandatory — never leave "bm" empty.
 
 Paragraph 1 — reflect on what the player did (cite a specific choice if
 possible, otherwise the overall pattern).
@@ -95,9 +97,9 @@ follow-up.
 Tone: educational, not judgemental. Never mock a poor performance — the
 point is for the player to feel the weight of coordination.
 
-Return a JSON object with two keys "en" and "bm". Each value is the full
-3-paragraph commentary as one string with \\n\\n between paragraphs. No
-markdown. No extra fields."""
+Return a JSON object with EXACTLY two keys: "en" (English) and "bm"
+(Bahasa Malaysia). Each value is the full 3-paragraph commentary as one
+string with \\n\\n between paragraphs. No markdown. No extra fields."""
 
 
 def _fallback_intro(scenario: Any, intro_hook_bm: str, intro_hook_en: str) -> dict:

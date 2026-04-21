@@ -158,6 +158,7 @@ class GameEngine:
                 "option_id": record.option_id,
                 "flavor": {"bm": option.flavor_bm, "en": option.flavor_en},
                 "gauges": self.gauges.as_dict(),
+                "deltas": dict(option.deltas),
             },
         }
 
@@ -205,6 +206,7 @@ class GameEngine:
                     "id": o.id,
                     "label_bm": o.label_bm,
                     "label_en": o.label_en,
+                    "deltas": dict(o.deltas),  # surfaced for risk-preview UI
                 }
                 for o in card.options
             ],

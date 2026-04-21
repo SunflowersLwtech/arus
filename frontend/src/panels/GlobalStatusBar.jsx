@@ -83,8 +83,9 @@ export default function GlobalStatusBar() {
       {/* Right: Key metrics */}
       <div className="flex items-center gap-1">
         {/* Fleet */}
-        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded"
-          style={{ background: 'rgba(6,214,160,0.08)' }}>
+        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded cursor-help"
+          style={{ background: 'rgba(6,214,160,0.08)' }}
+          title={`Unmanned aerial vehicles online — ${activeCount} of ${fleet.length} drones active, average battery ${avgPower}%. Drones fly rescue missions when you pick a dispatch option.`}>
           <span className="text-[10px] font-mono" style={{ color: 'rgba(255,255,255,0.4)' }}>UAV</span>
           <span className="font-mono text-xs font-bold" style={{ color: '#06D6A0' }}>
             {activeCount}/{fleet.length}
@@ -95,8 +96,9 @@ export default function GlobalStatusBar() {
         </div>
 
         {/* Coverage */}
-        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded"
-          style={{ background: 'rgba(0,212,255,0.08)' }}>
+        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded cursor-help"
+          style={{ background: 'rgba(0,212,255,0.08)' }}
+          title={`Coverage — percentage of the 20×20 flood grid scanned so far (${coverage.toFixed(1)}%). Higher coverage = fewer blind spots.`}>
           <span className="text-[10px] font-mono" style={{ color: 'rgba(255,255,255,0.4)' }}>COV</span>
           <span className="font-mono text-xs font-bold" style={{ color: '#00D4FF' }}>
             {coverage.toFixed(1)}%
@@ -104,8 +106,9 @@ export default function GlobalStatusBar() {
         </div>
 
         {/* Objectives */}
-        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded"
-          style={{ background: objectivesFound > 0 ? 'rgba(6,214,160,0.08)' : 'rgba(244,162,97,0.08)' }}>
+        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded cursor-help"
+          style={{ background: objectivesFound > 0 ? 'rgba(6,214,160,0.08)' : 'rgba(244,162,97,0.08)' }}
+          title={`Objectives — victim detection markers on the map (${objectivesFound} found of ${objectivesTotal} total).`}>
           <span className="text-[10px] font-mono" style={{ color: 'rgba(255,255,255,0.4)' }}>OBJ</span>
           <span className="font-mono text-xs font-bold"
             style={{ color: objectivesFound >= objectivesTotal && objectivesTotal > 0 ? '#06D6A0' : '#F4A261' }}>

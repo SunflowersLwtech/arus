@@ -150,7 +150,7 @@ export default function DebriefScreen() {
                   className="px-3 py-2 rounded text-center"
                   style={{ background: '#1E3A5F', color: '#E6F0FA', border: '1px solid #2E5480' }}
                 >
-                  {k.replace(/_/g, ' ')}
+                  {linkLabel(k, locale)}
                 </a>
               ))}
             </div>
@@ -178,4 +178,13 @@ function Stat({ label, value }) {
       <div className="text-base font-semibold text-white">{value}</div>
     </div>
   )
+}
+
+function linkLabel(key, locale) {
+  const L = {
+    nadma_portal_bencana: { en: 'NADMA · Portal Bencana', bm: 'NADMA · Portal Bencana' },
+    public_infobanjir: { en: 'Public InfoBanjir (water levels)', bm: 'Public InfoBanjir (paras air)' },
+    metmalaysia_warnings: { en: 'MetMalaysia warnings API', bm: 'API amaran MetMalaysia' },
+  }
+  return L[key]?.[locale] || L[key]?.en || key.replace(/_/g, ' ')
 }
