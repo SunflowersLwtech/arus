@@ -138,11 +138,10 @@ _(as required by the Project 2030: MyAI Future Hackathon rules)_
 
 Other (non-AI) libraries: FastAPI, React 18, React Three Fiber, NumPy, SciPy, Zustand, Tailwind. See `requirements.txt` / `frontend/package.json` for exact versions.
 
-> **AI-assistance disclosure:** the scaffold was seeded from the author's
-> earlier `SwarmMind` prototype (MCP + ADK architecture). The entire
-> Malaysia pivot, 5th-stage agency dispatcher, Gemini Vision endpoint,
-> Firestore persistence and Cloud Run deployment were developed during
-> the hackathon window inside Antigravity with Gemini assistance.
+> **AI-assistance disclosure:** Arus was built end-to-end inside Google
+> Antigravity during the hackathon window (2026-03-15 → 2026-04-21)
+> with Gemini 2.5 Flash assistance. Prompt design iterated in Google
+> AI Studio. No Codex / Cursor / VS Code / Gemini CLI involvement.
 
 ## 30-second evaluation
 
