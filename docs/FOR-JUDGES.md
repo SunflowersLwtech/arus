@@ -1,107 +1,95 @@
-# For Judges — Arus in 30 seconds
+# For Judges — Arus — Banjir Drill in 30 seconds
 
-One-page guide to evaluating Arus without running any tooling locally.
+One-page guide to evaluating Arus without reading source code.
 
 ## What it is
 
-A 5-stage Gemini agent pipeline (Google ADK, MCP, Cloud Run) that
-coordinates Malaysia's disaster-response agencies (BOMBA, NADMA, APM,
-MMEA) during monsoon flooding. Speaks **Bahasa Malaysia and English at
-the same time** — the stage-5 "Agency Dispatcher" is the differentiator.
+**A 7-minute Malaysian flood-coordination simulator** you play in a
+browser. Citizens play NADMA liaison officer Datuk Nadia during the
+December 2021 Klang Valley floods. Eight incoming calls, three response
+options each, four gauges (lives saved · assets · trust · time). Gemini
+2.5 Flash narrates the intro and a personalised debrief in Bahasa
+Malaysia + English.
 
 **Track**: 2 — Citizens First (GovTech).
 
-## Interactive API explorer
+## Try it in 90 seconds
 
-The full FastAPI auto-generated docs are live at:
-<https://arus-1030181742799.asia-southeast1.run.app/docs> (Swagger UI) · <https://arus-1030181742799.asia-southeast1.run.app/openapi.json> (raw OpenAPI schema).
+1. On any phone: open [`https://arus-1030181742799.asia-southeast1.run.app`](https://arus-1030181742799.asia-southeast1.run.app).
+2. Toggle **BM/EN** top-right if you want Bahasa Malaysia.
+3. Tap **Start drill**.
+4. Read Datuk Nadia's briefing (Gemini-authored).
+5. Wait ~10 seconds → first card appears. Pick an option. Watch gauges move.
+6. Field 7 more cards across 7 minutes. Read the debrief.
 
-## Try it in three clicks
+## Interactive API explorer (optional)
 
-1. Open [`https://arus-1030181742799.asia-southeast1.run.app`](https://arus-1030181742799.asia-southeast1.run.app).
-2. Click **START MISSION** (bottom-right of the map).
-3. Wait ~60 seconds for the first full 5-stage Gemini cycle, then watch the right-hand pane ("AI DECISION LOG") stream tool calls and the bilingual hand-off.
+FastAPI Swagger at:
+<https://arus-1030181742799.asia-southeast1.run.app/docs> · Raw OpenAPI schema: `/openapi.json`.
 
-## Or verify the whole system with one curl
-
-```bash
-# 1. Boot a fresh demo mission (reset + start in one POST):
-curl -X POST https://arus-1030181742799.asia-southeast1.run.app/api/demo/boot
-
-# 2. Wait ~90s, then read the structured bilingual hand-offs:
-curl -s https://arus-1030181742799.asia-southeast1.run.app/api/live/handoffs | jq .
-```
-
-Expected response:
-
-```json
-{
-  "status": "ok",
-  "data": [
-    {
-      "ts": 1776619851.3,
-      "mission_id": "mission-xxxxxxxx",
-      "cycle": 1,
-      "agency": "BOMBA",
-      "coord": "(2, 16) — Kg. Kubang Puteh, Kuala Krai, Kelantan",
-      "priority": "TINGGI",
-      "bm": "Mangsa telah dikesan di Kg. Kubang Puteh, Kuala Krai, Kelantan, memerlukan bantuan segera.",
-      "en": "A victim has been detected at Kg. Kubang Puteh, Kuala Krai, Kelantan, requiring immediate assistance.",
-      "action": "Hantar pasukan penyelamat untuk penilaian dan tindakan segera. / Deploy rescue team for immediate assessment and action."
-    }
-  ]
-}
-```
-
-## Or run every endpoint end-to-end
+Quick verification from the command line:
 
 ```bash
-# Requires jq (brew install jq)
-curl -sL https://raw.githubusercontent.com/SunflowersLwtech/arus/main/scripts/judge_evaluate.sh | bash
-```
+# List available scenarios
+curl -s https://arus-1030181742799.asia-southeast1.run.app/api/game/scenarios | jq .
 
-Takes ~2 minutes. Exits non-zero if anything is unhealthy. Prints green/red checkmarks for every public endpoint plus a real handoff.
+# Start a fresh session (prints Gemini intro + scenario + gauges)
+curl -s -X POST -H "Content-Type: application/json" \
+  -d '{"scenario_id":"shah_alam_hard","locale":"en"}' \
+  https://arus-1030181742799.asia-southeast1.run.app/api/game/start | jq .
+
+# Inspect current game state
+curl -s https://arus-1030181742799.asia-southeast1.run.app/api/game/state | jq '.data | {gauges, current_card: .current_card.id, status}'
+
+# MetMalaysia real feed (proof of MY integration)
+curl -s https://arus-1030181742799.asia-southeast1.run.app/api/live/warnings | jq '{count, first: .data[0].title_en}'
+```
 
 ## Timing expectations
 
-Arus runs on the free-tier Gemini 2.5 Flash quota (10 RPM). To fit inside it:
-
-- First agent cycle: starts ~5 seconds after `START MISSION` or `POST /api/demo/boot`.
-- Subsequent cycles: every ~40 seconds of simulation time (configurable via `AGENT_INTERVAL` env var).
-- Each cycle takes ~15-25 seconds to run all 5 stages through Gemini.
-- First bilingual hand-off on `/api/live/handoffs`: typically ~60-90 seconds after mission start.
-
-If you have a paid Gemini key, set `AGENT_INTERVAL=50` for a 10-second cadence.
+- Cloud Run cold start: ~5 seconds.
+- First card after tapping Start: ~10 seconds.
+- Full play session: 7 minutes by design.
+- Gemini debrief generation at end-of-game: ~2 seconds.
 
 ## What to look at in the code
 
 | If you care about | Start here |
 |---|---|
-| The 5-stage Gemini pipeline | [`backend/agents/commander.py`](../backend/agents/commander.py) + [`prompts.yaml`](../backend/agents/prompts.yaml) |
-| The 9 MCP tools | [`backend/services/tool_server.py`](../backend/services/tool_server.py) |
-| The Malaysia pivot (bilingual handoffs) | [`prompts.yaml :: dispatcher_agency`](../backend/agents/prompts.yaml) + [`services/handoff_log.py`](../backend/services/handoff_log.py) |
-| Gemini Vision integration | [`backend/services/vision.py`](../backend/services/vision.py) |
+| The game engine (deterministic) | [`backend/game/engine.py`](../backend/game/engine.py) + [`cards.yaml`](../backend/game/cards.yaml) |
+| Gemini narrator (off-loop) | [`backend/services/narrator.py`](../backend/services/narrator.py) |
+| Scoring + grade logic | [`backend/game/score.py`](../backend/game/score.py) |
+| Real 2021 Shah Alam stats (debrief ground truth) | [`backend/game/real_stats.json`](../backend/game/real_stats.json) |
+| REST endpoints | [`backend/routes/game.py`](../backend/routes/game.py) |
+| 3D tactical map (R3F, kept from v1 for visual distinctiveness) | [`frontend/src/scene/`](../frontend/src/scene/) |
+| Reigns-style event card | [`frontend/src/components/EventCard.jsx`](../frontend/src/components/EventCard.jsx) |
+| Debrief screen | [`frontend/src/components/DebriefScreen.jsx`](../frontend/src/components/DebriefScreen.jsx) |
 | MetMalaysia live feed | [`backend/services/met_feed.py`](../backend/services/met_feed.py) |
 | Malaysian kampung mapping | [`backend/core/locality.py`](../backend/core/locality.py) |
 | Cloud Run deployment pipeline | [`Dockerfile`](../Dockerfile) + [`cloudbuild.yaml`](../cloudbuild.yaml) |
-| Impact quantification | [`docs/impact-model.md`](./impact-model.md) |
-| Operational readiness | [`docs/RUNBOOK.md`](./RUNBOOK.md) |
+| Earlier v1 autonomous-coordinator architecture | `git checkout v1-coordinator` |
 
-## What makes Arus win
+## Design rationale (research-backed)
 
-- **Every single Google-stack tool used in its intended role** — Gemini 2.5 Flash, ADK SequentialAgent, Google AI Studio (prompt dev), Antigravity (primary IDE, see demo video B-roll), Cloud Run, Firestore, Secret Manager, Artifact Registry, Cloud Build. Zero compliance shortcuts.
-- **MCP dynamic tool discovery** — the commander calls `tools/list_changed` every cycle; add a drone or retire one and the agent adapts next cycle without code change.
-- **Bilingual handoffs that BOMBA can act on** — the stage-5 Agency Dispatcher is not in any Google ADK example. It is Arus-specific.
-- **Malaysia-integrated** — live `api.data.gov.my/weather/warning` feed flows into every cycle's Assessor briefing; kampung-level locality map (Gua Musang · Kuala Krai · Kota Tinggi · Segamat) turns abstract grid cells into names field teams recognise.
-- **Evidence layer** — every tool call streams on WebSocket; every cycle and hand-off persists to Firestore (`/banjirswarm/{mission}/cycles` + `/handoffs`).
+- **Game + debrief beats game alone** — [JMIR Serious Games 2024 scoping review](https://games.jmir.org/2024/1/e64939/): civic games only teach when paired with a debrief. Our debrief is the load-bearing educational layer.
+- **Reigns card mechanic** — [Nerial 2016](https://en.wikipedia.org/wiki/Reigns_(video_game)): proven short-session decision-under-pressure pattern.
+- **LLM off-loop, engine deterministic** — [CESCG 2025 LIGS paper](https://cescg.org/wp-content/uploads/2025/04/A-Quest-for-Information-Enhancing-Game-Based-Learning-with-LLM-Driven-NPCs-2.pdf): the 2026 pattern is Gemini for writing, deterministic code for the tick loop. We don't put Gemini in the critical path.
+- **Real data anchor** — [MDPI Water 2025 flood post-mortem](https://www.mdpi.com/2073-4441/17/4/513) names "public awareness" and "inter-agency coordination" as the two systemic gaps of the 2021 Shah Alam event. Every card, every debrief paragraph traces back to this.
+
+## What makes Arus — Banjir Drill win
+
+- **First citizen-facing disaster-coordination simulator for Malaysia** — InfoBanjir, Portal Bencana, and UNICEF MY's DRR modules are all static/paper; zero deployed precedent in the civic-sim space locally.
+- **Track 2 fit is clean** — citizen-facing digital service, same layer as MyJPJ/MySejahtera, aligned to MyDIGITAL Budget 2026 + Kerajaan Madani DPD.
+- **Judge can play it in 90 seconds on their phone** — documented hackathon-winning pattern (Devpost judging guide).
+- **Real Malaysian data + real policy anchor** — MetMalaysia live feed, real Kelantan/Johor kampung names, 2021 flood numbers with MDPI/ReliefWeb/AHA Centre sources cited in `real_stats.json`.
+- **Bilingual end-to-end** — BM/EN toggle live during play; Gemini generates both locales for intro + debrief.
 
 ## Deliverables summary
 
-- GitHub: <https://github.com/SunflowersLwtech/arus> (public, MIT, CI passing)
-- Live: <https://arus-1030181742799.asia-southeast1.run.app>
-- Demo video: [`docs/slides/arus-demo.mp4`](./slides/arus-demo.mp4) (3 min, 1080p)
-- Pitch deck: [`docs/slides/arus-deck.pdf`](./slides/arus-deck.pdf) (15 pages)
-- Impact model + citations: [`docs/impact-model.md`](./impact-model.md)
-- Proof of life: [`docs/proof-of-life.md`](./proof-of-life.md)
+- GitHub: <https://github.com/SunflowersLwtech/arus> (public, MIT)
+- Git tag `v1-coordinator` — earlier autonomous-agent version preserved for audit
+- Live Cloud Run: <https://arus-1030181742799.asia-southeast1.run.app>
+- Demo video: `docs/slides/arus-demo.mp4` (new Day-3 recording required — see `hackathon/reports/SUBMIT-ME.md`)
+- Pitch deck: `docs/slides/arus-deck.pdf` (new Day-3 rewrite required)
 
-Questions? `weiliudev0607@gmail.com`.
+Questions: `weiliudev0607@gmail.com`.

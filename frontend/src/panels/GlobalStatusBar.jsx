@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import useMissionStore from '../stores/missionStore'
+import LanguageToggle from '../components/LanguageToggle'
 
 const STATUS_LABELS = {
   idle: 'Ready',
@@ -135,6 +136,9 @@ export default function GlobalStatusBar() {
             {connected ? 'LIVE' : 'OFFLINE'}
           </span>
         </div>
+
+        {/* BM/EN toggle — live during play */}
+        <LanguageToggle />
       </div>
     </div>
   )

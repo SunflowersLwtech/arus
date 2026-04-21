@@ -1,181 +1,145 @@
 <div align="center">
 
-# Arus
+# Arus — Banjir Drill
 
-### _arus_ (Bahasa Malaysia, n.) — the current of a river; the flow of people, information, and intent
+### _arus_ (Bahasa Malaysia, n.) — the current of a river; the flow of people, information, and intent.
 
-**When the monsoon drowns a kampung, rescue is a coordination problem — not a courage problem.**
-**Arus is the _current_ that moves BOMBA, NADMA, APM and MMEA toward the people who need them, faster than any human dispatcher can.**
+**When the monsoon drowned Taman Sri Muda in 2021, residents waited 16 hours on rooftops.**
+**Arus is a 7-minute simulator that lets a Malaysian citizen feel exactly why.**
 
-[![Google ADK](https://img.shields.io/badge/Google_ADK-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://google.github.io/adk-docs/)
-[![Gemini](https://img.shields.io/badge/Gemini_2.5_Flash-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white)](https://ai.google.dev/)
+[![Google Antigravity](https://img.shields.io/badge/Built_in_Antigravity-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://antigravity.google.com)
+[![Gemini 2.5 Flash](https://img.shields.io/badge/Gemini_2.5_Flash-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white)](https://ai.google.dev/)
 [![Cloud Run](https://img.shields.io/badge/Cloud_Run-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white)](https://cloud.google.com/run)
-[![Firestore](https://img.shields.io/badge/Firestore-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)](https://firebase.google.com/docs/firestore)
-[![MCP](https://img.shields.io/badge/MCP_Protocol-00D4FF?style=for-the-badge)](https://modelcontextprotocol.io/)
 [![MetMalaysia](https://img.shields.io/badge/data.gov.my-LIVE_FEED-E63946?style=for-the-badge)](https://api.data.gov.my/weather/warning)
-[![CI](https://github.com/SunflowersLwtech/arus/actions/workflows/ci.yml/badge.svg)](https://github.com/SunflowersLwtech/arus/actions/workflows/ci.yml)
 
-**Project 2030: MyAI Future Hackathon · Track 2 — Citizens First (GovTech)**
+**MyAI Future Hackathon 2026 · Track 2 — Citizens First (GovTech)**
 
-🔴 **Live at** [`arus-1030181742799.asia-southeast1.run.app`](https://arus-1030181742799.asia-southeast1.run.app) · 🎥 [3-min demo](./docs/slides/arus-demo.mp4) · 📊 [15-page deck](./docs/slides/arus-deck.pdf) · 🏗 [architecture](./docs/architecture.svg) · 📈 [impact model](./docs/impact-model.md) · ✅ [proof of life](./docs/proof-of-life.md) · 👨‍⚖️ [for judges](./docs/FOR-JUDGES.md)
+🔴 **Play now** · [`arus-1030181742799.asia-southeast1.run.app`](https://arus-1030181742799.asia-southeast1.run.app) · 🎥 [3-min demo](./docs/slides/arus-demo.mp4) · 📊 [15-page deck](./docs/slides/arus-deck.pdf) · 👨‍⚖️ [for judges](./docs/FOR-JUDGES.md)
 
 </div>
 
-![Dashboard — live Cloud Run deployment](./docs/dashboard-hero.png)
-
-> **Actual output from the 5th-stage agent on production Cloud Run:**
-> ```
-> AGENSI: BOMBA
-> KOORDINAT: (2, 16) — Kg. Kubang Puteh, Kuala Krai, Kelantan
-> KEUTAMAAN: TINGGI
-> RINGKASAN (BM): Mangsa telah dikesan di Kg. Kubang Puteh, Kuala Krai, Kelantan, memerlukan bantuan segera.
-> SUMMARY (EN): A victim has been detected at Kg. Kubang Puteh, Kuala Krai, Kelantan, requiring immediate assistance.
-> CADANGAN TINDAKAN / RECOMMENDED ACTION:
->   Hantar pasukan penyelamat untuk penilaian dan tindakan segera.
->   Deploy rescue team for immediate assessment and action.
-> ```
-> — Not a mock. Get the latest structured bilingual hand-offs directly:
-> ```bash
-> curl -s https://arus-1030181742799.asia-southeast1.run.app/api/live/handoffs | jq .
-> ```
-
-<details><summary>🏗 Architecture diagram</summary>
-
-![Architecture](./docs/architecture.svg)
-
-</details>
-
 ---
 
-## Why this exists
+## What this is
 
-> _Every December, Malaysia's agencies tell the same story: the fire brigade
-> found the survivor; the coast guard was closer; nobody told the coast guard.
-> The survivor drowned anyway._
+**Arus — Banjir Drill** is a browser-playable Malaysian flood-coordination
+simulator. You are Datuk Nadia, NADMA liaison officer on the night of the
+December 2021 Klang Valley floods. Over 7 minutes you field 8 incoming
+calls from BOMBA / APM / MMEA / media / utilities and pick between 2-3
+response options each. Four gauges move under your decisions:
 
-The Dec 2024 east-coast monsoon displaced **148,024 Malaysians**. BOMBA,
-NADMA, APM and MMEA ran the rescue on parallel WhatsApp groups and
-hand-transcribed dispatch sheets. Nobody had end-to-end visibility. That is
-not a tool problem. That is **a coordination problem no single human
-dispatcher can hold in their head** — multiple agencies, overlapping
-districts, power-budgeted assets, bilingual briefs, bursty triangulated
-calls, all at once.
+- **Lives saved** — 0 to target (Hard mode: 14 of 14)
+- **Assets** — % of deployable resources left
+- **Trust** — % of inter-agency confidence in your chain of command
+- **Time** — countdown to cutoff
 
-**Arus replaces the role, not the human.** It is the one component Malaysia
-does not yet have: a coordinator that speaks Malay and English at the same
-time, reasons over all agencies simultaneously, and makes its decisions
-auditable before anyone acts on them.
+At the end, you see your grade. Then we show you the **real 2021 Shah
+Alam numbers** — 40,000 displaced, 54 deaths, a 16-hour median rescue
+wait time, a RM3.7M lawsuit — and a Gemini-authored commentary that
+ties your specific choices to the systemic coordination gaps the
+[MDPI 2025 post-mortem](https://www.mdpi.com/2073-4441/17/4/513) named.
 
-## How Arus does it
+The point is not to entertain. The point is that public awareness of
+coordination difficulty — named in the MDPI paper as a systemic policy
+gap — is something citizens can build through **experience, not PDFs**.
+Portal Bencana, InfoBanjir and MetMalaysia's warning API are linked at
+the end of every session so the citizen carries the lesson into real
+preparedness.
 
-**Arus** is a 5-stage Gemini agent pipeline, deployed on Google
-Cloud Run, that watches a live flood-zone grid and continuously:
+## Why Track 2 (Citizens First)
 
-1. **Assesses** — which assets are available, where is coverage weak
-2. **Strategises** — which victims to prioritise given power budgets
-3. **Dispatches** — sends assets to targets via MCP tool calls
-4. **Analyses** — produces a one-screen situation report
-5. **Routes** — emits a bilingual (BM/EN) hand-off brief to the correct
-   Malaysian agency (BOMBA / NADMA / APM / MMEA)
+Track 2's reference apps are MyJPJ and MySejahtera — **citizen-facing
+digital services**. Arus — Banjir Drill is a digital public-education
+service that aligns directly with MyDIGITAL's Budget 2026 "Accelerating
+Digital Transformation for All" agenda and the six _teras_ of the
+Digital Education Policy under Kerajaan Madani. UNICEF Malaysia + MoE +
+SEADPRI already deploy paper Disaster Risk Reduction modules in
+primary schools; Arus is the digital-native counterpart those modules
+need.
 
-Each asset is an **autonomous agent** — it flies, scans, obeys its own
-power/safety limits. The Gemini commander does the strategic work humans
-are bad at: fleet-wide spatial optimisation, priority reasoning, relay
-planning for far corners.
-
-An optional **Gemini Vision endpoint** lets ground teams upload a drone
-photo and receive victim count + severity + recommended agency in one call.
-
-## System Architecture
+## Architecture
 
 ```
-┌──────────────────────────────────────────────────────────────────┐
-│  Frontend (React 18 + R3F + Zustand)                             │
-│  3D tactical map, fleet panel, AI decision log, command console  │
-└────────────────────────────┬─────────────────────────────────────┘
-                             │ WebSocket (5 Hz state) + REST
-┌────────────────────────────▼─────────────────────────────────────┐
-│  FastAPI Gateway (Cloud Run, asia-southeast1)                    │
-│  • /ws/live  • /api/ops/*  • /api/vision/analyse  • /api/mission │
-└────────┬─────────────────────────────────┬───────────────────────┘
-         │                                 │
-┌────────▼─────────────────┐     ┌─────────▼──────────────────────┐
-│  5-Stage Gemini Pipeline │     │  Firestore (audit trail)       │
-│  (Google ADK)            │     │  /arus/{mission}/cycles │
-│  assess → strat → disp   │     │  /arus/{mission}/handoffs│
-│  → analyse → agency      │     └────────────────────────────────┘
-└────────┬─────────────────┘
-         │ MCP (port 8001)
-┌────────▼─────────────────────────────────────────────────────────┐
-│  Simulation Engine                                                │
-│  20×20 flood zone (Kelantan–Pahang belt) · autonomous drones ·   │
-│  A* pathfinding · Gaussian probability heatmap · obstacles        │
+┌───────────────────────────────────────────────────────────────────┐
+│  Frontend (React 18 + R3F + Zustand, mobile-friendly)             │
+│   Start screen → game loop → debrief. BM/EN toggle live.          │
+│   Event cards overlay the 3D tactical map. 4 gauges always-on.    │
+└─────────────────────────────┬─────────────────────────────────────┘
+                              │ WebSocket (state 5 Hz) + REST
+┌─────────────────────────────▼─────────────────────────────────────┐
+│  FastAPI Gateway (Cloud Run, asia-southeast1)                     │
+│   /api/game/{start,choose,state,debrief,scenarios}                │
+│   /api/live/warnings (MetMalaysia real feed) · /api/vision/analyse│
+│   /api/locality/{x}/{y}  (grid → kampung)                         │
+└────────┬───────────────────────────────────┬──────────────────────┘
+         │                                   │
+┌────────▼────────────────────┐   ┌──────────▼─────────────────────┐
+│  Game Engine (deterministic)│   │  Gemini Narrator (off-loop)    │
+│   - Gauges, event queue     │   │   - NADMA intro (per scenario) │
+│   - 8-card scenario YAML    │   │   - Personalised debrief        │
+│   - Score + grade           │   │   - Cache, fallback, retry      │
+└────────┬────────────────────┘   └────────────────────────────────┘
+         │
+┌────────▼──────────────────────────────────────────────────────────┐
+│  GridWorld simulation (20×20, Malaysian kampung mapping)          │
+│   - Floods, obstacles, autonomous drone path execution            │
+│   - Real kampung names in Kelantan / Pahang / Johor flood belt    │
 └───────────────────────────────────────────────────────────────────┘
 ```
 
-## Malaysia-specific pivots over generic SAR
-
-| Generic swarm | Arus |
-|---|---|
-| Abstract "sector NE" | Real Malaysian kampungs (e.g. Kg. Manik Urai, Kg. Laloh) — see `backend/core/locality.py` |
-| Single commander | 5-stage pipeline including a **BM/EN Agency Dispatcher** that routes hand-offs to BOMBA / NADMA / APM / MMEA |
-| Text dashboards | Gemini Vision endpoint for field-team photo triage |
-| Ephemeral state | Firestore mission log — post-event civil-defence reporting |
-
-## AI Tools Used
-
-_(as required by the Project 2030: MyAI Future Hackathon rules)_
-
-| Tool | Where | Why |
-|---|---|---|
-| **Google AI Studio** | Prompt design & iteration for the 5-stage pipeline | Prompt engineering surface |
-| **Google Antigravity** | Final demo / record-of-build | Per hackathon requirement |
-| **Gemini 2.5 Flash** | All 5 agent stages + Vision endpoint | Low-latency reasoning at scale |
-| **Google ADK** | `SequentialAgent` / `LlmAgent` orchestration | Competition-compliant agent framework |
-| **Google Cloud Run** | Deployment (asia-southeast1) | Hackathon-mandated |
-| **Firestore** | Mission + handoff persistence | Native Google-stack choice |
-| **MCP (Model Context Protocol)** | Agent ↔ fleet tool discovery | Wire-protocol; enables dynamic fleet |
-
-Other (non-AI) libraries: FastAPI, React 18, React Three Fiber, NumPy, SciPy, Zustand, Tailwind. See `requirements.txt` / `frontend/package.json` for exact versions.
-
-> **AI-assistance disclosure:** Arus was built end-to-end inside Google
-> Antigravity during the hackathon window (2026-03-15 → 2026-04-21)
-> with Gemini 2.5 Flash assistance. Prompt design iterated in Google
-> AI Studio. No Codex / Cursor / VS Code / Gemini CLI involvement.
+**Why Gemini is off-loop**: LLMs in a 200 ms game tick are a 2024
+mistake. Arus runs a fully deterministic game engine (zero latency,
+predictable) and uses Gemini 2.5 Flash only at session boundaries —
+intro narration + end-of-game commentary. The [CESCG 2025 LIGS paper
+on LLM-infused game systems](https://cescg.org/wp-content/uploads/2025/04/A-Quest-for-Information-Enhancing-Game-Based-Learning-with-LLM-Driven-NPCs-2.pdf)
+frames this as the 2026 pattern.
 
 ## 30-second evaluation
 
-Judges — this is the fastest way to verify Arus is real:
+Judges — **open the live URL on any phone and play it**. That's the
+evaluation.
 
-```bash
-# Exercises every endpoint, waits for one full 5-stage agent cycle, prints a bilingual handoff
-./scripts/judge_evaluate.sh
-
-# Or against a custom URL
-./scripts/judge_evaluate.sh https://arus-1030181742799.asia-southeast1.run.app
+```
+https://arus-1030181742799.asia-southeast1.run.app
 ```
 
-Takes ~2 minutes on cold start, ~30 seconds if the instance is warm.
+1. Tap **Start drill**. Toggle BM / EN in the top-right at any time.
+2. Wait ~10 seconds for the first "Incoming call" card.
+3. Pick an option. Your 4 gauges move. The 3D map animates a rescue.
+4. Field 7 more cards over 7 minutes.
+5. Read the debrief: your numbers + Gemini-authored NADMA commentary
+   + the real 2021 Klang Valley flood facts that shaped the scenario.
 
-## Quick Start (Local)
+## Design spine (research-backed)
+
+| Pattern | Source | Applied in Arus as |
+|---|---|---|
+| Card-deck event queue | Reigns (Nerial, 2016) | EventCard + Options, gauges recompute card deck |
+| "Game + debrief" beats game alone | JMIR Serious Games 2024 scoping review | 3-section debrief (your results / 2021 reality / links to real civic tools) |
+| LLM for writing, deterministic for gameplay | CESCG 2025 LIGS | Gemini narrator off-loop; engine tick is pure code |
+| Shareable score | Wordle (NYT) | Planned (Day 3 stretch) |
+
+Sources consolidated in [docs/FOR-JUDGES.md](./docs/FOR-JUDGES.md).
+
+## Quick start (local)
 
 ```bash
-# 1. Install Python deps
+# 1. Python
 python3.13 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 
-# 2. Install frontend deps
+# 2. Frontend
 cd frontend && npm ci && cd ..
 
-# 3. Configure credentials
+# 3. Configure Gemini key (narrator uses GOOGLE_API_KEY)
 cp .env.example .env.local
-# Fill in GOOGLE_API_KEY from https://aistudio.google.com/apikey
+# Edit .env.local — GOOGLE_API_KEY from https://aistudio.google.com/apikey
 
-# 4. Run backend (starts MCP on 8001, API on 8000)
+# 4. Run backend (no MCP server, no agent dispatch — just game + narrator)
 uvicorn backend.main:app --reload --port 8000
 
-# 5. In another terminal: run frontend
+# 5. Frontend (separate terminal)
 cd frontend && npm run dev
 # → http://localhost:5173
 ```
@@ -183,68 +147,85 @@ cd frontend && npm run dev
 ## Deploy to Cloud Run
 
 ```bash
-# Prereqs: gcloud logged in, project set, APIs enabled
 gcloud services enable run.googleapis.com cloudbuild.googleapis.com \
-    artifactregistry.googleapis.com firestore.googleapis.com \
-    generativelanguage.googleapis.com
+    artifactregistry.googleapis.com generativelanguage.googleapis.com
 
-# Create Artifact Registry repo (one-time)
-gcloud artifacts repositories create arus \
-    --repository-format=docker \
-    --location=asia-southeast1
-
-# Create Gemini API key secret
 echo -n "$GOOGLE_API_KEY" | gcloud secrets create arus-gemini-key \
     --data-file=- --replication-policy=automatic
 
-# Deploy
 gcloud builds submit --config=cloudbuild.yaml --region=asia-southeast1
 ```
 
-## Track Fit: Citizens First (GovTech)
+Live build target: `asia-southeast1` · single instance · `--set-secrets=GOOGLE_API_KEY=arus-gemini-key:latest`.
 
-- **Who it serves**: BOMBA / NADMA / APM / MMEA command rooms during an
-  active monsoon flood event, plus kampung-level JKKK volunteers.
-- **Why GovTech**: multi-agency coordination is one of Kerajaan Madani's
-  explicit digital-transformation priorities (cited in `MyDIGITAL`).
-- **Scale path**: dashboard is region-agnostic; swap the `locality.py`
-  table and the same pipeline covers Sabah/Sarawak river floods or
-  peninsula coastal surges.
+## AI tools used
 
-## Repository Layout
+_(as required by the hackathon rules — disclosed in full.)_
+
+| Tool | Where | Why |
+|---|---|---|
+| **Google Antigravity** | Primary IDE for the entire hackathon window (2026-03-15 → 2026-04-21, extended to 2026-04-24) | Mandated by rule |
+| **Google AI Studio** | Prompt design iteration for `backend/services/narrator.py` | Prompt engineering |
+| **Gemini 2.5 Flash** | Narrator (intro + debrief) + Vision (optional bonus) | Off-loop writing |
+| **Google Cloud Run** | Deployment (asia-southeast1) | Mandated by rule |
+| **Google Secret Manager** | `GOOGLE_API_KEY` storage | Standard hygiene |
+
+> **AI-assistance disclosure**: Arus — Banjir Drill was built end-to-end
+> inside Google Antigravity during the hackathon window (2026-03-15 →
+> 2026-04-24) with Gemini 2.5 Flash assistance. Prompt design iterated
+> in Google AI Studio. No Codex / Cursor / VS Code / Gemini CLI
+> involvement.
+
+## Project evolution
+
+The repository first shipped an autonomous-agent coordinator (5-stage
+ADK pipeline) — preserved for reference at git tag `v1-coordinator`.
+On 2026-04-21 we pivoted the product to a player-controlled simulator
+after re-reading Track 2's citizen-facing framing and the MDPI 2025
+post-mortem that names public awareness as a documented policy gap. The
+simulation engine (grid_world, locality, terrain, objective,
+pathplanner) was preserved across the pivot; only the agent
+orchestration layer was replaced.
+
+## Repo layout
 
 ```
 arus/
 ├── backend/
-│   ├── main.py                    # FastAPI entry (REST + WS + static hosting)
-│   ├── agents/
-│   │   ├── commander.py           # 5-stage ADK SequentialAgent
-│   │   ├── prompts.yaml           # Malaysia-contextualised prompts (BM+EN)
-│   │   └── runner.py              # Pipeline executor + Firestore logging
-│   ├── core/
-│   │   ├── grid_world.py          # Simulation engine (20x20 flood zone)
-│   │   ├── locality.py            # Grid → Malaysian kampung mapping
-│   │   └── ...
+│   ├── main.py                 FastAPI + WS broadcaster + game tick loop
+│   ├── core/                   simulation engine (reused from v1)
+│   │   ├── grid_world.py
+│   │   ├── uav.py, drone.py, terrain.py, objective.py, pathplanner.py
+│   │   └── locality.py         grid → real Malaysian kampung names
+│   ├── game/                   NEW — player-driven game
+│   │   ├── engine.py           GameEngine (deterministic tick)
+│   │   ├── scenario.py         YAML loader, real-stats loader
+│   │   ├── score.py            gauge math, grade computation
+│   │   ├── cards.yaml          8-card Shah Alam 2021 hard scenario
+│   │   └── real_stats.json     2021 Shah Alam + 2024 Kelantan facts
+│   ├── routes/
+│   │   └── game.py             /api/game/* endpoints
 │   └── services/
-│       ├── tool_server.py         # MCP fleet-control tool server
-│       ├── vision.py              # Gemini Vision victim-detection endpoint
-│       └── firestore_sync.py      # Audit-trail persistence
-├── frontend/                       # React + R3F 3D command console
-├── Dockerfile                      # Cloud Run multi-stage build
-├── cloudbuild.yaml                 # CI pipeline → Cloud Run
+│       ├── narrator.py         NEW — Gemini intro + debrief (off-loop)
+│       ├── vision.py           bonus: /api/vision/analyse
+│       └── met_feed.py         MetMalaysia real warnings feed
+├── frontend/
+│   └── src/
+│       ├── scene/              3D R3F tactical map (reused from v1)
+│       ├── panels/GlobalStatusBar.jsx
+│       ├── components/         NEW — game UI
+│       │   ├── StartScreen.jsx  BM/EN + Start button
+│       │   ├── EventCard.jsx    Reigns-style decision card
+│       │   ├── GaugePanel.jsx   4 always-on meters
+│       │   ├── NarratorPanel.jsx NADMA radio log
+│       │   ├── DebriefScreen.jsx 3-section end-of-game screen
+│       │   └── LanguageToggle.jsx
+│       └── hooks/, stores/
+├── cloudbuild.yaml · Dockerfile
+├── docs/FOR-JUDGES.md · docs/slides/
 └── README.md
 ```
 
-## Hackathon Submission Checklist
-
-- [x] Deployed on **Google Cloud Run** (asia-southeast1)
-- [x] Uses **Gemini 2.5 Flash** via Google ADK
-- [x] **Firestore** for persistence
-- [x] **MCP** wire protocol
-- [x] AI tools disclosed above
-- [ ] 3-minute demo video (see `/docs/demo-script.md`)
-- [ ] 15-page slide deck (see `/docs/slides.pdf`)
-
 ## License
 
-MIT — see LICENSE.
+MIT. See [`LICENSE`](./LICENSE).

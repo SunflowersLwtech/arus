@@ -15,6 +15,7 @@ from pydantic import BaseModel
 
 from backend.game.engine import GameEngine
 from backend.game.scenario import available_scenarios
+from backend.services import narrator
 
 router = APIRouter()
 
@@ -47,6 +48,8 @@ async def start_game(req: StartRequest):
     engine = GameEngine.start_new(world, scenario_id=req.scenario_id, locale=req.locale)
     main.set_game_engine(engine)
 
+    intro = await narrator.generate_intro(engine.scenario, req.locale)
+
     return {
         "status": "ok",
         "data": {
@@ -61,6 +64,7 @@ async def start_game(req: StartRequest):
                 "duration_seconds": engine.scenario.duration_seconds,
             },
             "gauges": engine.gauges.as_dict(),
+            "intro": intro,
         },
     }
 
@@ -96,4 +100,8 @@ async def game_debrief():
         raise HTTPException(status_code=409, detail="No game session")
     if not engine.is_over():
         raise HTTPException(status_code=425, detail="Game still in progress")
-    return {"status": "ok", "data": engine.compute_debrief()}
+
+    debrief = engine.compute_debrief()
+    commentary = await narrator.generate_debrief(debrief, engine.locale)
+    debrief["commentary"] = commentary
+    return {"status": "ok", "data": debrief}

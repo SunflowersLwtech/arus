@@ -1,5 +1,14 @@
 # Proof of Life — Arus on production Cloud Run
 
+> **Historical note (2026-04-21)** — this file captures production output
+> from the v1 autonomous-coordinator architecture. The live URL now
+> serves **Arus — Banjir Drill** (a citizen-facing simulator); the
+> 5-stage agency-dispatcher handoff shown below no longer runs. The
+> evidence below is preserved because it documents that the v1
+> architecture did work end-to-end on Cloud Run before the product
+> pivot. For the current product's verification path, see
+> `docs/FOR-JUDGES.md`.
+
 _Captured 2026-04-20 03:25 MYT from `https://arus-1030181742799.asia-southeast1.run.app`._
 
 This is not a mock. This is the actual output produced by the 5th-stage

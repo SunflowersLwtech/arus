@@ -1,5 +1,13 @@
 # Arus Operations Runbook
 
+> **Note (2026-04-21)** — this runbook was authored for the v1
+> autonomous-coordinator architecture. The product pivoted to
+> **Arus — Banjir Drill** (citizen-facing simulator). Most procedures
+> below (agent restart, rate-limit tuning, handoff replay) no longer
+> apply. The still-valid parts — rollback, Cloud Run redeploy, rotating
+> the Gemini key, Cloud Logging queries — are flagged with ✅. The
+> obsolete sections are flagged with ⚠️.
+
 For the 48 hours around submission and Demo Day. Short and oriented
 toward what you actually need to do if something breaks.
 

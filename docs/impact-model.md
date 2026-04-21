@@ -1,5 +1,14 @@
 # Arus Impact Model
 
+> **Historical note (2026-04-21)** — this document was written for the v1
+> autonomous-coordinator architecture. The product has since pivoted to
+> **Arus — Banjir Drill**, a citizen-facing simulator. The impact
+> framing below (rescue-latency reduction via AI dispatch) no longer
+> reflects the current product's intent (civic education). Kept as
+> historical reference for the v1 architecture preserved at git tag
+> `v1-coordinator`. Current impact framing lives in the main README and
+> in `hackathon/reports/SUBMIT-ME.md`.
+
 _Source citations are intentionally conservative. Assumptions below are
  deliberately stated so judges can check the math rather than take the
  headline claim on faith._

@@ -62,7 +62,7 @@ const useMissionStore = create((set, get) => ({
     }
   }),
 
-  startGameLocal: ({ session_id, scenario, gauges }) => set({
+  startGameLocal: ({ session_id, scenario, gauges, intro }) => set({
     gameStatus: 'running',
     gameStatusReason: '',
     scenario,
@@ -71,9 +71,9 @@ const useMissionStore = create((set, get) => ({
     narratorLog: [{
       id: 'intro',
       timestamp: Date.now(),
-      speaker: 'NADMA',
-      text_en: scenario.intro_hook_en || '',
-      text_bm: scenario.intro_hook_bm || '',
+      speaker: 'NADMA · Datuk Nadia',
+      text_en: intro?.en || scenario.intro_hook_en || '',
+      text_bm: intro?.bm || scenario.intro_hook_bm || '',
       tone: 'intro',
     }],
     choiceHistory: [],

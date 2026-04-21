@@ -86,6 +86,21 @@ export default function DebriefScreen() {
             </div>
           </div>
 
+          {/* Gemini-authored NADMA commentary */}
+          {debrief.commentary && (
+            <div className="p-6 border-b" style={{ borderColor: '#1E3A5F', background: 'rgba(0,212,255,0.03)' }}>
+              <div className="text-xs uppercase tracking-widest mb-3" style={{ color: '#00D4FF' }}>
+                📻 {locale === 'bm' ? 'Ulasan NADMA · Datuk Nadia' : 'NADMA commentary · Datuk Nadia'}
+                {debrief.commentary.source === 'fallback' && (
+                  <span className="ml-2 text-[9px] opacity-60">(offline mode)</span>
+                )}
+              </div>
+              <div className="text-sm leading-relaxed whitespace-pre-wrap" style={{ color: '#E6F0FA' }}>
+                {(locale === 'bm' ? debrief.commentary.bm : debrief.commentary.en) || debrief.commentary.en}
+              </div>
+            </div>
+          )}
+
           {/* Your numbers */}
           <div className="p-6 border-b" style={{ borderColor: '#1E3A5F' }}>
             <div className="text-xs uppercase tracking-widest mb-3" style={{ color: '#00D4FF' }}>{copy.yours}</div>
