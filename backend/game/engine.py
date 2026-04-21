@@ -38,6 +38,7 @@ class ChoiceRecord:
     gauges_after: dict
     flavor_bm: str
     flavor_en: str
+    ai_option_id: str = ""   # what COACH recommended (if any) — for alignment metric
 
 
 # Atmospheric "while you wait" lines. Short, Malaysia-flavoured, low
@@ -102,6 +103,8 @@ class GameEngine:
     _passive_index: int = 0
     _detected_ids: set[str] = field(default_factory=set)
     _scout_bonus_used: int = 0
+    _prealerts_fired: set[str] = field(default_factory=set)
+    live_warnings: list = field(default_factory=list)
 
     @classmethod
     def start_new(
@@ -109,17 +112,23 @@ class GameEngine:
         world: GridWorld,
         scenario_id: str = "shah_alam_hard",
         locale: str = "en",
+        live_warnings: list | None = None,
     ) -> "GameEngine":
+        # If MetMalaysia has active warnings today, tighten the card cadence
+        # by up to 20%. Today's real weather reshapes today's drill.
+        warnings = list(live_warnings or [])
+        difficulty_squeeze = min(0.2, 0.05 * len(warnings))
         scenario = load_scenario(scenario_id)
+        if difficulty_squeeze > 0:
+            for card in scenario.cards:
+                card.trigger_tick = max(10, int(card.trigger_tick * (1.0 - difficulty_squeeze)))
         engine = cls(
             world=world,
             scenario=scenario,
             locale=locale,
             gauges=Gauges(time_remaining=scenario.duration_seconds),
         )
-        # Seed a few objectives on the map that the game intro references.
-        # GridWorld already spawns victims via ObjectiveField; we just make
-        # sure the player sees something immediately.
+        engine.live_warnings = warnings
         return engine
 
     # ─── Per-tick advancement ─────────────────────────────────
@@ -137,6 +146,26 @@ class GameEngine:
         if tick != self._last_tick:
             self.gauges.time_remaining = max(0.0, self.gauges.time_remaining - 0.2)
             self._last_tick = tick
+
+        # Pre-alert: 60 ticks (~12 s) before a card's trigger_tick, paint
+        # its coord on the map as a pulsing hotspot. Players who scout it
+        # early gain an advantage when the call actually comes in.
+        if self._pending_card is None:
+            for card in self.scenario.cards:
+                if card.id in self._fired_card_ids or card.id in self._prealerts_fired:
+                    continue
+                if card.trigger_tick - tick <= 60 and tick < card.trigger_tick:
+                    self._prealerts_fired.add(card.id)
+                    events.append({
+                        "type": "prealert",
+                        "payload": {
+                            "card_id": card.id,
+                            "coord": list(card.coord or [0, 0]),
+                            "eta_ticks": max(0, card.trigger_tick - tick),
+                            "title_en": card.title_en,
+                            "title_bm": card.title_bm,
+                        },
+                    })
 
         # Surface the next card whose trigger tick has passed.
         if self._pending_card is None:
@@ -226,8 +255,13 @@ class GameEngine:
 
     # ─── Player action ─────────────────────────────────────────
 
-    def choose(self, card_id: str, option_id: str) -> dict:
-        """Apply a player's choice. Returns a broadcastable event payload."""
+    def choose(self, card_id: str, option_id: str, ai_option_id: str = "") -> dict:
+        """Apply a player's choice. Returns a broadcastable event payload.
+
+        `ai_option_id` is the option the COACH agent recommended for this
+        card (empty if not in COACH or no recommendation yet). Stored on
+        the ChoiceRecord so debrief can compute alignment + counterfactual.
+        """
         if self._pending_card is None or self._pending_card.id != card_id:
             return {"type": "player_command_result", "payload": {"ok": False, "reason": "no_card_pending"}}
         option = next((o for o in self._pending_card.options if o.id == option_id), None)
@@ -279,6 +313,7 @@ class GameEngine:
             gauges_after=self.gauges.as_dict(),
             flavor_bm=option.flavor_bm,
             flavor_en=option.flavor_en,
+            ai_option_id=ai_option_id or "",
         )
         self._history.append(record)
         self._pending_card = None
@@ -321,6 +356,7 @@ class GameEngine:
             "current_card": self._card_payload(self._pending_card) if self._pending_card else None,
             "next_card_tick": next_card.trigger_tick if next_card and self._pending_card is None else None,
             "tick": self._last_tick,
+            "live_warnings_count": len(self.live_warnings),
             "history": [
                 {
                     "card_id": h.card_id,
@@ -369,6 +405,9 @@ class GameEngine:
             option = None
             if card:
                 option = next((o for o in card.options if o.id == h.option_id), None)
+            ai_option = None
+            if card and h.ai_option_id:
+                ai_option = next((o for o in card.options if o.id == h.ai_option_id), None)
             return {
                 "card_id": h.card_id,
                 "option_id": h.option_id,
@@ -381,6 +420,34 @@ class GameEngine:
                 "option_label_en": option.label_en if option else h.option_id,
                 "option_label_bm": option.label_bm if option else h.option_id,
                 "agency": option.agency if option and option.agency else "",
+                "ai_option_id": h.ai_option_id,
+                "ai_option_label_en": ai_option.label_en if ai_option else "",
+                "ai_option_label_bm": ai_option.label_bm if ai_option else "",
+                "ai_deltas": dict(ai_option.deltas) if ai_option else {},
+            }
+
+        choices = [_enrich(h) for h in self._history]
+
+        # Alignment: how often did the player follow the AI's recommendation?
+        with_ai = [c for c in choices if c["ai_option_id"]]
+        aligned = sum(1 for c in with_ai if c["ai_option_id"] == c["option_id"])
+        alignment = {
+            "total_with_ai": len(with_ai),
+            "aligned": aligned,
+            "pct": round(100 * aligned / len(with_ai)) if with_ai else 0,
+        } if with_ai else None
+
+        # Counterfactual: what gauges would you have ended with if you'd
+        # followed the AI on every card it had a recommendation for?
+        counterfactual = None
+        if with_ai:
+            hypo = Gauges(time_remaining=self.scenario.duration_seconds)
+            for c in choices:
+                d = c["ai_deltas"] if c["ai_option_id"] else c["deltas"]
+                apply_delta(hypo, d)
+            counterfactual = {
+                "gauges": hypo.as_dict(),
+                "grade": compute_grade(hypo, self.scenario.target_saved),
             }
 
         return {
@@ -389,8 +456,11 @@ class GameEngine:
             "grade": compute_grade(self.gauges, self.scenario.target_saved),
             "gauges": self.gauges.as_dict(),
             "target_saved": self.scenario.target_saved,
-            "choices": [_enrich(h) for h in self._history],
+            "choices": choices,
+            "alignment": alignment,
+            "counterfactual": counterfactual,
             "real_event": stats,
+            "live_warnings": self.live_warnings,
             "extension_links": {
                 "nadma_portal_bencana": "https://portalbencana.nadma.gov.my/en/",
                 "public_infobanjir": "https://publicinfobanjir.water.gov.my/",

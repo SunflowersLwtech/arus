@@ -39,6 +39,11 @@ const useMissionStore = create((set, get) => ({
   autoStatus: null,                 // {status, cycle, mission_id, message}
   floodedCells: [],                 // [[x,y,level], ...] from flood overlay
 
+  // v3.1 — ecosystem closure
+  prealerts: {},                    // {card_id: {coord, eta_ticks, title_en/bm}}
+  liveWarnings: [],                 // MetMalaysia snapshot captured at /start
+  latestHandoff: null,              // {agency, coord, bm, en, action, ts}
+
   // ─── Connection ─────────────────────────────────────────
   connected: false,
 
@@ -106,6 +111,21 @@ const useMissionStore = create((set, get) => ({
   setAutoStatus: (st) => set({ autoStatus: st }),
 
   setFloodedCells: (cells) => set({ floodedCells: cells || [] }),
+
+  addPreAlert: (p) => set(state => ({
+    prealerts: { ...state.prealerts, [p.card_id]: p },
+  })),
+
+  clearPreAlert: (card_id) => set(state => {
+    if (!state.prealerts[card_id]) return {}
+    const next = { ...state.prealerts }
+    delete next[card_id]
+    return { prealerts: next }
+  }),
+
+  setLiveWarnings: (ws) => set({ liveWarnings: ws || [] }),
+
+  setLatestHandoff: (h) => set({ latestHandoff: h }),
 
   startGameLocal: ({ session_id, scenario, gauges, intro }) => set({
     gameStatus: 'running',

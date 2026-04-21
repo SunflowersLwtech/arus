@@ -43,6 +43,9 @@ export async function startGame(scenarioId = 'shah_alam_hard', locale = 'en', mo
   } else {
     store.startGameLocal(data)
   }
+  // Stash today's live MetMalaysia warnings so the Start/Debrief can
+  // surface "same URL, different day, different drill".
+  store.setLiveWarnings(data.live_warnings || [])
   return data
 }
 

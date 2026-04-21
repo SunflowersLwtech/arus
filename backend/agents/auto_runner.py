@@ -274,9 +274,20 @@ class AgentRunner:
                 # endpoint instead of grepping /api/logs.
                 if agent_name == "agency_dispatcher":
                     try:
-                        handoff_log.ingest_agency_text(
+                        new_records = handoff_log.ingest_agency_text(
                             part.text, cycle=cycle, mission_id=self.mission_id,
                         )
+                        # Push each newly-parsed handoff to the frontend so
+                        # it can render a toast. This is the "physical
+                        # output" of the 5-stage pipeline — what would
+                        # actually be sent to BOMBA over WhatsApp in real
+                        # ops — and judges need to see it, not just have it
+                        # sit in a ring buffer.
+                        for rec in (new_records or []):
+                            await self._broadcast({
+                                "type": "agency_handoff",
+                                "payload": rec,
+                            })
                     except Exception as hi_err:
                         logger.debug(f"handoff ingest failed: {hi_err}")
 

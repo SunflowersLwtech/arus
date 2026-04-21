@@ -92,6 +92,13 @@ class CoachAgent:
         self._session_id: Optional[str] = None
         self._busy = False
         self._last_recommendation: Optional[dict] = None
+        # Keyed by card_id → recommendation dict. Lets the game engine
+        # compute alignment between player choice and AI suggestion.
+        self._recs_by_card: dict[str, dict] = {}
+
+    def get_recommendation_for(self, card_id: str) -> Optional[dict]:
+        """Return the cached recommendation for a specific card, if any."""
+        return self._recs_by_card.get(card_id)
 
     async def _ensure_session(self) -> str:
         if self._session_id is None:
@@ -150,6 +157,10 @@ class CoachAgent:
 
             recommendation = self._last_recommendation
             elapsed = time.time() - started
+            if recommendation and card_payload.get("id"):
+                # Cache keyed by card so the engine can resolve alignment
+                # when the player later picks an option.
+                self._recs_by_card[card_payload["id"]] = recommendation
             await self._broadcast({
                 "type": "agent_status",
                 "payload": {

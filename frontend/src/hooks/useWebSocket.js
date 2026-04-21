@@ -30,6 +30,12 @@ function handleMessage(event) {
       if (msg.payload?.flooded_cells) store.setFloodedCells(msg.payload.flooded_cells)
     } else if (msg.type === 'game_card') {
       store.presentCard(msg.payload)
+      // When the card finally surfaces, clear its pre-alert marker.
+      if (msg.payload?.id) store.clearPreAlert(msg.payload.id)
+    } else if (msg.type === 'prealert') {
+      store.addPreAlert(msg.payload)
+    } else if (msg.type === 'agency_handoff') {
+      store.setLatestHandoff({ ...msg.payload, ts: Date.now() })
     } else if (msg.type === 'player_command_result') {
       if (msg.payload?.ok) store.applyChoiceResult(msg.payload)
     } else if (msg.type === 'game_over') {

@@ -15,13 +15,18 @@ const STATUS_COLORS = {
   completed: '#00D4FF',
 }
 
+const MODE_CHIP = {
+  PLAY: { en: '🚨 NADMA Ops · Play', bm: '🚨 Ops NADMA · Main', color: '#00D4FF' },
+  COACH: { en: '🧠 NADMA Ops · with AI mentor', bm: '🧠 Ops NADMA · dengan jurulatih AI', color: '#FFCC00' },
+  AUTO: { en: '🎛 NADMA Ops · AI autopilot', bm: '🎛 Ops NADMA · autopilot AI', color: '#FF6A3D' },
+}
+
 export default function GlobalStatusBar() {
   const missionStatus = useMissionStore(s => s.missionStatus)
   const tick = useMissionStore(s => s.tick)
-  const fleet = useMissionStore(s => s.fleet)
-  const coverage = useMissionStore(s => s.coverage)
-  const objectivesFound = useMissionStore(s => s.objectivesFound)
-  const objectivesTotal = useMissionStore(s => s.objectivesTotal)
+  const mode = useMissionStore(s => s.mode)
+  const locale = useMissionStore(s => s.locale)
+  const gameStatus = useMissionStore(s => s.gameStatus)
   const connected = useMissionStore(s => s.connected)
 
   // MetMalaysia live-feed indicator (polls every 5 min, same TTL as backend cache)
@@ -43,15 +48,11 @@ export default function GlobalStatusBar() {
     return () => { cancelled = true; clearInterval(id) }
   }, [])
 
-  const activeCount = fleet.filter(u => u.status !== 'offline').length
-  const avgPower = fleet.length > 0
-    ? Math.round(fleet.reduce((s, u) => s + u.power, 0) / fleet.length)
-    : 0
-
   const mm = String(Math.floor(tick / 60)).padStart(2, '0')
   const ss = String(tick % 60).padStart(2, '0')
 
   const statusColor = STATUS_COLORS[missionStatus] || '#6C757D'
+  const modeChip = MODE_CHIP[mode] || MODE_CHIP.PLAY
 
   return (
     <div className="flex items-center justify-between px-4 py-2 border-b"
@@ -80,41 +81,18 @@ export default function GlobalStatusBar() {
         </span>
       </div>
 
-      {/* Right: Key metrics */}
-      <div className="flex items-center gap-1 shrink-0 overflow-x-auto">
-        {/* Fleet (hidden on phone to keep header tidy) */}
-        <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded cursor-help"
-          style={{ background: 'rgba(6,214,160,0.08)' }}
-          title={`Unmanned aerial vehicles online — ${activeCount} of ${fleet.length} drones active, average battery ${avgPower}%. Drones fly rescue missions when you pick a dispatch option.`}>
-          <span className="text-[10px] font-mono" style={{ color: 'rgba(255,255,255,0.4)' }}>UAV</span>
-          <span className="font-mono text-xs font-bold" style={{ color: '#06D6A0' }}>
-            {activeCount}/{fleet.length}
-          </span>
-          <span className="text-[10px] font-mono" style={{ color: 'rgba(255,255,255,0.3)' }}>
-            {avgPower}%
-          </span>
-        </div>
-
-        {/* Coverage (hidden on phone) */}
-        <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded cursor-help"
-          style={{ background: 'rgba(0,212,255,0.08)' }}
-          title={`Coverage — percentage of the 20×20 flood grid scanned so far (${coverage.toFixed(1)}%). Higher coverage = fewer blind spots.`}>
-          <span className="text-[10px] font-mono" style={{ color: 'rgba(255,255,255,0.4)' }}>COV</span>
-          <span className="font-mono text-xs font-bold" style={{ color: '#00D4FF' }}>
-            {coverage.toFixed(1)}%
-          </span>
-        </div>
-
-        {/* Objectives (hidden on phone) */}
-        <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded cursor-help"
-          style={{ background: objectivesFound > 0 ? 'rgba(6,214,160,0.08)' : 'rgba(244,162,97,0.08)' }}
-          title={`Objectives — victim detection markers on the map (${objectivesFound} found of ${objectivesTotal} total).`}>
-          <span className="text-[10px] font-mono" style={{ color: 'rgba(255,255,255,0.4)' }}>OBJ</span>
-          <span className="font-mono text-xs font-bold"
-            style={{ color: objectivesFound >= objectivesTotal && objectivesTotal > 0 ? '#06D6A0' : '#F4A261' }}>
-            {objectivesFound}/{objectivesTotal}
-          </span>
-        </div>
+      {/* Right: role chip + MetMalaysia feed + connection */}
+      <div className="flex items-center gap-2 shrink-0 overflow-x-auto">
+        {/* Role chip — tells you WHO you are in one glance.
+            Polanyi: the UI states the role; the affordance follows. */}
+        {gameStatus !== 'not_started' && (
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded"
+            style={{ background: `${modeChip.color}15`, border: `1px solid ${modeChip.color}40` }}>
+            <span className="font-mono text-[10px] font-semibold" style={{ color: modeChip.color, letterSpacing: 0.8 }}>
+              {locale === 'bm' ? modeChip.bm : modeChip.en}
+            </span>
+          </div>
+        )}
 
         {/* MetMalaysia LIVE badge — proof of Malaysia integration */}
         {metCount !== null && (

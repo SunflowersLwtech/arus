@@ -10,6 +10,7 @@ import AgencyStatusPanel from './components/AgencyStatusPanel'
 import NextCallEta from './components/NextCallEta'
 import CoachConsole from './components/CoachConsole'
 import AutoWatcher from './components/AutoWatcher'
+import HandoffToast from './components/HandoffToast'
 import useMissionStore from './stores/missionStore'
 import useWebSocket from './hooks/useWebSocket'
 
@@ -127,6 +128,7 @@ export default function App() {
 
       {showStart && <StartScreen />}
       {showDebrief && <DebriefScreen />}
+      <HandoffToast />
     </div>
   )
 }

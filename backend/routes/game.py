@@ -15,7 +15,7 @@ from pydantic import BaseModel
 
 from backend.game.engine import GameEngine
 from backend.game.scenario import available_scenarios
-from backend.services import narrator
+from backend.services import narrator, met_feed
 
 router = APIRouter()
 
@@ -84,8 +84,21 @@ async def start_game(req: StartRequest):
             },
         }
 
+    # Seed the scenario with today's real MetMalaysia warnings — same URL,
+    # different day, different drill. If the fetch fails we just play the
+    # baseline scenario; warnings are optional stimuli.
+    try:
+        live_warnings = await met_feed.fetch_warnings(limit=5)
+    except Exception:
+        live_warnings = []
+
     # PLAY + COACH share the GameEngine.
-    engine = GameEngine.start_new(world, scenario_id=req.scenario_id, locale=req.locale)
+    engine = GameEngine.start_new(
+        world,
+        scenario_id=req.scenario_id,
+        locale=req.locale,
+        live_warnings=live_warnings,
+    )
     main.set_game_engine(engine)
     intro = await narrator.generate_intro(engine.scenario, req.locale)
 
@@ -109,6 +122,7 @@ async def start_game(req: StartRequest):
             },
             "gauges": engine.gauges.as_dict(),
             "intro": intro,
+            "live_warnings": live_warnings,
         },
     }
 
@@ -121,7 +135,16 @@ async def choose_option(req: ChooseRequest):
     if engine is None:
         raise HTTPException(status_code=409, detail="No game in progress — POST /api/game/start first")
 
-    result = engine.choose(req.card_id, req.option_id)
+    # If COACH is running, pull the recommendation it cached for this card
+    # so the engine can stamp alignment on the ChoiceRecord.
+    ai_option_id = ""
+    coach = main.get_coach_agent()
+    if coach is not None:
+        rec = coach.get_recommendation_for(req.card_id)
+        if rec:
+            ai_option_id = str(rec.get("option_id") or "")
+
+    result = engine.choose(req.card_id, req.option_id, ai_option_id=ai_option_id)
     return {"status": "ok", "data": result["payload"]}
 
 

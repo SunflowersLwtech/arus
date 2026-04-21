@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import useMissionStore from '../stores/missionStore'
 import { startGame } from '../hooks/useGameApi'
 import ModeSelector from './ModeSelector'
@@ -6,8 +6,21 @@ import ModeSelector from './ModeSelector'
 export default function StartScreen() {
   const locale = useMissionStore(s => s.locale)
   const setLocale = useMissionStore(s => s.setLocale)
+  const setLiveWarnings = useMissionStore(s => s.setLiveWarnings)
+  const liveWarnings = useMissionStore(s => s.liveWarnings)
   const [busy, setBusy] = useState(false)
   const [mode, setMode] = useState('PLAY')
+
+  // Fetch today's MetMalaysia warnings on mount so players see the
+  // "today's weather shapes today's drill" pill before they even click.
+  useEffect(() => {
+    let cancelled = false
+    fetch('/api/live/warnings?limit=3')
+      .then(r => (r.ok ? r.json() : null))
+      .then(j => { if (!cancelled && j?.data) setLiveWarnings(j.data) })
+      .catch(() => {})
+    return () => { cancelled = true }
+  }, [setLiveWarnings])
 
   const copy = locale === 'bm'
     ? {
@@ -90,14 +103,27 @@ export default function StartScreen() {
 
         <ModeSelector value={mode} onChange={setMode} locale={locale} />
 
-        <div className="mb-6 p-3 rounded" style={{ background: '#0B1426', border: '1px solid #1E3A5F' }}>
-          <div className="text-[10px] uppercase tracking-widest mb-2" style={{ color: '#00D4FF' }}>
-            {copy.howto_heading}
+        {/* Live MetMalaysia pill — "same URL, different day, different drill" */}
+        {liveWarnings && liveWarnings.length > 0 && (
+          <div className="mb-4 px-3 py-2 rounded flex items-start gap-2 text-[11px]"
+            style={{ background: 'rgba(230,57,70,0.08)', border: '1px solid #E6394660' }}>
+            <span className="inline-block w-2 h-2 rounded-full animate-pulse shrink-0 mt-1" style={{ background: '#E63946' }} />
+            <div className="flex-1">
+              <div className="font-mono font-semibold" style={{ color: '#E63946' }}>
+                {locale === 'bm'
+                  ? `MetMalaysia · ${liveWarnings.length} amaran aktif`
+                  : `MetMalaysia · ${liveWarnings.length} live warning${liveWarnings.length !== 1 ? 's' : ''}`}
+              </div>
+              <div style={{ color: '#C4D4E6' }}>
+                {liveWarnings[0].title_en || liveWarnings[0].title || ''}
+                {' '}
+                <span style={{ color: '#9EB0C8' }}>
+                  ({locale === 'bm' ? 'kadensi kad dipercepat' : 'card cadence tightened'})
+                </span>
+              </div>
+            </div>
           </div>
-          <ol className="text-[13px] leading-relaxed space-y-1 pl-4 list-decimal" style={{ color: '#C4D4E6' }}>
-            {copy.howto.map((line, i) => <li key={i}>{line}</li>)}
-          </ol>
-        </div>
+        )}
 
         <button
           onClick={onStart}

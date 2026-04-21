@@ -33,6 +33,11 @@ export default function DebriefScreen() {
     grade: 'Gred',
     timeline: 'Garis masa keputusan',
     noChoices: 'Tiada keputusan direkodkan.',
+    alignment_heading: 'Penjajaran dengan pakar AI',
+    alignment_pct: '% anda mengikut cadangan AI',
+    counterfactual: 'Jika anda ikut AI setiap kali',
+    watchAi: '🤖 Tonton AI selesaikan senario ini',
+    liveWarnings: 'Amaran MetMalaysia aktif hari ini',
     status: {
       won: 'Anda berjaya selaraskan penyelamatan di tengah kekacauan.',
       partial: 'Anda menyelamatkan sebahagian. Banyak yang masih tidak dijawab.',
@@ -51,6 +56,11 @@ export default function DebriefScreen() {
     grade: 'Grade',
     timeline: 'Decision timeline',
     noChoices: 'No decisions logged.',
+    alignment_heading: 'Alignment with the AI expert',
+    alignment_pct: '% of calls you followed the AI',
+    counterfactual: 'If you\'d followed the AI every time',
+    watchAi: '🤖 Watch the AI tackle this scenario',
+    liveWarnings: 'Live MetMalaysia warnings active today',
     status: {
       won: 'You coordinated rescue under pressure. Cleanly done.',
       partial: 'You saved some. Many calls went unanswered.',
@@ -64,7 +74,16 @@ export default function DebriefScreen() {
   const onRestart = async () => {
     resetGame()
     try {
-      await startGame('shah_alam_hard', locale)
+      await startGame('shah_alam_hard', locale, 'PLAY')
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  const onWatchAi = async () => {
+    resetGame()
+    try {
+      await startGame('shah_alam_hard', locale, 'AUTO')
     } catch (e) {
       console.error(e)
     }
@@ -120,6 +139,76 @@ export default function DebriefScreen() {
               <Stat label={copy.target} value={debrief.target_saved} />
             </div>
           </div>
+
+          {/* Alignment with the AI expert (COACH only) */}
+          {debrief.alignment && debrief.alignment.total_with_ai > 0 && (
+            <div className="p-6 border-b" style={{ borderColor: '#FFCC0030', background: 'rgba(255,204,0,0.04)' }}>
+              <div className="text-xs uppercase tracking-widest mb-3" style={{ color: '#FFCC00' }}>
+                🤖 {copy.alignment_heading}
+              </div>
+              <div className="flex items-baseline gap-3 mb-3">
+                <div className="text-4xl font-bold" style={{ color: '#FFCC00' }}>
+                  {debrief.alignment.pct}%
+                </div>
+                <div className="text-[11px]" style={{ color: '#9EB0C8' }}>
+                  {copy.alignment_pct} ({debrief.alignment.aligned}/{debrief.alignment.total_with_ai})
+                </div>
+              </div>
+              {debrief.counterfactual && (
+                <div className="mt-3 p-3 rounded" style={{ background: '#0B1426', border: '1px dashed #FFCC0060' }}>
+                  <div className="text-[10px] uppercase tracking-wider mb-1.5" style={{ color: '#FFCC00' }}>
+                    {copy.counterfactual}
+                  </div>
+                  <div className="flex items-center gap-4 text-sm">
+                    <div>
+                      <span className="text-[10px]" style={{ color: '#7A8BA3' }}>{copy.saved}</span>{' '}
+                      <span className="font-semibold text-white">
+                        {debrief.counterfactual.gauges.saved} / {debrief.target_saved}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-[10px]" style={{ color: '#7A8BA3' }}>{copy.trust}</span>{' '}
+                      <span className="font-semibold text-white">
+                        {Math.round(debrief.counterfactual.gauges.trust)}%
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-[10px]" style={{ color: '#7A8BA3' }}>{copy.grade}</span>{' '}
+                      <span className="text-xl font-bold" style={{ color: '#FFCC00' }}>
+                        {debrief.counterfactual.grade}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="mt-2 text-[11px]" style={{ color: '#9EB0C8' }}>
+                    vs.{' '}
+                    <span className="font-semibold text-white">
+                      {debrief.gauges.saved}/{debrief.target_saved} · {Math.round(debrief.gauges.trust)}% · {debrief.grade}
+                    </span>
+                    {' '}{locale === 'bm' ? '(prestasi sebenar anda)' : '(your actual)'}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Live MetMalaysia context — same URL different day */}
+          {debrief.live_warnings && debrief.live_warnings.length > 0 && (
+            <div className="p-6 border-b" style={{ borderColor: '#E6394640' }}>
+              <div className="text-xs uppercase tracking-widest mb-2" style={{ color: '#E63946' }}>
+                🌧 {copy.liveWarnings}
+              </div>
+              <div className="text-[11px]" style={{ color: '#9EB0C8' }}>
+                {locale === 'bm'
+                  ? 'Drill anda diubah suai berdasarkan data MetMalaysia sebenar pada waktu permainan:'
+                  : 'Your drill was tuned by live MetMalaysia data at play time:'}
+              </div>
+              <ul className="mt-2 space-y-1 text-[12px]" style={{ color: '#E6F0FA' }}>
+                {debrief.live_warnings.slice(0, 3).map((w, i) => (
+                  <li key={i}>• {w.title_en || w.title || JSON.stringify(w).slice(0, 80)}</li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {/* Decision timeline */}
           {debrief.choices && debrief.choices.length > 0 && (
@@ -177,13 +266,20 @@ export default function DebriefScreen() {
             </div>
           </div>
 
-          <div className="p-6">
+          <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-2">
             <button
               onClick={onRestart}
-              className="w-full px-6 py-3 rounded-md font-semibold"
+              className="px-6 py-3 rounded-md font-semibold transition-colors"
               style={{ background: '#00D4FF', color: '#0B1426' }}
             >
               {copy.again}
+            </button>
+            <button
+              onClick={onWatchAi}
+              className="px-6 py-3 rounded-md font-semibold transition-colors"
+              style={{ background: '#FF6A3D', color: '#0B1426' }}
+            >
+              {copy.watchAi}
             </button>
           </div>
         </div>
