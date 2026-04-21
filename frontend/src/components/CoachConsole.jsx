@@ -22,6 +22,40 @@ function truncate(s, n = 240) {
   return s.length <= n ? s : s.slice(0, n).trimEnd() + '…'
 }
 
+// Unwrap MCP protocol wrapping to get natural-language text.
+// Raw MCP tool results look like {"content":[{"type":"text","text":"..."}]} —
+// we want to surface ONLY the inner text so judges don't see the wire layer.
+function humanizeMcpResult(raw) {
+  if (!raw) return ''
+  const s = String(raw).trim()
+  // Quick path: looks like JSON? Try parse.
+  if (s.startsWith('{') || s.startsWith('[')) {
+    try {
+      const o = JSON.parse(s)
+      if (Array.isArray(o?.content)) {
+        const bits = o.content
+          .filter(c => c?.type === 'text' && c.text)
+          .map(c => c.text)
+        if (bits.length) return bits.join(' ')
+      }
+      // fallback — compact JSON still, but stripped of outer wrappers
+      return JSON.stringify(o).slice(0, 160)
+    } catch {
+      // not parsable — passthrough
+    }
+  }
+  return s
+}
+
+// Detect reasoning text that is really just the recommender's JSON
+// payload leaking before our parser turns it into the clean MentorBrief.
+function isStructuredJsonLeak(text) {
+  if (!text) return false
+  const t = text.trim()
+  if (!(t.startsWith('{') || t.startsWith('```'))) return false
+  return /\boption_id\b|\breasoning_en\b|\bsuggested_drone\b/.test(t)
+}
+
 function RadioEntry({ entry, locale }) {
   const k = entry.kind || 'reasoning'
   const stage = stageFor(entry.agent)
@@ -50,11 +84,14 @@ function RadioEntry({ entry, locale }) {
         </div>
         <div className="text-[12px] leading-relaxed" style={{ color: '#C4D4E6' }}>
           {locale === 'bm' ? 'Dari' : 'From'} <span className="font-mono">{entry.tool}</span>:{' '}
-          {truncate(entry.result, 180)}
+          {truncate(humanizeMcpResult(entry.result), 180)}
         </div>
       </div>
     )
   }
+  // Hide raw JSON leaks from the recommender — the parsed MentorBrief
+  // already renders the recommendation cleanly in prose below.
+  if (isStructuredJsonLeak(entry.text)) return null
   // reasoning — render as a NADMA-style radio call
   return (
     <div className="mb-2.5">

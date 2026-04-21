@@ -107,7 +107,18 @@ export default function DebriefScreen() {
               {/* In-overlay BM/EN toggle — the nav-bar one is covered by this overlay. */}
               <LanguageToggle />
             </div>
-            <div className="text-2xl font-bold text-white mb-2">{copy.status[debrief.status] || debrief.status}</div>
+            <div className="text-2xl font-bold text-white mb-2">{
+              // Derive the headline from the actual outcome, not just the
+              // enum — the engine can set status="won" on 0%-asset target-
+              // met runs, but we want a crisper copy for edge cases.
+              (() => {
+                const saved = debrief.gauges?.saved ?? 0
+                const target = debrief.target_saved ?? 1
+                if (saved >= target) return copy.status.won
+                if (saved > 0) return copy.status.partial
+                return copy.status.failed
+              })()
+            }</div>
             <div className="flex items-center gap-4 mt-3">
               <div className="text-5xl font-bold" style={{ color: '#00D4FF' }}>{debrief.grade}</div>
               <div className="text-xs" style={{ color: '#7A8BA3' }}>{copy.grade}</div>

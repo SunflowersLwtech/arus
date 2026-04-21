@@ -9,6 +9,7 @@ export default function NextCallEta() {
   const currentCard = useMissionStore(s => s.currentCard)
   const targetingDroneId = useMissionStore(s => s.targetingDroneId)
   const locale = useMissionStore(s => s.locale)
+  const choiceHistory = useMissionStore(s => s.choiceHistory)
 
   if (targetingDroneId) {
     return (
@@ -19,7 +20,22 @@ export default function NextCallEta() {
     )
   }
 
-  if (currentCard || nextTick == null) return null
+  if (currentCard) return null
+
+  // Card queue empty → tell the player the session wraps up at 0:00.
+  // Judge flagged: "Next call ~0s" used to persist for minutes after the
+  // last card — dissolves the stall perception.
+  const queueEmpty = nextTick == null && (choiceHistory?.length || 0) >= 8
+  if (queueEmpty) {
+    return (
+      <div className="absolute top-3 right-3 z-20 px-3 py-1.5 rounded-full text-[11px] font-mono shadow-lg"
+        style={{ background: 'rgba(6,214,160,0.15)', color: '#06D6A0', border: '1px solid rgba(6,214,160,0.4)' }}>
+        ✅ {locale === 'bm' ? 'Sesi selesai — ringkasan pada 0:00' : 'Session complete — debrief at 0:00'}
+      </div>
+    )
+  }
+
+  if (nextTick == null) return null
 
   const remaining = Math.max(0, nextTick - currentTick)
   const seconds = Math.ceil(remaining / TICKS_PER_SECOND)

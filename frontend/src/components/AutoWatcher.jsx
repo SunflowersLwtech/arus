@@ -86,8 +86,13 @@ export default function AutoWatcher() {
   return (
     <div className="h-full flex flex-col" style={{ background: '#0F1C33' }}>
       <div className="px-3 py-2 border-b" style={{ borderColor: '#1E3A5F' }}>
-        <div className="text-[10px] uppercase tracking-widest" style={{ color: '#FF6A3D' }}>
-          🎛 {locale === 'bm' ? 'AUTO · ADK 5-peringkat' : 'AUTO · 5-stage ADK pipeline'}
+        <div className="flex items-center justify-between">
+          <div className="text-[10px] uppercase tracking-widest" style={{ color: '#FF6A3D' }}>
+            🎛 {locale === 'bm' ? 'AUTO · ADK 5-peringkat' : 'AUTO · 5-stage ADK pipeline'}
+          </div>
+          <div className="text-[9px] font-mono" style={{ color: '#7A8BA3' }}>
+            {locale === 'bm' ? 'AI urus masa' : 'AI paces the clock'}
+          </div>
         </div>
         <div className="text-[9px] mt-0.5 font-mono" style={{ color: '#7A8BA3' }}>
           status: <span style={{ color: latestStatus === 'thinking' ? '#FFCC00' : latestStatus === 'error' ? '#FF5E78' : '#06D6A0' }}>

@@ -237,19 +237,25 @@ class GameEngine:
         except Exception as exc:  # pragma: no cover
             logger.debug("scout check failed: %s", exc)
 
-        # Evaluate win/lose every tick.
-        verdict = evaluate(self.gauges, self.scenario.target_saved)
-        if verdict["status"] != "in_progress":
-            self._status = verdict["status"]
-            self._status_reason = verdict["reason"]
-            events.append({
-                "type": "game_over",
-                "payload": {
-                    "status": self._status,
-                    "reason": self._status_reason,
-                    "gauges": self.gauges.as_dict(),
-                },
-            })
+        # Evaluate win/lose every tick — BUT never terminate while a
+        # card is still pending. Judge found that aggressive card-7 picks
+        # could flip status to "won" on the tick between game_card(c08)
+        # broadcast and the player's click, leaving card 8 invisible in
+        # debrief. Deferring the verdict to post-resolution closes that
+        # race and also keeps the session duration predictable for demos.
+        if self._pending_card is None:
+            verdict = evaluate(self.gauges, self.scenario.target_saved)
+            if verdict["status"] != "in_progress":
+                self._status = verdict["status"]
+                self._status_reason = verdict["reason"]
+                events.append({
+                    "type": "game_over",
+                    "payload": {
+                        "status": self._status,
+                        "reason": self._status_reason,
+                        "gauges": self.gauges.as_dict(),
+                    },
+                })
 
         return events
 
@@ -317,6 +323,14 @@ class GameEngine:
         )
         self._history.append(record)
         self._pending_card = None
+
+        # Post-resolution evaluation. on_tick defers while a card is
+        # pending; here we settle immediately so the game-over broadcast
+        # fires in lockstep with the last card's player_command_result.
+        post_verdict = evaluate(self.gauges, self.scenario.target_saved)
+        if post_verdict["status"] != "in_progress":
+            self._status = post_verdict["status"]
+            self._status_reason = post_verdict["reason"]
 
         return {
             "type": "player_command_result",
