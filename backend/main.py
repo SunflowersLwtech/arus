@@ -31,7 +31,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from backend.core.grid_world import GridWorld
 from backend.core.locality import locate, summarise_zone
 from backend.game.agencies import AGENCIES, augment_fleet
-from backend.services import vision, met_feed
+from backend.services import vision, met_feed, tool_server as mcp_tool_server
 
 logger = logging.getLogger("arus")
 logging.basicConfig(level=logging.INFO)
@@ -46,6 +46,9 @@ simulation_speed = 1.0
 # Game engine is lazy-initialised on /api/game/start so the server can boot
 # without a game context (judges will see the idle world first).
 game_engine = None  # type: ignore[assignment]
+coach_agent = None  # type: ignore[assignment]
+auto_runner = None  # type: ignore[assignment]
+current_mode: str = "PLAY"  # PLAY | COACH | AUTO
 
 
 def get_world() -> GridWorld:
@@ -61,11 +64,43 @@ def set_game_engine(engine) -> None:
     game_engine = engine
 
 
+def get_coach_agent():
+    return coach_agent
+
+
+def set_coach_agent(agent) -> None:
+    global coach_agent
+    coach_agent = agent
+
+
+def get_auto_runner():
+    return auto_runner
+
+
+def set_auto_runner(runner) -> None:
+    global auto_runner
+    auto_runner = runner
+
+
+def get_mode() -> str:
+    return current_mode
+
+
+def set_mode(mode: str) -> None:
+    global current_mode
+    current_mode = mode
+
+
 def reset_world(size: int = 20, uavs: int = 5, objs: int = 8, obstacles: int = 15) -> GridWorld:
     """Rebuild the underlying GridWorld (called when a new game starts)."""
     global world, simulation_running
     simulation_running = False
     world = GridWorld(size=size, num_uavs=uavs, num_objectives=objs, num_obstacles=obstacles)
+    # Re-wire the MCP tool server to the new world (same-process shared ref)
+    try:
+        mcp_tool_server.set_shared_world(world)
+    except Exception:
+        pass
     return world
 
 
@@ -113,11 +148,36 @@ manager = ConnectionManager()
 
 # ─── Lifespan ──────────────────────────────────────────────────
 
+async def _start_mcp_server():
+    """MCP tool server runs alongside FastAPI on port 8001 (127.0.0.1 only).
+
+    Agents (COACH + AUTO) connect to it via StreamableHTTP. Not exposed
+    externally — same container, internal loopback.
+    """
+    import uvicorn
+    mcp_tool_server.set_shared_world(world)
+    config = uvicorn.Config(
+        mcp_tool_server.mcp.streamable_http_app(),
+        host="127.0.0.1",
+        port=8001,
+        log_level="warning",
+    )
+    server = uvicorn.Server(config)
+    await server.serve()
+
+
+_mcp_task = None
+
+
 @asynccontextmanager
 async def lifespan(app):
+    global _mcp_task
+    _mcp_task = asyncio.create_task(_start_mcp_server())
     asyncio.create_task(simulation_loop())
-    logger.info("Arus Banjir Drill started on port 8000")
+    logger.info("Arus Banjir Drill started on port 8000, MCP on 8001")
     yield
+    if _mcp_task:
+        _mcp_task.cancel()
 
 
 app = FastAPI(title="Arus — Banjir Drill", version="2.0.0", lifespan=lifespan)
@@ -139,24 +199,53 @@ def _world_snapshot_with_agencies() -> dict:
     return snap
 
 
+AUTO_INTERVAL_TICKS = 200  # ~40 s at 5 Hz — v1 cadence
+
+
 async def simulation_loop():
-    """Advance world tick + drive game engine + broadcast state at ~5 Hz."""
+    """Advance world tick + drive game/coach/auto per mode + broadcast state."""
     while True:
         if simulation_running:
             world.step()
-            if game_engine is not None:
+            # PLAY / COACH drive the GameEngine (cards + gauges)
+            if game_engine is not None and current_mode in ("PLAY", "COACH"):
                 try:
                     events = game_engine.on_tick(world.tick)
                     for ev in events:
                         await manager.broadcast(ev)
+                        # In COACH, fire the advisor whenever a new card appears
+                        if (
+                            current_mode == "COACH"
+                            and coach_agent is not None
+                            and ev.get("type") == "game_card"
+                        ):
+                            asyncio.create_task(_coach_on_card(ev["payload"]))
                 except Exception as exc:
                     logger.exception("game_engine.on_tick failed: %s", exc)
+            # AUTO drives the 5-stage commander pipeline
+            if current_mode == "AUTO" and auto_runner is not None:
+                first_cycle = world.tick == 25 and auto_runner._cycle == 0
+                periodic = world.tick > 0 and world.tick % AUTO_INTERVAL_TICKS == 0
+                if (first_cycle or periodic) and auto_runner.try_start():
+                    asyncio.create_task(auto_runner.run_cycle())
+
             await manager.broadcast({
                 "type": "state_update",
                 "payload": _world_snapshot_with_agencies(),
                 "game": game_engine.snapshot() if game_engine else None,
+                "mode": current_mode,
             })
         await asyncio.sleep(0.2 / max(simulation_speed, 0.1))
+
+
+async def _coach_on_card(card_payload: dict) -> None:
+    """Background: run COACH agent for a newly surfaced card."""
+    if coach_agent is None or game_engine is None:
+        return
+    try:
+        await coach_agent.recommend_for_card(card_payload, game_engine.gauges.as_dict())
+    except Exception as exc:
+        logger.exception("coach recommend_for_card failed: %s", exc)
 
 
 # ─── WebSocket endpoint ────────────────────────────────────────

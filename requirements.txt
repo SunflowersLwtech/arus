@@ -1,8 +1,13 @@
 # Arus Python Dependencies — Google AI Ecosystem
 # Install: pip install -r requirements.txt
 
-# === Gemini SDK (narrator only; no ADK, no MCP) ===
+# === Agent Framework (Google ADK + Gemini) ===
+google-adk==1.27.1
 google-genai==1.67.0
+
+# === MCP Protocol (fleet tool server) ===
+mcp==1.26.0
+fastmcp==3.1.1
 
 # === Web Framework ===
 fastapi==0.135.1

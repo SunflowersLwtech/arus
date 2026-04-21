@@ -25,6 +25,7 @@ router = APIRouter()
 class StartRequest(BaseModel):
     scenario_id: str = "shah_alam_hard"
     locale: str = "en"
+    mode: str = "PLAY"  # PLAY | COACH | AUTO
 
 
 class ChooseRequest(BaseModel):
@@ -49,16 +50,53 @@ async def list_scenarios():
 async def start_game(req: StartRequest):
     from backend import main  # lazy import to avoid circular
 
+    mode = (req.mode or "PLAY").upper()
+    if mode not in ("PLAY", "COACH", "AUTO"):
+        raise HTTPException(status_code=400, detail=f"Unknown mode: {req.mode}")
+
     world = main.reset_world()
+    main.set_mode(mode)
     main.start_simulation()
+
+    # Tear down any previous mode's runners.
+    main.set_coach_agent(None)
+    prev_auto = main.get_auto_runner()
+    if prev_auto is not None:
+        try:
+            prev_auto.cancel()
+        except Exception:
+            pass
+    main.set_auto_runner(None)
+
+    if mode == "AUTO":
+        # AUTO mode: no GameEngine, v1 commander pipeline drives the world.
+        from backend.agents.auto_runner import AgentRunner as AutoRunner
+        main.set_game_engine(None)
+        main.set_auto_runner(AutoRunner(world=world, broadcast_fn=main.manager.broadcast))
+        return {
+            "status": "ok",
+            "data": {
+                "mode": "AUTO",
+                "session_id": main.get_auto_runner().mission_id,
+                "scenario": None,
+                "gauges": None,
+                "intro": None,
+            },
+        }
+
+    # PLAY + COACH share the GameEngine.
     engine = GameEngine.start_new(world, scenario_id=req.scenario_id, locale=req.locale)
     main.set_game_engine(engine)
-
     intro = await narrator.generate_intro(engine.scenario, req.locale)
+
+    if mode == "COACH":
+        from backend.agents.coach import CoachAgent
+        main.set_coach_agent(CoachAgent(world=world, broadcast_fn=main.manager.broadcast))
 
     return {
         "status": "ok",
         "data": {
+            "mode": mode,
             "session_id": engine.session_id,
             "scenario": {
                 "id": engine.scenario.id,
