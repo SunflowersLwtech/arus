@@ -1,55 +1,75 @@
 import { useEffect, useRef } from 'react'
 import useMissionStore from '../stores/missionStore'
 
-const KIND_STYLE = {
-  reasoning: { color: '#00D4FF', label_en: 'reasoning', label_bm: 'pemikiran' },
-  tool_call: { color: '#FFCC00', label_en: 'tool', label_bm: 'alat' },
-  tool_result: { color: '#06D6A0', label_en: 'result', label_bm: 'hasil' },
+// Voice register — same emergency-radio aesthetic as NarratorPanel.
+// Judge feedback: "COACH breaks the radio drama register PLAY establishes
+// by switching to a developer-console reasoning trace." Fix: render every
+// CoT entry as a radio call, not a dev log.
+
+const STAGE_LABEL = {
+  coach_assessor: { en: 'MENTOR · ASSESSOR', bm: 'MENTOR · PENILAI', color: '#00D4FF' },
+  coach_recommender: { en: 'MENTOR · ADVISOR', bm: 'MENTOR · PENASIHAT', color: '#FFCC00' },
+  // Fallback for any unexpected agent name
+  default: { en: 'MENTOR', bm: 'MENTOR', color: '#9EB0C8' },
 }
 
-function LogEntry({ entry, locale }) {
+function stageFor(agent) {
+  return STAGE_LABEL[agent] || STAGE_LABEL.default
+}
+
+function truncate(s, n = 240) {
+  if (!s) return ''
+  return s.length <= n ? s : s.slice(0, n).trimEnd() + '…'
+}
+
+function RadioEntry({ entry, locale }) {
   const k = entry.kind || 'reasoning'
-  const style = KIND_STYLE[k] || KIND_STYLE.reasoning
-  const labels = locale === 'bm'
-    ? { label: style.label_bm, stage: entry.agent || 'coach' }
-    : { label: style.label_en, stage: entry.agent || 'coach' }
+  const stage = stageFor(entry.agent)
+  const label = locale === 'bm' ? stage.bm : stage.en
 
   if (k === 'tool_call') {
-    const argsStr = Object.entries(entry.args || {}).map(([k, v]) => `${k}=${v}`).join(', ')
     return (
-      <div className="text-[11px] font-mono px-2 py-1 mb-1.5 rounded"
-        style={{ background: `${style.color}10`, borderLeft: `2px solid ${style.color}` }}>
-        <span style={{ color: style.color }}>⚙️ {entry.agent}</span>
-        <span style={{ color: '#9EB0C8' }}> · {entry.tool}({argsStr})</span>
+      <div className="mb-2.5">
+        <div className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: '#9EB0C8' }}>
+          📡 {locale === 'bm' ? 'MCP · alat' : 'MCP · tool'}
+        </div>
+        <div className="text-[12px] italic" style={{ color: '#C4D4E6' }}>
+          {locale === 'bm' ? 'Memanggil' : 'Calling'} <span className="font-mono">{entry.tool}</span>
+          {entry.args && Object.keys(entry.args).length > 0
+            ? ` ${JSON.stringify(entry.args).slice(0, 60)}`
+            : ''}
+        </div>
       </div>
     )
   }
   if (k === 'tool_result') {
     return (
-      <div className="text-[11px] font-mono px-2 py-1 mb-1.5 rounded"
-        style={{ background: `${style.color}10`, borderLeft: `2px solid ${style.color}` }}>
-        <span style={{ color: style.color }}>↳ {entry.tool}</span>
-        <span style={{ color: '#9EB0C8' }}> · {(entry.result || '').slice(0, 140)}</span>
+      <div className="mb-2.5">
+        <div className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: '#06D6A0' }}>
+          📻 {locale === 'bm' ? 'Laporan kembali' : 'Incoming report'}
+        </div>
+        <div className="text-[12px] leading-relaxed" style={{ color: '#C4D4E6' }}>
+          {locale === 'bm' ? 'Dari' : 'From'} <span className="font-mono">{entry.tool}</span>:{' '}
+          {truncate(entry.result, 180)}
+        </div>
       </div>
     )
   }
-  // reasoning
-  const text = entry.text || ''
+  // reasoning — render as a NADMA-style radio call
   return (
-    <div className="mb-2">
-      <div className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: style.color }}>
-        {labels.stage} · {labels.label}
+    <div className="mb-2.5">
+      <div className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: stage.color }}>
+        📻 {label}
       </div>
-      <div className="text-[12px] leading-relaxed whitespace-pre-wrap" style={{ color: '#E6F0FA' }}>
-        {text}
+      <div className="text-[12px] leading-relaxed" style={{ color: '#E6F0FA' }}>
+        {truncate(entry.text, 320)}
       </div>
     </div>
   )
 }
 
-function RecommendationCard({ rec, locale, currentCard }) {
+function MentorBrief({ rec, locale, currentCard }) {
   if (!rec) return null
-  // Only show when it matches the current card (avoid stale recs from prior card)
   if (currentCard && rec.card_id && rec.card_id !== currentCard.id) return null
 
   const reasoning = locale === 'bm'
@@ -60,19 +80,23 @@ function RecommendationCard({ rec, locale, currentCard }) {
     : rec.confidence === 'low' ? '#FF5E78' : '#FFCC00'
 
   return (
-    <div className="shrink-0 p-3 border-t" style={{ borderColor: '#FFCC0040', background: 'rgba(255,204,0,0.06)' }}>
+    <div className="shrink-0 p-3 border-t" style={{ borderColor: '#FFCC0040', background: 'rgba(255,204,0,0.05)' }}>
       <div className="flex items-center justify-between mb-1.5">
         <div className="text-[10px] uppercase tracking-widest" style={{ color: '#FFCC00' }}>
-          🤖 {locale === 'bm' ? 'AI Cadangan' : 'AI recommendation'}
+          🎧 {locale === 'bm' ? 'Datuk Nadia — taklimat akhir' : 'Datuk Nadia — mentor brief'}
         </div>
-        <span className="text-[9px] font-mono px-1.5 py-0.5 rounded" style={{ color: confidenceColor, border: `1px solid ${confidenceColor}60` }}>
+        <span className="text-[9px] font-mono px-1.5 py-0.5 rounded"
+          style={{ color: confidenceColor, border: `1px solid ${confidenceColor}60` }}>
           {rec.confidence || 'medium'}
         </span>
       </div>
-      <div className="text-[12px] leading-relaxed mb-1.5 text-white">{reasoning}</div>
+      <div className="text-[12px] leading-relaxed mb-1.5 text-white italic">
+        "{reasoning}"
+      </div>
       {rec.suggested_drone && (
         <div className="text-[10px] font-mono" style={{ color: '#9EB0C8' }}>
-          {locale === 'bm' ? 'Drone dicadang' : 'Suggested drone'}: <span style={{ color: '#FFCC00' }}>{rec.suggested_drone}</span>
+          {locale === 'bm' ? '→ hantar' : '→ send'}:{' '}
+          <span style={{ color: '#FFCC00' }}>{rec.suggested_drone}</span>
         </div>
       )}
     </div>
@@ -91,37 +115,51 @@ export default function CoachConsole() {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight
   }, [coachLog, narratorLog])
 
+  const header = locale === 'bm' ? 'Radio NADMA · Jurulatih AI' : 'NADMA Radio · AI Mentor'
+
+  // Merge passive NADMA narrator entries with coach log so the user sees
+  // one coherent radio stream, not two parallel logs.
+  const merged = [
+    ...narratorLog.filter(e => e.tone === 'intro' || e.tone === 'passive').map(e => ({
+      __kind: 'narrator', id: e.id, timestamp: e.timestamp, speaker: e.speaker,
+      text: (locale === 'bm' ? e.text_bm : e.text_en) || e.text_en, tone: e.tone,
+    })),
+    ...coachLog.map(c => ({ __kind: 'coach', ...c })),
+  ].sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0))
+
   return (
     <div className="h-full flex flex-col" style={{ background: '#0F1C33' }}>
       <div className="px-3 py-2 text-[10px] uppercase tracking-widest border-b flex items-center justify-between"
         style={{ color: '#FFCC00', borderColor: '#1E3A5F' }}>
-        <span>🧠 {locale === 'bm' ? 'Pemikiran AI langsung' : 'Live AI reasoning'}</span>
+        <span>📻 {header}</span>
         <span className="text-[9px] font-mono" style={{ color: '#7A8BA3' }}>
           {coachLog.length} events
         </span>
       </div>
-      <div ref={scrollRef} className="flex-1 overflow-y-auto p-3 space-y-1">
-        {/* Also show narrator intro lines to not lose the opening briefing */}
-        {narratorLog.filter(e => e.tone === 'intro').map(entry => (
-          <div key={entry.id} className="mb-2">
-            <div className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: '#00D4FF' }}>
-              {entry.speaker}
-            </div>
-            <div className="text-[12px] leading-relaxed" style={{ color: '#E6F0FA' }}>
-              {(locale === 'bm' ? entry.text_bm : entry.text_en) || entry.text_en}
-            </div>
-          </div>
-        ))}
-        {coachLog.length === 0 && (
+      <div ref={scrollRef} className="flex-1 overflow-y-auto p-3">
+        {merged.length === 0 && (
           <div className="text-xs italic" style={{ color: '#7A8BA3' }}>
             {locale === 'bm'
-              ? 'Menunggu panggilan pertama — AI akan mula berfikir apabila kad muncul.'
-              : 'Waiting for first call — the AI will start thinking when a card appears.'}
+              ? 'Menunggu panggilan pertama — jurulatih AI akan mula berfikir bersama anda.'
+              : 'Standing by — the AI mentor will start thinking alongside you when the first call comes in.'}
           </div>
         )}
-        {coachLog.map(entry => <LogEntry key={entry.id} entry={entry} locale={locale} />)}
+        {merged.map(e =>
+          e.__kind === 'narrator' ? (
+            <div key={e.id} className="mb-2.5">
+              <div className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: e.tone === 'intro' ? '#00D4FF' : '#7A8BA3' }}>
+                📻 {e.speaker}
+              </div>
+              <div className="text-[12px] leading-relaxed" style={{ color: '#C4D4E6' }}>
+                {e.text}
+              </div>
+            </div>
+          ) : (
+            <RadioEntry key={e.id} entry={e} locale={locale} />
+          )
+        )}
       </div>
-      <RecommendationCard rec={recommendation} locale={locale} currentCard={currentCard} />
+      <MentorBrief rec={recommendation} locale={locale} currentCard={currentCard} />
     </div>
   )
 }

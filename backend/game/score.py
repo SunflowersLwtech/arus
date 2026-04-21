@@ -40,7 +40,13 @@ def evaluate(gauges: Gauges, target_saved: int) -> dict:
     """Return {status, reason} for the current gauge state."""
     if gauges.trust <= FAIL_TRUST:
         return {"status": "failed", "reason": "trust_collapsed"}
-    if gauges.assets <= FAIL_ASSETS and gauges.saved < target_saved:
+    # Assets at 0 is ALWAYS terminal — the player has no more ability to
+    # respond. If they already hit the save target, give them the W;
+    # otherwise it's a failure. This prevents the "stuck watching the
+    # timer count down with no new cards" deadlock the judge flagged.
+    if gauges.assets <= FAIL_ASSETS:
+        if gauges.saved >= target_saved:
+            return {"status": "won", "reason": "assets_depleted_target_met"}
         return {"status": "failed", "reason": "assets_depleted"}
     if gauges.time_remaining <= 0:
         if gauges.saved >= target_saved:
