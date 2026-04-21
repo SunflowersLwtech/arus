@@ -22,6 +22,7 @@ class Option:
     flavor_bm: str = ""
     flavor_en: str = ""
     map_action: str = ""
+    agency: str = ""       # e.g. "BOMBA" — which drone class to dispatch
 
 
 @dataclass
@@ -79,6 +80,7 @@ def load_scenario(scenario_id: str = "shah_alam_hard") -> Scenario:
                 flavor_bm=o.get("flavor_bm", ""),
                 flavor_en=o.get("flavor_en", ""),
                 map_action=o.get("map_action", ""),
+                agency=str(o.get("agency", "") or "").upper(),
             )
             for o in c_def.get("options", [])
         ]

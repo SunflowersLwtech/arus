@@ -7,6 +7,7 @@ import PathTrails from './PathTrails'
 import CoverageOverlay from './CoverageOverlay'
 import ObjectiveMarkers from './ObjectiveMarkers'
 import PostFX from './PostFX'
+import TargetingLayer from './TargetingLayer'
 
 export default function TacticalMap() {
   const [dpr, setDpr] = useState(1.5)
@@ -25,6 +26,7 @@ export default function TacticalMap() {
       <CoverageOverlay />
       <FleetRenderer />
       <ObjectiveMarkers />
+      <TargetingLayer />
 
       <Grid
         args={[20, 20]}

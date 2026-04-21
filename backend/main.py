@@ -30,6 +30,7 @@ from fastapi.responses import FileResponse, JSONResponse
 
 from backend.core.grid_world import GridWorld
 from backend.core.locality import locate, summarise_zone
+from backend.game.agencies import AGENCIES, augment_fleet
 from backend.services import vision, met_feed
 
 logger = logging.getLogger("arus")
@@ -132,22 +133,27 @@ app.add_middleware(
 
 # ─── Background simulation loop ─────────────────────────────────
 
+def _world_snapshot_with_agencies() -> dict:
+    snap = world.get_state_snapshot()
+    snap["fleet"] = augment_fleet(snap.get("fleet", []))
+    return snap
+
+
 async def simulation_loop():
     """Advance world tick + drive game engine + broadcast state at ~5 Hz."""
     while True:
         if simulation_running:
             world.step()
-            # Game engine (if any) gets a tick to fire scheduled cards / gauge updates.
             if game_engine is not None:
                 try:
                     events = game_engine.on_tick(world.tick)
                     for ev in events:
                         await manager.broadcast(ev)
-                except Exception as exc:  # pragma: no cover — defensive
+                except Exception as exc:
                     logger.exception("game_engine.on_tick failed: %s", exc)
             await manager.broadcast({
                 "type": "state_update",
-                "payload": world.get_state_snapshot(),
+                "payload": _world_snapshot_with_agencies(),
                 "game": game_engine.snapshot() if game_engine else None,
             })
         await asyncio.sleep(0.2 / max(simulation_speed, 0.1))
@@ -162,7 +168,7 @@ async def websocket_live(ws: WebSocket):
     try:
         await ws.send_json({
             "type": "initial_state",
-            "payload": world.get_state_snapshot(),
+            "payload": _world_snapshot_with_agencies(),
             "game": game_engine.snapshot() if game_engine else None,
         })
         while True:
@@ -189,9 +195,15 @@ async def health():
 async def get_state():
     return {
         "status": "ok",
-        "data": world.get_state_snapshot(),
+        "data": _world_snapshot_with_agencies(),
         "game": game_engine.snapshot() if game_engine else None,
     }
+
+
+@app.get("/api/agencies")
+async def list_agencies():
+    """Agency metadata used by the frontend sidebar (labels, colours)."""
+    return {"status": "ok", "data": {code: a.__dict__ for code, a in AGENCIES.items()}}
 
 
 @app.get("/api/locality/{x}/{y}")

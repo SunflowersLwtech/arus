@@ -43,3 +43,8 @@ export async function fetchDebrief() {
   useMissionStore.getState().setDebrief(data)
   return data
 }
+
+export async function manualDispatch(droneId, x, y) {
+  const { data } = await postJson('/api/game/dispatch', { drone_id: droneId, x, y })
+  return data
+}

@@ -45,6 +45,7 @@ cards:
         flavor_bm: "Pasukan penyelamat mara dengan bot penyelamat. Sri Muda mendapat keutamaan pertama."
         flavor_en: "Swift-water team mobilising. Sri Muda takes first priority."
         map_action: dispatch_rescue
+        agency: BOMBA
       - id: ask_mmea_boats
         label_bm: "Minta bantuan bot MMEA (ETA 15 min tapi bukan bidang mereka)"
         label_en: "Request MMEA boats (ETA 15 min, off their remit)"
@@ -52,6 +53,7 @@ cards:
         flavor_bm: "MMEA datang, tetapi Ketua Pengarah mereka mempertikai protokol — isu politik bermula."
         flavor_en: "MMEA responds, but their DG contests the tasking — political friction starts."
         map_action: dispatch_rescue
+        agency: MMEA
       - id: log_only
         label_bm: "Rekod sahaja — tiada aset tersedia"
         label_en: "Log only — no asset available"
@@ -74,6 +76,7 @@ cards:
         flavor_bm: "Helikopter tiba tepat masa. Penyelamatan berjaya — tetapi bahan api hampir habis."
         flavor_en: "Helicopter arrives in time. Successful rescue — but fuel nearly gone."
         map_action: dispatch_rescue
+        agency: APM
       - id: boat_relay
         label_bm: "Relay bot melalui 2 pasukan (ETA 18 min)"
         label_en: "Boat relay via 2 teams (ETA 18 min)"
@@ -81,6 +84,7 @@ cards:
         flavor_bm: "Penyelarasan lancar. Bumbung bertahan."
         flavor_en: "Clean coordination. Rooftop holds."
         map_action: dispatch_rescue
+        agency: BOMBA
       - id: wait_daylight
         label_bm: "Tunggu subuh (keselamatan pasukan)"
         label_en: "Wait for daylight (team safety)"
@@ -183,12 +187,16 @@ cards:
         deltas: {saved: 4, assets: -20, trust: 5}
         flavor_bm: "Komuniti bertahan. Radio mengaktifkan semula komunikasi."
         flavor_en: "Community holds. Radio restores comms."
+        map_action: dispatch_rescue
+        agency: APM
       - id: ground_clear
         label_bm: "Kerahkan jentera berat buka jalan (12 jam)"
         label_en: "Deploy heavy equipment to clear road (12 hours)"
         deltas: {saved: 3, assets: -25, trust: 8}
         flavor_bm: "Laluan darat dibuka sebelum fajar. Bantuan berterusan boleh masuk."
         flavor_en: "Road opens before dawn. Sustained aid can flow."
+        map_action: dispatch_rescue
+        agency: BOMBA
       - id: wait_tomorrow
         label_bm: "Tunda ke esok — kapasiti terhad"
         label_en: "Defer to tomorrow — capacity limited"
@@ -210,12 +218,16 @@ cards:
         deltas: {saved: 3, assets: -12, trust: 10}
         flavor_bm: "Tangki tiba. Hospital kekal beroperasi."
         flavor_en: "Tanker delivered. Hospital stays online."
+        map_action: dispatch_rescue
+        agency: BOMBA
       - id: evacuate_patients
         label_bm: "Mula pemindahan pesakit kritikal"
         label_en: "Begin critical patient evacuation"
         deltas: {saved: 2, assets: -20, trust: 0}
         flavor_bm: "Pemindahan lambat. 3 ventilator kehabisan bateri."
         flavor_en: "Evacuation is slow. 3 ventilators lose battery."
+        map_action: dispatch_rescue
+        agency: APM
       - id: coordinate_tnb
         label_bm: "Serahkan kepada TNB — ini isu mereka"
         label_en: "Hand off to TNB — this is their problem"
@@ -238,6 +250,7 @@ cards:
         flavor_bm: "Pilihan yang berisiko dan berharga. Kanak-kanak selamat."
         flavor_en: "High-risk, high-value call. The kids make it."
         map_action: dispatch_rescue
+        agency: BOMBA
       - id: save_wardsick
         label_bm: "Rumah pesakit yang tidak dapat bergerak — 15 orang"
         label_en: "Home-bound critically-ill — 15 people"
@@ -245,6 +258,7 @@ cards:
         flavor_bm: "Penyelamatan klinikal dan tenang. Hampir semua terselamat."
         flavor_en: "Clinical, quiet rescue. Most survive."
         map_action: dispatch_rescue
+        agency: APM
       - id: evacuate_team
         label_bm: "Tarik balik pasukan — mereka juga berisiko"
         label_en: "Recall team — they're at risk too"

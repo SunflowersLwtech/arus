@@ -27,6 +27,9 @@ const useMissionStore = create((set, get) => ({
   narratorLog: [],                  // [{id, timestamp, speaker, text_en, text_bm, tone}]
   choiceHistory: [],
   debrief: null,                    // populated when game over
+  nextCardTick: null,               // tick at which next scheduled card will appear
+  currentTick: 0,                   // from game engine snapshot
+  targetingDroneId: null,           // when set, map click dispatches this drone
 
   // ─── Connection ─────────────────────────────────────────
   connected: false,
@@ -59,8 +62,19 @@ const useMissionStore = create((set, get) => ({
       currentCard: g.current_card ?? state.currentCard,
       choiceHistory: g.history ?? state.choiceHistory,
       locale: g.locale ?? state.locale,
+      nextCardTick: g.next_card_tick ?? state.nextCardTick,
+      currentTick: g.tick ?? state.currentTick,
     }
   }),
+
+  setTargetingDroneId: (id) => set({ targetingDroneId: id }),
+
+  pushNarratorLog: (entry) => set(state => ({
+    narratorLog: [
+      ...state.narratorLog.slice(-40),
+      { timestamp: Date.now(), ...entry },
+    ],
+  })),
 
   startGameLocal: ({ session_id, scenario, gauges, intro }) => set({
     gameStatus: 'running',

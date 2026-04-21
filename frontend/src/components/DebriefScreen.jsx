@@ -30,6 +30,8 @@ export default function DebriefScreen() {
     trust: 'Kepercayaan',
     assets: 'Aset tinggal',
     grade: 'Gred',
+    timeline: 'Garis masa keputusan',
+    noChoices: 'Tiada keputusan direkodkan.',
     status: {
       won: 'Anda berjaya selaraskan penyelamatan di tengah kekacauan.',
       partial: 'Anda menyelamatkan sebahagian. Banyak yang masih tidak dijawab.',
@@ -46,6 +48,8 @@ export default function DebriefScreen() {
     trust: 'Trust',
     assets: 'Assets left',
     grade: 'Grade',
+    timeline: 'Decision timeline',
+    noChoices: 'No decisions logged.',
     status: {
       won: 'You coordinated rescue under pressure. Cleanly done.',
       partial: 'You saved some. Many calls went unanswered.',
@@ -112,6 +116,18 @@ export default function DebriefScreen() {
             </div>
           </div>
 
+          {/* Decision timeline */}
+          {debrief.choices && debrief.choices.length > 0 && (
+            <div className="p-6 border-b" style={{ borderColor: '#1E3A5F' }}>
+              <div className="text-xs uppercase tracking-widest mb-3" style={{ color: '#00D4FF' }}>{copy.timeline}</div>
+              <div className="space-y-2">
+                {debrief.choices.map((c, i) => (
+                  <TimelineRow key={i} index={i + 1} choice={c} locale={locale} />
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Real comparison */}
           <div className="p-6 border-b" style={{ borderColor: '#1E3A5F' }}>
             <div className="text-xs uppercase tracking-widest mb-2" style={{ color: '#00D4FF' }}>{copy.real}</div>
@@ -176,6 +192,58 @@ function Stat({ label, value }) {
     <div>
       <div className="text-[10px] uppercase tracking-wider" style={{ color: '#7A8BA3' }}>{label}</div>
       <div className="text-base font-semibold text-white">{value}</div>
+    </div>
+  )
+}
+
+const AGENCY_COLORS_DBG = {
+  BOMBA: '#FF6A3D', APM: '#06D6A0', MMEA: '#4DA8DA', NADMA: '#FFCC00',
+}
+
+function DeltaPill({ value, suffix = '', good }) {
+  if (value == null || value === 0) return null
+  const positive = value > 0
+  const aligns = good === undefined ? positive : (positive === good)
+  const color = aligns ? '#06D6A0' : '#FF5E78'
+  return (
+    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded"
+      style={{ color, background: `${color}15`, border: `1px solid ${color}30` }}>
+      {positive ? '+' : ''}{value}{suffix}
+    </span>
+  )
+}
+
+function TimelineRow({ index, choice, locale }) {
+  const title = (locale === 'bm' ? choice.card_title_bm : choice.card_title_en) || choice.card_id
+  const label = (locale === 'bm' ? choice.option_label_bm : choice.option_label_en) || choice.option_id
+  const flavor = (locale === 'bm' ? choice.flavor?.bm : choice.flavor?.en) || choice.flavor?.en || ''
+  const agencyColor = choice.agency ? AGENCY_COLORS_DBG[choice.agency] : '#00D4FF'
+  return (
+    <div className="rounded p-3 text-sm" style={{ background: '#0F1C33', border: '1px solid #1E3A5F' }}>
+      <div className="flex items-center gap-2 mb-1">
+        <span className="inline-flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-mono font-bold"
+          style={{ background: agencyColor, color: '#0B1426' }}>
+          {index}
+        </span>
+        <span className="font-semibold text-white flex-1">{title}</span>
+        {choice.agency && (
+          <span className="text-[9px] font-mono px-1.5 py-0.5 rounded"
+            style={{ color: agencyColor, background: `${agencyColor}20`, border: `1px solid ${agencyColor}50` }}>
+            ✈ {choice.agency}
+          </span>
+        )}
+      </div>
+      <div className="text-[12px] mb-1.5" style={{ color: '#9EB0C8' }}>→ {label}</div>
+      {flavor && (
+        <div className="text-[11px] italic mb-1.5" style={{ color: '#C4D4E6' }}>{flavor}</div>
+      )}
+      {choice.deltas && (
+        <div className="flex flex-wrap gap-1">
+          <DeltaPill value={choice.deltas.saved} good={true} />
+          <DeltaPill value={choice.deltas.assets} suffix="%" good={false} />
+          <DeltaPill value={choice.deltas.trust} suffix="%" good={true} />
+        </div>
+      )}
     </div>
   )
 }

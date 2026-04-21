@@ -30,6 +30,8 @@ function handleMessage(event) {
       if (msg.payload?.ok) store.applyChoiceResult(msg.payload)
     } else if (msg.type === 'game_over') {
       store.setGameOver(msg.payload)
+    } else if (msg.type === 'narrator_log') {
+      store.pushNarratorLog(msg.payload)
     }
   } catch (e) {
     console.error('[WS] Parse error:', e)

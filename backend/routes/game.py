@@ -32,6 +32,12 @@ class ChooseRequest(BaseModel):
     option_id: str
 
 
+class DispatchRequest(BaseModel):
+    drone_id: str
+    x: int
+    y: int
+
+
 # ─── Endpoints ─────────────────────────────────────────────────
 
 @router.get("/scenarios")
@@ -89,6 +95,23 @@ async def game_state():
     if engine is None:
         return {"status": "ok", "data": None}
     return {"status": "ok", "data": engine.snapshot()}
+
+
+@router.post("/dispatch")
+async def manual_dispatch(req: DispatchRequest):
+    """Player-issued waypoint. Used by click-to-target on the 3D map."""
+    from backend import main
+
+    world = main.get_world()
+    if req.drone_id not in world.fleet:
+        raise HTTPException(status_code=404, detail="drone not found")
+    if not (0 <= req.x < world.size and 0 <= req.y < world.size):
+        raise HTTPException(status_code=400, detail="coord out of bounds")
+    try:
+        world.set_waypoint(req.drone_id, req.x, req.y)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+    return {"status": "ok", "data": {"drone_id": req.drone_id, "target": [req.x, req.y]}}
 
 
 @router.get("/debrief")

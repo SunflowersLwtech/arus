@@ -21,6 +21,7 @@ from typing import Any, Optional
 from uuid import uuid4
 
 from backend.core.grid_world import GridWorld
+from backend.game.agencies import CALLSIGN_TO_AGENCY, idle_drone_for_agency
 from backend.game.scenario import Card, Scenario, load_real_stats, load_scenario
 from backend.game.score import Gauges, apply_delta, compute_grade, evaluate
 
@@ -34,6 +35,46 @@ class ChoiceRecord:
     gauges_after: dict
     flavor_bm: str
     flavor_en: str
+
+
+# Atmospheric "while you wait" lines. Short, Malaysia-flavoured, low
+# information density — they fill the map's wait-period silence without
+# demanding player attention.
+PASSIVE_TICKS = [
+    {
+        "speaker": "Klang water gauge",
+        "en": "Sungai Klang +0.2 m in the last 10 minutes.",
+        "bm": "Sungai Klang naik 0.2 m dalam 10 minit terakhir.",
+    },
+    {
+        "speaker": "MetMalaysia",
+        "en": "Red warning for Petaling. Continuous rain next 6 hours.",
+        "bm": "Amaran merah untuk Petaling. Hujan berterusan 6 jam akan datang.",
+    },
+    {
+        "speaker": "BOMBA HQ",
+        "en": "Swift-water team Bravo is refuelling at base.",
+        "bm": "Pasukan air deras Bravo sedang mengisi bahan api di pangkalan.",
+    },
+    {
+        "speaker": "NADMA ops",
+        "en": "JKM has opened 4 more relief centres in Shah Alam.",
+        "bm": "JKM membuka 4 lagi pusat bantuan di Shah Alam.",
+    },
+    {
+        "speaker": "APM radio",
+        "en": "Orang Asli liaison ping — Kg. Pos Bihai still holding.",
+        "bm": "Perhubungan Orang Asli — Kg. Pos Bihai masih bertahan.",
+    },
+    {
+        "speaker": "MMEA ops",
+        "en": "Klang river mouth: current 1.8 m/s, boats holding station.",
+        "bm": "Kuala Sungai Klang: arus 1.8 m/s, bot kekal di stesen.",
+    },
+]
+
+
+PASSIVE_INTERVAL_TICKS = 60  # ~12 s of wall time at 5 Hz
 
 
 @dataclass
@@ -50,6 +91,8 @@ class GameEngine:
     _status: str = "running"  # running|won|partial|failed
     _status_reason: str = ""
     _last_tick: int = 0
+    _last_passive_tick: int = 0
+    _passive_index: int = 0
 
     @classmethod
     def start_new(
@@ -100,6 +143,29 @@ class GameEngine:
                     })
                     break
 
+        # Between-card filler: every ~12 s while no card is open, emit a
+        # passive atmospheric log entry so the NADMA Radio panel keeps
+        # moving and the map doesn't feel abandoned.
+        if (
+            self._pending_card is None
+            and tick - self._last_passive_tick >= PASSIVE_INTERVAL_TICKS
+            and tick > 20  # let the intro breathe
+        ):
+            line = PASSIVE_TICKS[self._passive_index % len(PASSIVE_TICKS)]
+            self._passive_index += 1
+            self._last_passive_tick = tick
+            events.append({
+                "type": "narrator_log",
+                "payload": {
+                    "id": f"passive-{tick}",
+                    "speaker": line["speaker"],
+                    "text_en": line["en"],
+                    "text_bm": line["bm"],
+                    "tone": "passive",
+                    "timestamp_tick": tick,
+                },
+            })
+
         # Evaluate win/lose every tick.
         verdict = evaluate(self.gauges, self.scenario.target_saved)
         if verdict["status"] != "in_progress":
@@ -128,13 +194,19 @@ class GameEngine:
 
         apply_delta(self.gauges, option.deltas)
 
-        # Visual feedback on the 3D map: fire a drone mission to the card's
-        # coordinate if the option calls for a rescue.
+        # Visual feedback on the 3D map: dispatch the drone that belongs to
+        # the option's agency (falls back to any idle drone, or a random
+        # one if nobody is free). This gives the fleet meaning — picking
+        # "send BOMBA" makes a BOMBA-liveried drone move.
+        assigned_drone: str | None = None
         if option.map_action == "dispatch_rescue" and self.world.fleet:
-            uav_id = random.choice(list(self.world.fleet.keys()))
+            fleet_state = [u.to_dict() for u in self.world.fleet.values()]
+            assigned_drone = idle_drone_for_agency(fleet_state, option.agency or None)
+            if assigned_drone is None:
+                assigned_drone = random.choice(list(self.world.fleet.keys()))
             try:
                 tx, ty = self._pending_card.coord
-                self.world.set_waypoint(uav_id, int(tx), int(ty))
+                self.world.set_waypoint(assigned_drone, int(tx), int(ty))
             except Exception:
                 pass  # non-fatal — gauges still updated
 
@@ -159,12 +231,18 @@ class GameEngine:
                 "flavor": {"bm": option.flavor_bm, "en": option.flavor_en},
                 "gauges": self.gauges.as_dict(),
                 "deltas": dict(option.deltas),
+                "assigned_drone": assigned_drone,
+                "agency": option.agency or (CALLSIGN_TO_AGENCY.get(assigned_drone or "") if assigned_drone else ""),
             },
         }
 
     # ─── Serialisation ─────────────────────────────────────────
 
     def snapshot(self) -> dict:
+        next_card = next(
+            (c for c in self.scenario.cards if c.id not in self._fired_card_ids),
+            None,
+        )
         return {
             "session_id": self.session_id,
             "scenario": {
@@ -179,6 +257,8 @@ class GameEngine:
             "status": self._status,
             "status_reason": self._status_reason,
             "current_card": self._card_payload(self._pending_card) if self._pending_card else None,
+            "next_card_tick": next_card.trigger_tick if next_card and self._pending_card is None else None,
+            "tick": self._last_tick,
             "history": [
                 {
                     "card_id": h.card_id,
@@ -206,7 +286,8 @@ class GameEngine:
                     "id": o.id,
                     "label_bm": o.label_bm,
                     "label_en": o.label_en,
-                    "deltas": dict(o.deltas),  # surfaced for risk-preview UI
+                    "deltas": dict(o.deltas),
+                    "agency": o.agency or None,
                 }
                 for o in card.options
             ],
@@ -219,20 +300,34 @@ class GameEngine:
 
     def compute_debrief(self) -> dict:
         stats = load_real_stats(self.scenario.real_event_key)
+        cards_by_id = {c.id: c for c in self.scenario.cards}
+
+        def _enrich(h: ChoiceRecord) -> dict:
+            card = cards_by_id.get(h.card_id)
+            option = None
+            if card:
+                option = next((o for o in card.options if o.id == h.option_id), None)
+            return {
+                "card_id": h.card_id,
+                "option_id": h.option_id,
+                "tick": h.tick,
+                "deltas": dict(h.deltas),
+                "gauges_after": dict(h.gauges_after),
+                "flavor": {"bm": h.flavor_bm, "en": h.flavor_en},
+                "card_title_en": card.title_en if card else h.card_id,
+                "card_title_bm": card.title_bm if card else h.card_id,
+                "option_label_en": option.label_en if option else h.option_id,
+                "option_label_bm": option.label_bm if option else h.option_id,
+                "agency": option.agency if option and option.agency else "",
+            }
+
         return {
             "session_id": self.session_id,
             "status": self._status,
             "grade": compute_grade(self.gauges, self.scenario.target_saved),
             "gauges": self.gauges.as_dict(),
             "target_saved": self.scenario.target_saved,
-            "choices": [
-                {
-                    "card_id": h.card_id,
-                    "option_id": h.option_id,
-                    "flavor": {"bm": h.flavor_bm, "en": h.flavor_en},
-                }
-                for h in self._history
-            ],
+            "choices": [_enrich(h) for h in self._history],
             "real_event": stats,
             "extension_links": {
                 "nadma_portal_bencana": "https://portalbencana.nadma.gov.my/en/",

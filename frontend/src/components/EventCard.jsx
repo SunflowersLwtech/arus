@@ -22,7 +22,28 @@ function DeltaChip({ value, suffix, good, label }) {
   )
 }
 
-function OptionDeltas({ deltas, locale }) {
+const AGENCY_COLORS = {
+  BOMBA: '#FF6A3D',
+  APM:   '#06D6A0',
+  MMEA:  '#4DA8DA',
+  NADMA: '#FFCC00',
+}
+
+function AgencyBadge({ agency, locale }) {
+  if (!agency) return null
+  const c = AGENCY_COLORS[agency] || '#00D4FF'
+  const label = locale === 'bm' ? `Drone: ${agency}` : `Dispatches: ${agency}`
+  return (
+    <span
+      className="inline-flex items-center gap-0.5 text-[10px] font-mono px-1.5 py-0.5 rounded"
+      style={{ color: c, background: `${c}15`, border: `1px solid ${c}40` }}
+    >
+      ✈ {label}
+    </span>
+  )
+}
+
+function OptionDeltas({ deltas, agency, locale }) {
   if (!deltas) return null
   const labels = locale === 'bm'
     ? { saved: 'nyawa', assets: 'aset', trust: 'kepercayaan' }
@@ -32,6 +53,7 @@ function OptionDeltas({ deltas, locale }) {
       <DeltaChip value={deltas.saved} suffix="" good={true} label={labels.saved} />
       <DeltaChip value={deltas.assets} suffix="%" good={false} label={labels.assets} />
       <DeltaChip value={deltas.trust} suffix="%" good={true} label={labels.trust} />
+      <AgencyBadge agency={agency} locale={locale} />
     </div>
   )
 }
@@ -129,7 +151,7 @@ export default function EventCard() {
             }}
           >
             <div className="text-sm">{opt[`label_${lang}`] || opt.label_en}</div>
-            <OptionDeltas deltas={opt.deltas} locale={locale} />
+            <OptionDeltas deltas={opt.deltas} agency={opt.agency} locale={locale} />
           </button>
         ))}
       </div>
