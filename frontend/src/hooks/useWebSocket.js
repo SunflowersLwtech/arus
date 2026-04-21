@@ -24,6 +24,10 @@ function handleMessage(event) {
     if (msg.type === 'state_update' || msg.type === 'initial_state') {
       store.updateState(msg.payload)
       if (msg.game !== undefined) store.applyGameSnapshot(msg.game)
+      if (msg.mode && msg.mode !== store.mode) {
+        // server-authoritative mode (rare — happens if start mutated it)
+      }
+      if (msg.payload?.flooded_cells) store.setFloodedCells(msg.payload.flooded_cells)
     } else if (msg.type === 'game_card') {
       store.presentCard(msg.payload)
     } else if (msg.type === 'player_command_result') {
@@ -32,6 +36,12 @@ function handleMessage(event) {
       store.setGameOver(msg.payload)
     } else if (msg.type === 'narrator_log') {
       store.pushNarratorLog(msg.payload)
+    } else if (msg.type === 'agent_log') {
+      store.pushCoachLog(msg.payload)
+    } else if (msg.type === 'agent_status') {
+      store.setAutoStatus(msg.payload)
+    } else if (msg.type === 'coach_recommendation') {
+      store.setRecommendation(msg.payload)
     }
   } catch (e) {
     console.error('[WS] Parse error:', e)

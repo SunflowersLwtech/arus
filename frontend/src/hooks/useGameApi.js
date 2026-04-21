@@ -17,10 +17,32 @@ async function getJson(url) {
   return resp.json()
 }
 
-export async function startGame(scenarioId = 'shah_alam_hard', locale = 'en') {
-  const { data } = await postJson('/api/game/start', { scenario_id: scenarioId, locale })
-  useMissionStore.getState().startGameLocal(data)
-  useMissionStore.getState().setLocale(locale)
+export async function startGame(scenarioId = 'shah_alam_hard', locale = 'en', mode = 'PLAY') {
+  const { data } = await postJson('/api/game/start', { scenario_id: scenarioId, locale, mode })
+  const store = useMissionStore.getState()
+  store.setMode(data.mode || mode)
+  store.setLocale(locale)
+  if ((data.mode || mode) === 'AUTO') {
+    // AUTO has no scenario/gauges — flip gameStatus manually so UI leaves Start
+    store.setRecommendation(null)
+    useMissionStore.setState({
+      gameStatus: 'running',
+      debrief: null,
+      coachLog: [],
+      autoLog: [],
+      narratorLog: [{
+        id: 'auto-intro',
+        timestamp: Date.now(),
+        speaker: 'Arus · AUTO mode',
+        text_en: 'Commander pipeline engaged. Watching the AI dispatch autonomously.',
+        text_bm: 'Barisan arahan aktif. Perhatikan AI menghantar secara autonomi.',
+        tone: 'intro',
+      }],
+      choiceHistory: [],
+    })
+  } else {
+    store.startGameLocal(data)
+  }
   return data
 }
 

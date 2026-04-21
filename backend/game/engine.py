@@ -14,6 +14,7 @@ tick loop deterministic and the critical path zero-latency.
 """
 from __future__ import annotations
 
+import logging
 import random
 import time
 from dataclasses import dataclass, field
@@ -24,6 +25,8 @@ from backend.core.grid_world import GridWorld
 from backend.game.agencies import CALLSIGN_TO_AGENCY, idle_drone_for_agency
 from backend.game.scenario import Card, Scenario, load_real_stats, load_scenario
 from backend.game.score import Gauges, apply_delta, compute_grade, evaluate
+
+logger = logging.getLogger("arus.engine")
 
 
 @dataclass
@@ -76,6 +79,10 @@ PASSIVE_TICKS = [
 
 PASSIVE_INTERVAL_TICKS = 60  # ~12 s of wall time at 5 Hz
 
+# Manual scouting reward: each newly-detected objective gives +1 life,
+# capped so that the card-based score remains the primary axis.
+SCOUT_BONUS_CAP = 5
+
 
 @dataclass
 class GameEngine:
@@ -93,6 +100,8 @@ class GameEngine:
     _last_tick: int = 0
     _last_passive_tick: int = 0
     _passive_index: int = 0
+    _detected_ids: set[str] = field(default_factory=set)
+    _scout_bonus_used: int = 0
 
     @classmethod
     def start_new(
@@ -166,6 +175,39 @@ class GameEngine:
                 },
             })
 
+        # Scouting reward: each newly-detected objective gives +1 saved,
+        # capped by SCOUT_BONUS_CAP. This turns the map into a real
+        # second scoring axis — manual drone dispatch now matters.
+        try:
+            objectives = getattr(self.world.objective_field, "objectives", {}) or {}
+            for obj in objectives.values():
+                obj_id = getattr(obj, "id", None)
+                detected = bool(getattr(obj, "detected", False))
+                if obj_id is None or not detected:
+                    continue
+                if obj_id in self._detected_ids:
+                    continue
+                self._detected_ids.add(obj_id)
+                if self._scout_bonus_used >= SCOUT_BONUS_CAP:
+                    continue
+                self._scout_bonus_used += 1
+                self.gauges.saved += 1
+                x = getattr(obj, "x", 0)
+                y = getattr(obj, "y", 0)
+                events.append({
+                    "type": "narrator_log",
+                    "payload": {
+                        "id": f"scout-{obj_id}",
+                        "speaker": "Dispatcher log",
+                        "text_en": f"Victim confirmed at grid ({x},{y}) via recon (+1 lives).",
+                        "text_bm": f"Mangsa disahkan di petak ({x},{y}) melalui pengintipan (+1 nyawa).",
+                        "tone": "system",
+                        "timestamp_tick": tick,
+                    },
+                })
+        except Exception as exc:  # pragma: no cover
+            logger.debug("scout check failed: %s", exc)
+
         # Evaluate win/lose every tick.
         verdict = evaluate(self.gauges, self.scenario.target_saved)
         if verdict["status"] != "in_progress":
@@ -192,7 +234,26 @@ class GameEngine:
         if option is None:
             return {"type": "player_command_result", "payload": {"ok": False, "reason": "unknown_option"}}
 
-        apply_delta(self.gauges, option.deltas)
+        # Resource-scarcity check: if the option requires a specific agency
+        # and no idle drone is available, halve the saved delta (the response
+        # "happens" but is degraded) and emit a narrator warning so the
+        # player sees WHY they got fewer lives than the preview promised.
+        effective_deltas = dict(option.deltas)
+        degraded = False
+        if option.agency and option.map_action == "dispatch_rescue":
+            fleet_state_pre = [u.to_dict() for u in self.world.fleet.values()]
+            any_idle = any(
+                CALLSIGN_TO_AGENCY.get(u["id"]) == option.agency
+                and u.get("status") == "idle"
+                for u in fleet_state_pre
+            )
+            if not any_idle:
+                saved = int(effective_deltas.get("saved", 0))
+                effective_deltas["saved"] = max(0, saved // 2)
+                effective_deltas["trust"] = float(effective_deltas.get("trust", 0)) - 5
+                degraded = True
+
+        apply_delta(self.gauges, effective_deltas)
 
         # Visual feedback on the 3D map: dispatch the drone that belongs to
         # the option's agency (falls back to any idle drone, or a random
@@ -214,7 +275,7 @@ class GameEngine:
             card_id=self._pending_card.id,
             option_id=option.id,
             tick=self.world.tick,
-            deltas=dict(option.deltas),
+            deltas=dict(effective_deltas),
             gauges_after=self.gauges.as_dict(),
             flavor_bm=option.flavor_bm,
             flavor_en=option.flavor_en,
@@ -230,9 +291,10 @@ class GameEngine:
                 "option_id": record.option_id,
                 "flavor": {"bm": option.flavor_bm, "en": option.flavor_en},
                 "gauges": self.gauges.as_dict(),
-                "deltas": dict(option.deltas),
+                "deltas": dict(effective_deltas),
                 "assigned_drone": assigned_drone,
                 "agency": option.agency or (CALLSIGN_TO_AGENCY.get(assigned_drone or "") if assigned_drone else ""),
+                "degraded": degraded,
             },
         }
 

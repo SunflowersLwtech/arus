@@ -31,6 +31,14 @@ const useMissionStore = create((set, get) => ({
   currentTick: 0,                   // from game engine snapshot
   targetingDroneId: null,           // when set, map click dispatches this drone
 
+  // ─── v3 additions: mode + CoT + coach recommendation ────
+  mode: 'PLAY',                     // PLAY | COACH | AUTO
+  coachLog: [],                     // [{id, timestamp, kind, agent, text|tool|result, card_id}]
+  autoLog: [],                      // same shape for AUTO mode (may grow long)
+  recommendation: null,             // latest coach_recommendation payload
+  autoStatus: null,                 // {status, cycle, mission_id, message}
+  floodedCells: [],                 // [[x,y,level], ...] from flood overlay
+
   // ─── Connection ─────────────────────────────────────────
   connected: false,
 
@@ -80,6 +88,24 @@ const useMissionStore = create((set, get) => ({
       { timestamp: Date.now(), ...entry },
     ],
   })),
+
+  setMode: (mode) => set({ mode }),
+
+  pushCoachLog: (entry) => set(state => {
+    const bucket = state.mode === 'AUTO' ? 'autoLog' : 'coachLog'
+    return {
+      [bucket]: [
+        ...state[bucket].slice(-60),
+        { id: `log-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`, ...entry },
+      ],
+    }
+  }),
+
+  setRecommendation: (rec) => set({ recommendation: rec }),
+
+  setAutoStatus: (st) => set({ autoStatus: st }),
+
+  setFloodedCells: (cells) => set({ floodedCells: cells || [] }),
 
   startGameLocal: ({ session_id, scenario, gauges, intro }) => set({
     gameStatus: 'running',
@@ -175,6 +201,10 @@ const useMissionStore = create((set, get) => ({
     narratorLog: [],
     choiceHistory: [],
     debrief: null,
+    coachLog: [],
+    autoLog: [],
+    recommendation: null,
+    autoStatus: null,
   }),
 }))
 

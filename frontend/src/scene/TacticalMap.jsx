@@ -8,6 +8,7 @@ import CoverageOverlay from './CoverageOverlay'
 import ObjectiveMarkers from './ObjectiveMarkers'
 import PostFX from './PostFX'
 import TargetingLayer from './TargetingLayer'
+import GhostDrones from './GhostDrones'
 
 export default function TacticalMap() {
   const [dpr, setDpr] = useState(1.5)
@@ -27,6 +28,7 @@ export default function TacticalMap() {
       <FleetRenderer />
       <ObjectiveMarkers />
       <TargetingLayer />
+      <GhostDrones />
 
       <Grid
         args={[20, 20]}

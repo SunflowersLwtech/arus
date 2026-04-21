@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import useMissionStore from '../stores/missionStore'
 import { startGame } from '../hooks/useGameApi'
+import ModeSelector from './ModeSelector'
 
 export default function StartScreen() {
   const locale = useMissionStore(s => s.locale)
   const setLocale = useMissionStore(s => s.setLocale)
   const [busy, setBusy] = useState(false)
+  const [mode, setMode] = useState('PLAY')
 
   const copy = locale === 'bm'
     ? {
@@ -41,7 +43,7 @@ export default function StartScreen() {
     if (busy) return
     setBusy(true)
     try {
-      await startGame('shah_alam_hard', locale)
+      await startGame('shah_alam_hard', locale, mode)
     } catch (e) {
       console.error(e)
       setBusy(false)
@@ -84,7 +86,9 @@ export default function StartScreen() {
         </div>
 
         <div className="text-sm mb-2" style={{ color: '#9EB0C8' }}>{copy.subtitle}</div>
-        <div className="text-base leading-relaxed mb-5 text-white">{copy.body}</div>
+        <div className="text-base leading-relaxed mb-4 text-white">{copy.body}</div>
+
+        <ModeSelector value={mode} onChange={setMode} locale={locale} />
 
         <div className="mb-6 p-3 rounded" style={{ background: '#0B1426', border: '1px solid #1E3A5F' }}>
           <div className="text-[10px] uppercase tracking-widest mb-2" style={{ color: '#00D4FF' }}>

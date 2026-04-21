@@ -8,6 +8,8 @@ import StartScreen from './components/StartScreen'
 import DebriefScreen from './components/DebriefScreen'
 import AgencyStatusPanel from './components/AgencyStatusPanel'
 import NextCallEta from './components/NextCallEta'
+import CoachConsole from './components/CoachConsole'
+import AutoWatcher from './components/AutoWatcher'
 import useMissionStore from './stores/missionStore'
 import useWebSocket from './hooks/useWebSocket'
 
@@ -47,6 +49,7 @@ function MobileDrawer({ side, open, onClose, children }) {
 export default function App() {
   useWebSocket()
   const gameStatus = useMissionStore(s => s.gameStatus)
+  const mode = useMissionStore(s => s.mode)
   const narrow = useIsNarrow()
   const [leftOpen, setLeftOpen] = useState(false)
   const [rightOpen, setRightOpen] = useState(false)
@@ -54,24 +57,27 @@ export default function App() {
   const showStart = gameStatus === 'not_started'
   const showDebrief = gameStatus === 'won' || gameStatus === 'partial' || gameStatus === 'failed'
 
+  // Per-mode right-panel selection.
+  const RightPanel = mode === 'COACH' ? CoachConsole : mode === 'AUTO' ? AutoWatcher : NarratorPanel
+
   return (
     <div className="w-full h-full flex flex-col relative" style={{ background: '#0B1426' }}>
       <GlobalStatusBar />
 
-      {!showStart && (
+      {!showStart && mode !== 'AUTO' && (
         <div className="shrink-0 border-b" style={{ borderColor: '#1E3A5F' }}>
           <GaugePanel />
         </div>
       )}
 
       <div className="flex-1 flex overflow-hidden relative">
-        {/* Left sidebar (desktop) / drawer (mobile) */}
-        {!showStart && !narrow && (
+        {/* Left sidebar (desktop) / drawer (mobile) — hidden in AUTO */}
+        {!showStart && mode !== 'AUTO' && !narrow && (
           <div className="shrink-0 flex flex-col overflow-hidden" style={{ width: 240, maxWidth: '30vw', borderRight: '1px solid #1E3A5F' }}>
             <AgencyStatusPanel />
           </div>
         )}
-        {!showStart && narrow && (
+        {!showStart && mode !== 'AUTO' && narrow && (
           <MobileDrawer side="left" open={leftOpen} onClose={() => setLeftOpen(false)}>
             <AgencyStatusPanel />
           </MobileDrawer>
@@ -86,19 +92,21 @@ export default function App() {
           {/* Mobile drawer trigger buttons — only on narrow viewports, while game active */}
           {!showStart && narrow && (
             <>
-              <button
-                onClick={() => setLeftOpen(true)}
-                className="absolute top-3 left-3 z-20 px-3 py-1.5 rounded-full text-[11px] font-mono font-semibold shadow-lg"
-                style={{ background: 'rgba(15,28,51,0.9)', color: '#00D4FF', border: '1px solid #00D4FF80' }}
-              >
-                ✈ Agencies
-              </button>
+              {mode !== 'AUTO' && (
+                <button
+                  onClick={() => setLeftOpen(true)}
+                  className="absolute top-3 left-3 z-20 px-3 py-1.5 rounded-full text-[11px] font-mono font-semibold shadow-lg"
+                  style={{ background: 'rgba(15,28,51,0.9)', color: '#00D4FF', border: '1px solid #00D4FF80' }}
+                >
+                  ✈ Agencies
+                </button>
+              )}
               <button
                 onClick={() => setRightOpen(true)}
                 className="absolute bottom-3 right-3 z-20 px-3 py-1.5 rounded-full text-[11px] font-mono font-semibold shadow-lg"
-                style={{ background: 'rgba(15,28,51,0.9)', color: '#00D4FF', border: '1px solid #00D4FF80' }}
+                style={{ background: 'rgba(15,28,51,0.9)', color: '#FFCC00', border: '1px solid #FFCC0080' }}
               >
-                📻 Radio
+                {mode === 'COACH' ? '🧠 AI' : mode === 'AUTO' ? '🎛 ADK' : '📻 Radio'}
               </button>
             </>
           )}
@@ -107,12 +115,12 @@ export default function App() {
         {/* Right sidebar (desktop) / drawer (mobile) */}
         {!showStart && !narrow && (
           <div className="shrink-0 flex flex-col overflow-hidden" style={{ width: 320, maxWidth: '38vw', borderLeft: '1px solid #1E3A5F' }}>
-            <NarratorPanel />
+            <RightPanel />
           </div>
         )}
         {!showStart && narrow && (
           <MobileDrawer side="right" open={rightOpen} onClose={() => setRightOpen(false)}>
-            <NarratorPanel />
+            <RightPanel />
           </MobileDrawer>
         )}
       </div>

@@ -43,7 +43,7 @@ function AgencyBadge({ agency, locale }) {
   )
 }
 
-function OptionDeltas({ deltas, agency, locale }) {
+function OptionDeltas({ deltas, agency, locale, agencyBusy }) {
   if (!deltas) return null
   const labels = locale === 'bm'
     ? { saved: 'nyawa', assets: 'aset', trust: 'kepercayaan' }
@@ -54,6 +54,15 @@ function OptionDeltas({ deltas, agency, locale }) {
       <DeltaChip value={deltas.assets} suffix="%" good={false} label={labels.assets} />
       <DeltaChip value={deltas.trust} suffix="%" good={true} label={labels.trust} />
       <AgencyBadge agency={agency} locale={locale} />
+      {agencyBusy && (
+        <span
+          className="inline-flex items-center gap-0.5 text-[10px] font-mono px-1.5 py-0.5 rounded"
+          style={{ color: '#FF5E78', background: '#FF5E7815', border: '1px solid #FF5E7860' }}
+          title="No idle drone for this agency — response will be degraded (~half lives saved)."
+        >
+          ⚠ {locale === 'bm' ? 'aset sibuk' : 'busy'}
+        </span>
+      )}
     </div>
   )
 }
@@ -61,6 +70,9 @@ function OptionDeltas({ deltas, agency, locale }) {
 export default function EventCard() {
   const card = useMissionStore(s => s.currentCard)
   const locale = useMissionStore(s => s.locale)
+  const mode = useMissionStore(s => s.mode)
+  const recommendation = useMissionStore(s => s.recommendation)
+  const fleet = useMissionStore(s => s.fleet)
   const [busy, setBusy] = useState(false)
   const [pressureRemaining, setPressureRemaining] = useState(CARD_PRESSURE_SECONDS)
   const startTimeRef = useRef(null)
@@ -138,32 +150,49 @@ export default function EventCard() {
         <div className="mt-2 text-sm leading-relaxed" style={{ color: '#C4D4E6' }}>{body}</div>
       </div>
       <div className="p-3 flex flex-col gap-2">
-        {card.options.map(opt => (
-          <button
-            key={opt.id}
-            disabled={busy}
-            onClick={() => onChoose(opt.id)}
-            className="text-left px-4 py-3 rounded-md transition-all disabled:opacity-50"
-            style={{
-              background: '#1E3A5F',
-              border: '1px solid #2E5480',
-              color: '#E6F0FA',
-            }}
-            onMouseEnter={e => {
-              if (!busy) {
-                e.currentTarget.style.background = '#2E5480'
-                e.currentTarget.style.borderColor = '#00D4FF'
-              }
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.background = '#1E3A5F'
-              e.currentTarget.style.borderColor = '#2E5480'
-            }}
-          >
-            <div className="text-sm">{opt[`label_${lang}`] || opt.label_en}</div>
-            <OptionDeltas deltas={opt.deltas} agency={opt.agency} locale={locale} />
-          </button>
-        ))}
+        {card.options.map(opt => {
+          const isRecommended = (
+            mode === 'COACH'
+            && recommendation
+            && recommendation.card_id === card.id
+            && recommendation.option_id === opt.id
+          )
+          const baseBg = isRecommended ? 'rgba(255,204,0,0.12)' : '#1E3A5F'
+          const baseBorder = isRecommended ? '#FFCC00' : '#2E5480'
+          return (
+            <button
+              key={opt.id}
+              disabled={busy}
+              onClick={() => onChoose(opt.id)}
+              className="text-left px-4 py-3 rounded-md transition-all disabled:opacity-50 relative"
+              style={{ background: baseBg, border: `1px solid ${baseBorder}`, color: '#E6F0FA' }}
+              onMouseEnter={e => {
+                if (!busy) {
+                  e.currentTarget.style.background = isRecommended ? 'rgba(255,204,0,0.18)' : '#2E5480'
+                  e.currentTarget.style.borderColor = isRecommended ? '#FFCC00' : '#00D4FF'
+                }
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = baseBg
+                e.currentTarget.style.borderColor = baseBorder
+              }}
+            >
+              {isRecommended && (
+                <span className="absolute -top-2 left-3 text-[9px] font-mono font-bold px-1.5 py-0.5 rounded"
+                  style={{ background: '#FFCC00', color: '#0B1426' }}>
+                  🤖 {locale === 'bm' ? 'AI cadang' : 'AI suggests'}
+                </span>
+              )}
+              <div className="text-sm">{opt[`label_${lang}`] || opt.label_en}</div>
+              <OptionDeltas
+                deltas={opt.deltas}
+                agency={opt.agency}
+                locale={locale}
+                agencyBusy={Boolean(opt.agency) && !fleet.some(u => u.agency === opt.agency && u.status === 'idle')}
+              />
+            </button>
+          )
+        })}
       </div>
     </div>
   )
