@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Arus — Banjir Drill · Malaysian flood coordination drill</title>
+<meta name="description" content="A 7-minute flood-coordination drill for Malaysian citizens. Play NADMA dispatcher during Shah Alam 2021. MyAI Future Hackathon 2026."/>
+<meta name="theme-color" content="#0a0e1a"/>
+<meta property="og:title" content="Arus — Banjir Drill"/>
+<meta property="og:description" content="Malaysia's flood-coordination drill. Play NADMA dispatcher during the 2021 Klang Valley floods. MyAI Future Hackathon 2026."/>
+<meta property="og:image" content="assets/s01.png"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --bg2: #111827;
+    --panel: #0f172a;
+    --accent: #facc15;
+    --blue: #60a5fa;
+    --green: #34d399;
+    --red: #ef4444;
+    --amber: #f59e0b;
+    --text: #ffffff;
+    --text-mid: #cbd5e1;
+    --text-lo: #7f8fa6;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; font-size: 16px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+  a { color: var(--blue); text-decoration: none; }
+  a:hover { color: var(--accent); }
+  .mono { font-family: 'JetBrains Mono', Menlo, monospace; }
+
+  /* Hero */
+  .hero { padding: 88px 32px 56px; text-align: center; max-width: 1200px; margin: 0 auto; position: relative; }
+  .hero::before {
+    content: ''; position: absolute; inset: 0; z-index: -1;
+    background: radial-gradient(circle at 50% 30%, rgba(250,204,21,0.12), transparent 55%);
+  }
+  .eyebrow { color: var(--accent); letter-spacing: 4px; font-size: 12px; font-weight: 700; text-transform: uppercase; margin-bottom: 24px; }
+  h1 { font-size: clamp(48px, 7vw, 104px); font-weight: 900; letter-spacing: -2.5px; line-height: 1.02; margin-bottom: 24px; }
+  h1 .accent { color: var(--accent); }
+  .tagline { font-size: clamp(18px, 2.3vw, 26px); color: var(--text-mid); max-width: 880px; margin: 0 auto 40px; font-weight: 400; }
+  .cta-row { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; }
+  .btn { padding: 18px 34px; border-radius: 12px; font-weight: 700; font-size: 17px; border: 2px solid var(--blue); color: var(--text); transition: all 0.18s; display: inline-flex; align-items: center; gap: 10px; }
+  .btn.primary { background: var(--blue); border-color: var(--blue); color: var(--bg); }
+  .btn.primary:hover { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+  .btn.ghost:hover { background: var(--bg2); border-color: var(--accent); color: var(--accent); }
+
+  /* Badges */
+  .badges { margin-top: 42px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+  .badge { padding: 8px 16px; border: 1px solid var(--text-lo); border-radius: 999px; color: var(--text-mid); font-size: 13px; font-weight: 500; }
+
+  /* Sections */
+  section { padding: 80px 32px; max-width: 1240px; margin: 0 auto; }
+  h2 { font-size: clamp(32px, 4vw, 56px); font-weight: 900; letter-spacing: -1.5px; margin-bottom: 14px; }
+  h2 .accent { color: var(--accent); }
+  .subh { color: var(--text-mid); font-size: 19px; max-width: 780px; margin-bottom: 40px; }
+
+  /* Video */
+  .video-wrap { position: relative; border-radius: 20px; overflow: hidden; border: 2px solid var(--bg2); box-shadow: 0 0 80px rgba(96,165,250,0.15); }
+  .video-wrap video { display: block; width: 100%; height: auto; }
+
+  /* Feature grid */
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 22px; margin-top: 20px; }
+  .card { background: var(--panel); border: 1px solid rgba(255,255,255,0.08); border-radius: 18px; padding: 28px; transition: all 0.2s; }
+  .card:hover { border-color: var(--blue); transform: translateY(-2px); }
+  .card h3 { font-size: 22px; font-weight: 700; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+  .card p { color: var(--text-mid); font-size: 15px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+  /* Architecture image */
+  .arch-wrap { margin-top: 20px; border-radius: 18px; overflow: hidden; border: 1px solid var(--bg2); }
+  .arch-wrap img { display: block; width: 100%; height: auto; }
+
+  /* Stats */
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 20px; }
+  .stat { background: var(--panel); border: 1px solid var(--bg2); border-radius: 16px; padding: 22px 24px; }
+  .stat .n { font-size: 48px; font-weight: 900; font-variant-numeric: tabular-nums; letter-spacing: -1px; line-height: 1; }
+  .stat .l { color: var(--text-mid); font-size: 13px; margin-top: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 1.5px; }
+  .stat.red .n { color: var(--red); }
+  .stat.amber .n { color: var(--amber); }
+  .stat.green .n { color: var(--green); }
+  .stat.blue .n { color: var(--blue); }
+
+  /* Tech table */
+  .tech { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 16px; background: var(--panel); border-radius: 18px; overflow: hidden; }
+  .tech th, .tech td { padding: 14px 22px; text-align: left; }
+  .tech th { background: var(--bg2); color: var(--text-mid); font-size: 12px; letter-spacing: 2px; text-transform: uppercase; font-weight: 700; }
+  .tech td { border-top: 1px solid var(--bg2); font-size: 15px; }
+  .tech td.l { color: var(--text-lo); font-weight: 500; width: 30%; }
+
+  /* How it works steps */
+  .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 20px; }
+  .step { background: var(--panel); border: 1px solid var(--bg2); border-radius: 18px; padding: 24px; position: relative; }
+  .step .num { color: var(--accent); font-size: 48px; font-weight: 900; line-height: 1; margin-bottom: 12px; }
+  .step h3 { font-size: 19px; font-weight: 700; margin-bottom: 8px; }
+  .step p { color: var(--text-mid); font-size: 14px; }
+
+  /* Footer */
+  footer { padding: 60px 32px 50px; text-align: center; border-top: 1px solid var(--bg2); margin-top: 60px; color: var(--text-lo); font-size: 13px; }
+  footer a { color: var(--text-mid); margin: 0 10px; }
+  footer .brand { color: var(--text); font-weight: 700; font-size: 18px; letter-spacing: -0.5px; }
+
+  @media (max-width: 640px) {
+    .hero { padding: 60px 20px 40px; }
+    section { padding: 56px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="eyebrow">MyAI Future Hackathon 2026 · Track 2 — Citizens First</div>
+  <h1>Arus<span class="accent"> — </span>Banjir Drill</h1>
+  <p class="tagline">A 7-minute flood-coordination drill for Malaysian citizens. Play NADMA dispatcher during the 2021 Klang Valley floods — feel why coordination is hard, not just be told.</p>
+  <div class="cta-row">
+    <a class="btn primary" href="https://arus-1030181742799.asia-southeast1.run.app" target="_blank">▶ Play the drill</a>
+    <a class="btn ghost" href="#video">Watch 5-min demo</a>
+    <a class="btn ghost" href="https://github.com/SunflowersLwtech/arus" target="_blank">GitHub</a>
+  </div>
+  <div class="badges">
+    <span class="badge">Gemini 2.5 Pro</span>
+    <span class="badge">Google ADK</span>
+    <span class="badge">MCP</span>
+    <span class="badge">Google Antigravity</span>
+    <span class="badge">Veo 3.0</span>
+    <span class="badge">Cloud Run · asia-southeast1</span>
+    <span class="badge">MetMalaysia live feed</span>
+    <span class="badge">SDG 4 · 11 · 13 · 17</span>
+  </div>
+</section>
+
+<section id="video">
+  <h2>Watch<span class="accent"> the drill</span>.</h2>
+  <p class="subh">5-minute overview. Real 2021 Shah Alam scenario, 8 live calls, Gemini-authored narration, end-of-session debrief with commentary.</p>
+  <div class="video-wrap">
+    <video controls playsinline poster="assets/s01.png">
+      <source src="video/arus-demo-5min.mp4" type="video/mp4"/>
+      Your browser can't play this video.
+    </video>
+  </div>
+</section>
+
+<section>
+  <h2>The gap<span class="accent"> we're closing.</span></h2>
+  <p class="subh">Taman Sri Muda, December 2021. The MDPI 2025 post-mortem named <em>public awareness</em> as a systemic gap. Existing apps — Portal Bencana, InfoBanjir, MetMalaysia — are information pipes. None let a citizen <em>feel</em> why coordination is hard.</p>
+  <div class="stats">
+    <div class="stat amber"><div class="n">40,000</div><div class="l">displaced</div></div>
+    <div class="stat red"><div class="n">54</div><div class="l">fatalities</div></div>
+    <div class="stat blue"><div class="n">16 h</div><div class="l">rooftop wait, Sri Muda</div></div>
+    <div class="stat green"><div class="n">1,500</div><div class="l">claimants · MYR 3.7M lawsuit</div></div>
+  </div>
+</section>
+
+<section>
+  <h2>Three lenses<span class="accent">, one engine.</span></h2>
+  <p class="subh">Same simulation core. Three ways to learn how a real dispatcher thinks.</p>
+  <div class="grid">
+    <div class="card">
+      <h3><span class="dot" style="background: var(--green)"></span>PLAY</h3>
+      <p>You <em>are</em> Datuk Nadia at NADMA. 8 incoming calls over 7 minutes. 4 gauges respond to every choice — lives saved, assets spent, inter-agency trust, time. Manual drone dispatch on the 3D tactical map scouts hotspots.</p>
+    </div>
+    <div class="card">
+      <h3><span class="dot" style="background: var(--blue)"></span>COACH</h3>
+      <p>A 2-stage Google ADK agent fires on every card. Assessor queries fleet state via 9 MCP tools; Recommender returns a structured, bilingual recommendation + a ghost drone at the suggested coordinate. Follow or override.</p>
+    </div>
+    <div class="card">
+      <h3><span class="dot" style="background: var(--amber)"></span>WATCH AI</h3>
+      <p>A 5-stage autonomous ADK pipeline — Assess → Strategise → Dispatch → Analyse → Agency Brief — drives the whole simulation. Technical-depth demo for judges who want to see full agentic capability.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>How<span class="accent"> it's built.</span></h2>
+  <p class="subh">One deterministic simulation at the core. Gemini at the boundaries, not in the loop. Real MetMalaysia feed. All co-existing in one Python process on Cloud Run.</p>
+  <div class="arch-wrap"><img src="assets/s02.png" alt="Architecture diagram — React UI, FastAPI, GridWorld engine, Gemini 2.5 Pro, Google ADK, MCP server"/></div>
+  <table class="tech">
+    <thead><tr><th>Layer</th><th>Stack</th></tr></thead>
+    <tbody>
+      <tr><td class="l">Frontend</td><td>React 18 · React Three Fiber · Zustand · Tailwind · Vite</td></tr>
+      <tr><td class="l">Backend</td><td>FastAPI · WebSocket · Python 3.12 · NumPy · SciPy</td></tr>
+      <tr><td class="l">Simulation</td><td>GridWorld (20×20, A* pathfinding) · deterministic engine · real kampung names (Kelantan + Johor)</td></tr>
+      <tr><td class="l">AI tier</td><td>Gemini 2.5 Pro (narrator, debrief) · Veo 3.0 (demo b-roll) · Gemini 2.5 TTS (demo voiceover)</td></tr>
+      <tr><td class="l">Agents</td><td>Google ADK 1.27.1 · SequentialAgent (AUTO) · LlmAgent (COACH)</td></tr>
+      <tr><td class="l">Tools</td><td>MCP 1.26.0 · fastmcp 3.1.1 · 9-tool fleet server on port 8001 · <code>tools/list_changed</code> discovery</td></tr>
+      <tr><td class="l">Deploy</td><td>Google Cloud Run (asia-southeast1) · Artifact Registry · Secret Manager</td></tr>
+      <tr><td class="l">Built in</td><td>Google Antigravity (entire hackathon window)</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>How you'll play<span class="accent">.</span></h2>
+  <div class="steps">
+    <div class="step"><div class="num">1</div><h3>Tap Start</h3><p>Open on your phone — no login. Pick BM or EN. Scroll-free gameplay fits a 5-inch screen.</p></div>
+    <div class="step"><div class="num">2</div><h3>8 calls in 7 minutes</h3><p>From BOMBA, APM, Maritime, Chief Secretary's office, Astro Awani, and more. Each carries a real historical echo.</p></div>
+    <div class="step"><div class="num">3</div><h3>Watch gauges respond</h3><p>Lives saved, assets spent, agency trust, time remaining. Decisions are paid for in lives <em>or</em> in trust.</p></div>
+    <div class="step"><div class="num">4</div><h3>See your echo</h3><p>End-of-session debrief: your numbers beside real 2021 numbers. Gemini writes personalised commentary in your language.</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>From the drill<span class="accent"> into the real tools.</span></h2>
+  <p class="subh">Every debrief ships the player into the tools they'd actually use if the water rose tomorrow.</p>
+  <div class="grid">
+    <a class="card" href="https://portalbencana.nadma.gov.my/en/" target="_blank">
+      <h3><span class="dot" style="background: var(--blue)"></span>Portal Bencana</h3>
+      <p>NADMA's official disaster coordination portal. Real-time agency reports + flood zone maps.</p>
+    </a>
+    <a class="card" href="https://publicinfobanjir.water.gov.my/" target="_blank">
+      <h3><span class="dot" style="background: var(--green)"></span>Public InfoBanjir</h3>
+      <p>JPS (Department of Irrigation &amp; Drainage) live river levels and rainfall telemetry.</p>
+    </a>
+    <a class="card" href="https://api.data.gov.my/weather/warning" target="_blank">
+      <h3><span class="dot" style="background: var(--accent)"></span>MetMalaysia warnings</h3>
+      <p>Meteorological Department's live thunderstorm / monsoon surge advisories. We consume this feed.</p>
+    </a>
+  </div>
+</section>
+
+<section>
+  <h2>Try the drill<span class="accent"> now.</span></h2>
+  <p class="subh">Scan on a phone. 7 minutes, no login, full debrief.</p>
+  <div style="display: flex; flex-wrap: wrap; gap: 30px; align-items: center; margin-top: 20px;">
+    <div style="flex: 1 1 400px;">
+      <div class="mono" style="font-size: 18px; background: var(--panel); border: 2px solid var(--blue); border-radius: 12px; padding: 18px 24px; word-break: break-all;">
+        arus-1030181742799.asia-southeast1.run.app
+      </div>
+      <div style="margin-top: 20px;">
+        <a class="btn primary" href="https://arus-1030181742799.asia-southeast1.run.app" target="_blank">▶ Play the drill</a>
+      </div>
+    </div>
+    <div style="flex: 1 1 300px;">
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=https%3A%2F%2Farus-1030181742799.asia-southeast1.run.app&bgcolor=0a0e1a&color=ffffff&margin=8" alt="QR code" style="border-radius: 18px; background: var(--panel); padding: 20px; max-width: 280px;"/>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="brand">Arus — Banjir Drill</div>
+  <div style="margin-top: 14px;">
+    <a href="https://github.com/SunflowersLwtech/arus">GitHub repo</a> ·
+    <a href="https://arus-1030181742799.asia-southeast1.run.app">Live app</a> ·
+    <a href="#video">Demo video</a>
+  </div>
+  <div style="margin-top: 22px; color: var(--text-lo); font-size: 12px; letter-spacing: 2px;">MYAI FUTURE HACKATHON 2026  ·  BUILT IN GOOGLE ANTIGRAVITY  ·  GEMINI 2.5 PRO  ·  VEO 3.0</div>
+</footer>
+
+</body>
+</html>
