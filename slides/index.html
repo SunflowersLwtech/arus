@@ -4,404 +4,823 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Arus — Banjir Drill · Pitch Deck</title>
-<meta name="description" content="Arus — Banjir Drill. Pitch deck for MyAI Future Hackathon 2026 Track 2 — Citizens First."/>
+<meta name="description" content="Arus — Banjir Drill pitch deck. MyAI Future Hackathon 2026 Track 2 — Citizens First."/>
 <meta name="theme-color" content="#0a0e1a"/>
 <meta property="og:title" content="Arus — Banjir Drill · Pitch Deck"/>
 <meta property="og:image" content="s01.png"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
 <style>
   :root {
-    --bg: #0a0e1a; --bg2: #111827; --panel: #0f172a;
-    --accent: #facc15; --blue: #60a5fa; --green: #34d399;
-    --red: #ef4444; --amber: #f59e0b;
-    --text: #fff; --tm: #cbd5e1; --tl: #7f8fa6;
+    --bg:    #0a0e1a; --bg2: #111827; --panel: #0f172a;
+    --accent:#facc15; --blue: #60a5fa; --green: #34d399;
+    --red:   #ef4444; --amber:#f59e0b; --violet: #a78bfa;
+    --text:  #ffffff; --tm: #cbd5e1; --tl: #7f8fa6;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; overflow: hidden; height: 100vh; }
-  .deck {
-    position: fixed; inset: 0;
-    display: flex; align-items: center; justify-content: center;
-    overflow: hidden;
+  html, body {
+    background: var(--bg); color: var(--text);
+    font-family: 'Inter', system-ui, sans-serif;
+    overflow: hidden; height: 100vh; width: 100vw;
+    -webkit-font-smoothing: antialiased;
   }
+  .mono { font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; }
+
+  /* ── layout ── */
+  .deck { position: fixed; inset: 0; overflow: hidden; }
   .track {
-    display: flex; flex-direction: row; height: 100%;
-    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex; flex-direction: row;
+    height: 100vh; width: max-content;
+    transition: transform 560ms cubic-bezier(0.22, 0.61, 0.36, 1);
     will-change: transform;
   }
   .slide {
-    flex: 0 0 100vw; height: 100vh;
-    display: flex; align-items: center; justify-content: center;
-    position: relative;
-    padding: 48px;
+    flex: 0 0 100vw; width: 100vw; height: 100vh;
+    position: relative; padding: 56px 72px 84px;
+    display: flex; flex-direction: column;
   }
-  .slide .full-bg {
-    position: absolute; inset: 0;
-    background-size: cover; background-position: center; background-repeat: no-repeat;
-  }
-  .slide .dim { position: absolute; inset: 0; background: rgba(10,14,26,0.35); }
-  .slide .content {
-    position: relative;
-    max-width: 1200px; width: 100%;
-    text-align: left;
-  }
-  .slide.center .content { text-align: center; }
 
-  /* Type */
-  h1 { font-size: clamp(48px, 6vw, 92px); font-weight: 900; letter-spacing: -2.5px; line-height: 1.03; margin-bottom: 20px; }
-  h2 { font-size: clamp(36px, 4.5vw, 68px); font-weight: 900; letter-spacing: -1.5px; line-height: 1.05; margin-bottom: 16px; }
-  h3 { font-size: clamp(20px, 1.8vw, 28px); font-weight: 700; margin-bottom: 12px; }
+  /* consistent slide chrome */
+  .slide .chrome {
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; color: var(--tl); letter-spacing: 2.5px;
+    font-weight: 600; padding-bottom: 18px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .slide .chrome .tag { color: var(--accent); }
+  .slide .body { flex: 1; padding-top: 28px; overflow: hidden; }
+
+  /* ── typography ── */
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 3px; color: var(--tl); font-weight: 700; text-transform: uppercase; margin-bottom: 16px; }
+  .eyebrow .accent { color: var(--accent); }
+  h1 { font-size: clamp(52px, 5.8vw, 104px); font-weight: 900; line-height: 1.02; letter-spacing: -2.5px; }
+  h2 { font-size: clamp(40px, 4.4vw, 76px); font-weight: 900; line-height: 1.04; letter-spacing: -1.8px; margin-bottom: 14px; }
+  h3 { font-size: clamp(20px, 1.8vw, 26px); font-weight: 700; margin-bottom: 8px; }
+  .lead { font-size: clamp(18px, 1.7vw, 24px); color: var(--tm); max-width: 880px; font-weight: 400; line-height: 1.5; }
   .accent { color: var(--accent); }
-  .tagline { font-size: clamp(18px, 1.8vw, 26px); color: var(--tm); font-weight: 400; max-width: 900px; }
-  .note { font-size: 15px; color: var(--tl); letter-spacing: 2.5px; font-weight: 700; text-transform: uppercase; margin-bottom: 26px; }
-  .mono { font-family: 'JetBrains Mono', monospace; }
 
-  /* Grid layouts */
-  .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 30px; }
-  .card {
-    background: var(--panel); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px;
-    padding: 22px;
+  /* ── Slide 1: hero ── */
+  .slide.hero {
+    justify-content: center; align-items: center; text-align: center;
+    background: radial-gradient(ellipse at 50% 35%, rgba(250,204,21,0.12), transparent 55%);
   }
-  .card h4 { font-size: 18px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
-  .card p { color: var(--tm); font-size: 14px; line-height: 1.55; }
-  .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .slide.hero .brand { font-size: clamp(72px, 9vw, 160px); font-weight: 900; letter-spacing: -4px; line-height: 0.95; }
+  .slide.hero .tagline { margin-top: 20px; font-size: clamp(20px, 1.9vw, 28px); color: var(--tm); max-width: 900px; line-height: 1.4; }
+  .slide.hero .cta { margin-top: 46px; display: flex; gap: 14px; justify-content: center; }
+  .btn {
+    padding: 16px 30px; border-radius: 10px; font-weight: 700; font-size: 16px;
+    border: 2px solid var(--blue); background: var(--blue); color: var(--bg);
+    text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+    transition: all 0.18s;
+  }
+  .btn.ghost { background: transparent; color: var(--blue); }
+  .btn:hover { background: var(--accent); border-color: var(--accent); color: var(--bg); }
 
-  /* Stats */
-  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-top: 26px; }
-  .stat .n { font-size: clamp(40px, 4vw, 64px); font-weight: 900; line-height: 1; font-variant-numeric: tabular-nums; letter-spacing: -1px; }
-  .stat .l { font-size: 12px; color: var(--tm); margin-top: 8px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; }
+  /* ── Slide 2: animated stats ── */
+  .stats {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px;
+    margin-top: 50px;
+  }
+  .stat { padding: 10px 0; border-left: 3px solid var(--bg2); padding-left: 28px; }
+  .stat.red { border-left-color: var(--red); }
+  .stat.amber { border-left-color: var(--amber); }
+  .stat.blue { border-left-color: var(--blue); }
+  .stat.yellow { border-left-color: var(--accent); }
+  .stat .n {
+    font-size: clamp(52px, 6vw, 96px); font-weight: 900;
+    letter-spacing: -2px; line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
   .stat.red .n { color: var(--red); }
   .stat.amber .n { color: var(--amber); }
-  .stat.green .n { color: var(--green); }
   .stat.blue .n { color: var(--blue); }
   .stat.yellow .n { color: var(--accent); }
+  .stat .l { font-size: 15px; color: var(--tm); margin-top: 14px; font-weight: 500; line-height: 1.35; }
+  .stat .s { font-size: 12px; color: var(--tl); margin-top: 6px; font-family: 'JetBrains Mono', monospace; }
+  .src { margin-top: 44px; font-size: 13px; color: var(--tl); letter-spacing: 1.5px; font-family: 'JetBrains Mono', monospace; }
 
-  /* Tech table */
-  table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 15px; }
-  table th { background: var(--bg2); color: var(--tm); padding: 12px 20px; text-align: left; font-size: 11px; letter-spacing: 2px; font-weight: 700; text-transform: uppercase; }
-  table td { padding: 12px 20px; border-top: 1px solid var(--bg2); }
-  table td.l { color: var(--tl); width: 35%; font-weight: 500; }
+  /* ── Slide 3: opportunity split ── */
+  .split { display: grid; grid-template-columns: 1.3fr 1fr; gap: 48px; height: 100%; align-items: center; }
+  .quote { font-size: clamp(22px, 2.3vw, 34px); color: var(--text); font-weight: 400; line-height: 1.4; font-style: italic; border-left: 3px solid var(--accent); padding-left: 28px; }
+  .quote .src { margin-top: 22px; font-style: normal; font-size: 14px; color: var(--tl); font-family: 'JetBrains Mono', monospace; }
+  .diagram {
+    background: var(--panel); border: 1px solid var(--bg2); border-radius: 18px;
+    padding: 36px 32px;
+  }
+  .diagram h3 { color: var(--tl); font-size: 12px; letter-spacing: 3px; margin-bottom: 22px; font-weight: 700; }
+  .pipe { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; }
+  .pipe .side { background: var(--bg2); padding: 16px 20px; border-radius: 10px; flex: 1; text-align: center; font-weight: 600; font-size: 16px; color: var(--tm); }
+  .pipe .side.bad { color: var(--tl); }
+  .pipe .arrow { font-size: 24px; color: var(--accent); }
+  .pipe .side.good { background: transparent; border: 2px solid var(--accent); color: var(--accent); }
 
-  /* Navigation */
-  .nav {
-    position: fixed; bottom: 24px; left: 0; right: 0;
-    display: flex; justify-content: center; gap: 8px; z-index: 20;
-    pointer-events: none;
+  /* ── Slide 4: three-mode solution ── */
+  .modes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 30px; height: calc(100% - 140px); }
+  .mode {
+    background: var(--panel); border: 1px solid var(--bg2); border-radius: 18px;
+    padding: 40px 32px; display: flex; flex-direction: column;
+    transition: all 0.3s; position: relative; overflow: hidden;
   }
-  .nav .dots { display: flex; gap: 6px; pointer-events: auto; padding: 10px 16px; background: rgba(10,14,26,0.7); border-radius: 999px; backdrop-filter: blur(10px); }
-  .nav .d { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.25); cursor: pointer; transition: all 0.2s; }
-  .nav .d.active { background: var(--accent); width: 22px; border-radius: 4px; }
+  .mode::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+  }
+  .mode.play::before { background: var(--green); }
+  .mode.coach::before { background: var(--blue); }
+  .mode.auto::before { background: var(--amber); }
+  .mode .icon { font-size: 44px; margin-bottom: 16px; }
+  .mode h3 { font-size: 30px; font-weight: 900; letter-spacing: -1px; }
+  .mode.play h3 { color: var(--green); }
+  .mode.coach h3 { color: var(--blue); }
+  .mode.auto h3 { color: var(--amber); }
+  .mode p { color: var(--tm); font-size: 16px; line-height: 1.55; margin-top: 14px; }
+  .mode ul { margin-top: 20px; list-style: none; }
+  .mode li { font-size: 14px; color: var(--tl); padding: 5px 0 5px 18px; position: relative; }
+  .mode li::before { content: '▸'; position: absolute; left: 0; color: var(--accent); }
 
-  .hint {
-    position: fixed; bottom: 24px; right: 24px; z-index: 20;
-    font-size: 12px; color: var(--tl); letter-spacing: 2px;
-    font-family: 'JetBrains Mono', monospace;
-    background: rgba(10,14,26,0.7); padding: 8px 14px; border-radius: 8px;
-    backdrop-filter: blur(10px);
+  /* ── Slide 5: architecture SVG ── */
+  .archslot { height: calc(100% - 140px); position: relative; display: flex; align-items: center; justify-content: center; }
+  .archslot svg { max-width: 100%; max-height: 100%; }
+
+  /* ── Slide 6: engine grid ── */
+  .enginegrid { display: grid; grid-template-columns: 1fr 360px; gap: 40px; height: calc(100% - 140px); align-items: center; }
+  .gridbox { background: var(--panel); border: 1px solid var(--bg2); border-radius: 18px; padding: 20px; }
+  .gridbox .g { display: grid; grid-template-columns: repeat(20, 1fr); gap: 2px; aspect-ratio: 1; }
+  .gridbox .c { width: 100%; aspect-ratio: 1; border-radius: 2px; background: #121826; }
+  .gridbox .c.w { background: #1e3a5c; }
+  .gridbox .c.r { background: #334155; }
+  .gridbox .c.k { background: #16593a; box-shadow: inset 0 0 0 1px var(--accent); }
+  .gridbox .c.e { background: #5a3b12; box-shadow: inset 0 0 0 1px var(--accent); }
+  .enginegrid .info h3 { font-size: 22px; color: var(--text); font-weight: 700; margin-bottom: 12px; }
+  .enginegrid .info p { color: var(--tm); font-size: 15px; line-height: 1.55; margin-bottom: 18px; }
+  .enginegrid .info code { background: var(--bg2); color: var(--accent); padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+
+  /* ── Slide 7: tech stack table ── */
+  .stack { margin-top: 24px; }
+  .srow {
+    display: grid; grid-template-columns: 220px 1fr 140px;
+    padding: 14px 0; border-top: 1px solid var(--bg2);
+    align-items: center;
   }
-  .meta {
-    position: fixed; top: 24px; left: 24px; z-index: 20;
-    font-size: 11px; color: var(--tl); letter-spacing: 2px;
-    font-family: 'JetBrains Mono', monospace; font-weight: 500;
+  .srow:first-child { border-top: none; }
+  .srow .k { color: var(--tl); font-size: 13px; letter-spacing: 1.5px; font-weight: 600; text-transform: uppercase; }
+  .srow .v { color: var(--text); font-size: 17px; font-weight: 500; }
+  .srow .v code { font-family: 'JetBrains Mono', monospace; color: var(--accent); font-size: 14px; }
+  .srow .v2 { color: var(--blue); font-family: 'JetBrains Mono', monospace; font-size: 13px; text-align: right; }
+
+  /* ── Slide 8: coach vs auto ── */
+  .agents { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; height: calc(100% - 140px); }
+  .agent { background: var(--panel); border: 1px solid var(--bg2); border-radius: 18px; padding: 36px; overflow: hidden; }
+  .agent.coach { border-left: 4px solid var(--blue); }
+  .agent.auto  { border-left: 4px solid var(--amber); }
+  .agent h3 { font-size: 32px; font-weight: 900; letter-spacing: -1px; }
+  .agent.coach h3 { color: var(--blue); }
+  .agent.auto  h3 { color: var(--amber); }
+  .agent .tag { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 2.5px; color: var(--tl); margin-bottom: 6px; }
+  .flow { margin-top: 22px; }
+  .step {
+    display: flex; align-items: center; gap: 16px; padding: 10px 0;
   }
-  .slidenum {
-    position: fixed; top: 24px; right: 24px; z-index: 20;
-    font-size: 13px; color: var(--tm);
-    font-family: 'JetBrains Mono', monospace;
+  .step .n { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 18px; flex-shrink: 0; }
+  .agent.coach .step .n { background: var(--blue); color: var(--bg); }
+  .agent.auto  .step .n { background: var(--amber); color: var(--bg); }
+  .step .t { flex: 1; }
+  .step .t h4 { color: var(--text); font-size: 18px; font-weight: 700; }
+  .step .t p { color: var(--tl); font-size: 14px; margin-top: 1px; }
+  .step .arrow { color: var(--tl); padding: 8px 0; margin-left: 19px; font-size: 12px; font-family: 'JetBrains Mono', monospace; letter-spacing: 2px; }
+
+  /* ── Slide 9: debrief bars ── */
+  .bars { margin-top: 30px; }
+  .bar { margin-bottom: 22px; }
+  .bar .label { display: flex; justify-content: space-between; margin-bottom: 6px; }
+  .bar .label .l { color: var(--text); font-size: 17px; font-weight: 600; }
+  .bar .label .sub { color: var(--tl); font-size: 13px; margin-left: 10px; font-weight: 400; }
+  .bar .label .v { color: var(--text); font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .bar .track-b { height: 56px; background: var(--panel); border-radius: 8px; overflow: hidden; position: relative; }
+  .bar .fill { height: 100%; border-radius: 8px; width: 0; transition: width 1.4s cubic-bezier(0.22, 0.61, 0.36, 1); }
+  .slide.active .bar .fill { transition-delay: calc(var(--i, 0) * 180ms); }
+  .bar.g .fill { background: linear-gradient(90deg, var(--green), #2aa581); width: 0.052%; }
+  .bar.r .fill { background: linear-gradient(90deg, var(--red), #b82a2a); width: 0%; }
+  .bar.a .fill { background: linear-gradient(90deg, var(--amber), #b06d06); width: 100%; }
+  .bar.v .fill { background: linear-gradient(90deg, var(--violet), #6d4cb8); width: 3.75%; }
+  .slide.active .bar.g .fill { width: 0.052%; }
+  .slide.active .bar.r .fill { width: 0%; }
+  .slide.active .bar.a .fill { width: 100%; }
+  .slide.active .bar.v .fill { width: 3.75%; }
+
+  .commentary {
+    margin-top: 30px; background: var(--panel); border: 2px solid var(--blue);
+    border-radius: 14px; padding: 22px 26px;
   }
-  .arrow-btn {
+  .commentary .tag { color: var(--blue); font-size: 12px; letter-spacing: 2.5px; font-weight: 700; margin-bottom: 10px; font-family: 'JetBrains Mono', monospace; }
+  .commentary p { color: var(--text); font-size: 16px; line-height: 1.55; font-style: italic; }
+  .links { margin-top: 20px; display: flex; gap: 12px; flex-wrap: wrap; }
+  .link-pill { padding: 10px 18px; border: 1px solid var(--tl); border-radius: 999px; color: var(--tm); font-size: 13px; font-weight: 500; }
+
+  /* ── Slide 10: Antigravity with annotation pins ── */
+  .annot { position: relative; height: calc(100% - 140px); display: flex; align-items: center; justify-content: center; }
+  .annot img { max-width: 100%; max-height: 100%; border-radius: 14px; box-shadow: 0 20px 60px rgba(0,0,0,0.4); }
+  .pin {
+    position: absolute; padding: 10px 14px; border-radius: 8px;
+    background: rgba(10,14,26,0.94); border: 1.5px solid var(--accent);
+    color: var(--text); font-size: 14px; font-weight: 600;
+    box-shadow: 0 6px 30px rgba(250,204,21,0.25);
+    font-family: 'JetBrains Mono', monospace; letter-spacing: 0.3px;
+  }
+  .pin::before {
+    content: ''; position: absolute; width: 14px; height: 14px; border-radius: 50%;
+    background: var(--accent); box-shadow: 0 0 20px var(--accent);
+    animation: pulse 1.6s infinite ease-out;
+  }
+  @keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(2.6); opacity: 0; }
+  }
+
+  /* ── Slide 11: roadmap ── */
+  .roadmap { margin-top: 24px; position: relative; padding-left: 32px; }
+  .roadmap::before { content: ''; position: absolute; left: 7px; top: 10px; bottom: 10px; width: 2px; background: var(--bg2); }
+  .mile { position: relative; margin-bottom: 22px; }
+  .mile::before {
+    content: ''; position: absolute; left: -32px; top: 8px;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: var(--bg); border: 2px solid var(--tl);
+  }
+  .mile.done::before { background: var(--green); border-color: var(--green); box-shadow: 0 0 12px rgba(52,211,153,0.5); }
+  .mile.now::before  { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 14px rgba(250,204,21,0.7); }
+  .mile .when { color: var(--tl); font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 2px; font-weight: 700; }
+  .mile h4 { color: var(--text); font-size: 20px; font-weight: 700; margin: 2px 0 4px; }
+  .mile p { color: var(--tm); font-size: 14px; line-height: 1.5; }
+
+  /* ── Slide 12: close with QR ── */
+  .slide.close { justify-content: center; align-items: center; text-align: center; }
+  .slide.close .huge { font-size: clamp(72px, 9vw, 160px); font-weight: 900; letter-spacing: -4px; line-height: 0.96; }
+  .slide.close .huge .accent { color: var(--accent); }
+  .slide.close .sub { margin-top: 20px; font-size: 24px; color: var(--tm); }
+  .slide.close .urlbox { margin-top: 36px; padding: 16px 28px; border: 2px solid var(--blue); border-radius: 12px; color: var(--blue); font-family: 'JetBrains Mono', monospace; font-size: 22px; display: inline-block; }
+  .slide.close .qr { margin-top: 30px; background: #fff; padding: 16px; border-radius: 14px; display: inline-block; }
+  .slide.close .qr img { display: block; width: 180px; height: 180px; }
+  .slide.close .footerline { margin-top: 44px; color: var(--tl); font-size: 12px; letter-spacing: 2.5px; font-family: 'JetBrains Mono', monospace; }
+
+  /* ── controls ── */
+  .arrow {
     position: fixed; top: 50%; transform: translateY(-50%);
     width: 48px; height: 48px; border-radius: 24px;
-    background: rgba(10,14,26,0.6); border: 1px solid rgba(255,255,255,0.1);
-    color: var(--text); cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 22px; z-index: 20;
-    backdrop-filter: blur(10px);
-    transition: all 0.2s;
+    background: rgba(10,14,26,0.6); backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.1); color: var(--text);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 22px; z-index: 20; transition: all 0.18s;
   }
-  .arrow-btn:hover { background: var(--bg2); border-color: var(--accent); color: var(--accent); }
-  .arrow-btn.l { left: 20px; }
-  .arrow-btn.r { right: 20px; }
+  .arrow:hover { background: var(--bg2); border-color: var(--accent); color: var(--accent); }
+  .arrow.l { left: 24px; } .arrow.r { right: 24px; }
 
-  ul { list-style: none; }
-  li { padding: 10px 0; font-size: 16px; color: var(--tm); padding-left: 24px; position: relative; }
-  li::before { content: '▸'; color: var(--accent); position: absolute; left: 4px; }
-
-  .btn {
-    display: inline-flex; align-items: center; gap: 10px;
-    padding: 14px 26px; border-radius: 10px;
-    background: var(--blue); color: var(--bg);
-    font-weight: 700; font-size: 16px;
-    text-decoration: none; margin-top: 14px; margin-right: 10px;
+  .dots {
+    position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 6px; padding: 10px 16px;
+    background: rgba(10,14,26,0.7); border-radius: 999px; backdrop-filter: blur(12px);
+    z-index: 20;
   }
-  .btn.ghost { background: transparent; border: 2px solid var(--blue); color: var(--blue); }
-  .btn:hover { background: var(--accent); color: var(--bg); }
+  .d { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.24); cursor: pointer; transition: all 0.18s; }
+  .d.active { background: var(--accent); width: 22px; border-radius: 4px; }
 
-  /* image-centric slide */
-  .slide.image .content { max-width: 1400px; display: flex; flex-direction: column; align-items: center; gap: 30px; }
-  .slide.image img { width: 100%; max-width: 1400px; height: auto; border-radius: 14px; box-shadow: 0 30px 80px rgba(0,0,0,0.5); }
-  .slide.image .caption { text-align: center; max-width: 900px; }
-  .slide.image .caption h2 { margin-bottom: 10px; }
-  .slide.image .caption p { color: var(--tm); font-size: 18px; }
+  .hint {
+    position: fixed; bottom: 26px; right: 24px; z-index: 20;
+    background: rgba(10,14,26,0.7); backdrop-filter: blur(10px);
+    padding: 8px 14px; border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; color: var(--tl); letter-spacing: 2px;
+  }
 
-  @media (max-width: 640px) {
-    .slide { padding: 28px 20px; }
-    .stats { grid-template-columns: repeat(2, 1fr); }
-    .cols { grid-template-columns: 1fr; }
-    .meta, .slidenum, .arrow-btn { display: none; }
+  /* ── stat counter animation (JS sets --target; shown on active) ── */
+  .counter { display: inline-block; }
+
+  @media (max-width: 900px) {
+    .slide { padding: 32px 22px 64px; }
+    .stats { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+    .split, .enginegrid, .agents { grid-template-columns: 1fr; gap: 18px; height: auto; }
+    .modes { grid-template-columns: 1fr; gap: 14px; height: auto; }
+    .arrow { display: none; }
   }
 </style>
 </head>
 <body>
 
-<div class="meta">ARUS · BANJIR DRILL · MYAI FUTURE HACKATHON 2026</div>
-<div class="slidenum" id="slideNum">01 / 12</div>
-
 <div class="deck">
   <div class="track" id="track">
 
-    <!-- Slide 1: Title -->
-    <section class="slide center" data-idx="1">
-      <div class="full-bg" style="background-image: linear-gradient(rgba(10,14,26,0.6), rgba(10,14,26,0.6)), url('s01.png')"></div>
-      <div class="content">
-        <div class="note" style="color: var(--accent); text-align:center;">MyAI Future Hackathon 2026 · Track 2 — Citizens First</div>
-        <h1 style="text-align:center;">Arus<span class="accent"> — </span>Banjir Drill</h1>
-        <p class="tagline" style="text-align:center; margin: 0 auto;">A 7-minute flood-coordination drill for Malaysian citizens. Play NADMA dispatcher during the 2021 Klang Valley floods. Feel why coordination is hard — not just be told.</p>
-        <div style="margin-top: 40px;">
+    <!-- ── 1: Hero ── -->
+    <section class="slide hero" data-idx="1">
+      <div class="chrome">
+        <div><span class="tag">01</span> · TITLE</div>
+        <div>ARUS · BANJIR DRILL</div>
+      </div>
+      <div class="body" style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
+        <div style="font-family:'JetBrains Mono',monospace; font-size: 12px; letter-spacing: 4px; color: var(--accent); margin-bottom: 24px; font-weight: 700;">
+          MYAI FUTURE HACKATHON 2026 · TRACK 2 — CITIZENS FIRST
+        </div>
+        <div class="brand">Arus<span class="accent"> — </span>Banjir Drill</div>
+        <div class="tagline">A 7-minute mobile-first flood-coordination drill for Malaysian citizens. Play NADMA dispatcher during the 2021 Klang Valley floods — and watch two Google ADK agents think through the same trade-offs.</div>
+        <div class="cta">
           <a class="btn" href="https://arus-1030181742799.asia-southeast1.run.app" target="_blank">▶ Play the drill</a>
           <a class="btn ghost" href="https://github.com/SunflowersLwtech/arus" target="_blank">GitHub</a>
+          <a class="btn ghost" href="../docs/" target="_blank">Docs</a>
         </div>
       </div>
     </section>
 
-    <!-- Slide 2: Problem -->
+    <!-- ── 2: Problem / stats ── -->
     <section class="slide" data-idx="2">
-      <div class="content">
-        <div class="note">The problem</div>
-        <h2>Klang Valley,<br/><span class="accent">December 2021</span>.</h2>
-        <p class="tagline">The MDPI 2025 post-mortem named <em>public awareness</em> as a systemic gap. Existing tools — Portal Bencana, Public InfoBanjir, MetMalaysia — are information pipes. None let a citizen <em>feel</em> why coordination is hard.</p>
+      <div class="chrome">
+        <div><span class="tag">02</span> · THE PROBLEM</div>
+        <div>SHAH ALAM · DECEMBER 2021</div>
+      </div>
+      <div class="body">
+        <div class="eyebrow">The flood</div>
+        <h2>Klang Valley<span class="accent"> went under</span>.</h2>
+        <div class="lead">The 2025 MDPI post-mortem named <strong style="color:var(--accent)">public awareness</strong> as the single largest systemic gap. Existing apps are information pipes. None let a citizen <em>feel</em> coordination.</div>
         <div class="stats">
-          <div class="stat amber"><div class="n">40,000</div><div class="l">displaced</div></div>
-          <div class="stat red"><div class="n">54</div><div class="l">fatalities</div></div>
-          <div class="stat blue"><div class="n">16 h</div><div class="l">Sri Muda rooftop wait</div></div>
-          <div class="stat yellow"><div class="n">1,500</div><div class="l">claimants · MYR 3.7M lawsuit</div></div>
+          <div class="stat amber"><div class="n"><span class="counter" data-to="40000">0</span></div><div class="l">people displaced</div><div class="s">MDPI 2025 · Wikipedia 2021–22 MY floods</div></div>
+          <div class="stat red"><div class="n"><span class="counter" data-to="54">0</span></div><div class="l">fatalities</div><div class="s">Bernama · The Diplomat</div></div>
+          <div class="stat blue"><div class="n"><span class="counter" data-to="16" data-suffix=" h">0</span></div><div class="l">Taman Sri Muda rooftop wait</div><div class="s">MDPI 2025 post-mortem</div></div>
+          <div class="stat yellow"><div class="n"><span class="counter" data-to="1500">0</span></div><div class="l">class-action claimants · RM 3.7M</div><div class="s">Selangor state + utility defendant</div></div>
         </div>
+        <div class="src">Sources: MDPI Water 17(4):513 · en.wikipedia.org/wiki/2021–2022_Malaysian_floods · thediplomat.com/2021/12/frustration-grows-in-malaysia-over-governments-slow-flood-response</div>
       </div>
     </section>
 
-    <!-- Slide 3: Solution -->
+    <!-- ── 3: Opportunity ── -->
     <section class="slide" data-idx="3">
-      <div class="content">
-        <div class="note">The solution</div>
-        <h2>The drill<span class="accent"> comes home</span>.</h2>
-        <p class="tagline">One deterministic simulation engine. Three ways to learn how a real dispatcher thinks. Mobile-first, no login, 7 minutes, bilingual BM/EN.</p>
-        <div class="cols">
-          <div class="card">
-            <h4><span class="dot" style="background: var(--green)"></span>PLAY</h4>
-            <p>You <em>are</em> Datuk Nadia at NADMA. 8 calls in 7 minutes. 4 gauges respond to every choice — lives, assets, trust, time.</p>
+      <div class="chrome">
+        <div><span class="tag">03</span> · THE OPPORTUNITY</div>
+        <div>MDPI 2025 · POST-MORTEM</div>
+      </div>
+      <div class="body split">
+        <div>
+          <div class="eyebrow">The gap, named</div>
+          <div class="quote">
+            Public awareness and inter-agency coordination were named as the two systemic gaps in the 2025 MDPI post-mortem. Residents waited 16+ hours on rooftops because no single agency had end-to-end visibility. Four rescue agencies each ran parallel WhatsApp groups.
+            <div class="src">— MDPI Water 17(4):513 · paraphrased</div>
           </div>
-          <div class="card">
-            <h4><span class="dot" style="background: var(--blue)"></span>COACH</h4>
-            <p>2-stage Google ADK agent streams reasoning live. Assessor queries 9 MCP tools. Recommender places a ghost drone on the map.</p>
+        </div>
+        <div class="diagram">
+          <h3>WHAT WE HAVE — WHAT WE NEED</h3>
+          <div class="pipe">
+            <div class="side bad">Portal Bencana</div>
+            <div class="arrow">→</div>
+            <div class="side bad">citizen reads</div>
           </div>
-          <div class="card">
-            <h4><span class="dot" style="background: var(--amber)"></span>WATCH AI</h4>
-            <p>5-stage autonomous pipeline — Assess, Strategise, Dispatch, Analyse, Brief — drives the whole simulation hands-free.</p>
+          <div class="pipe">
+            <div class="side bad">InfoBanjir</div>
+            <div class="arrow">→</div>
+            <div class="side bad">citizen reads</div>
+          </div>
+          <div class="pipe">
+            <div class="side bad">MetMalaysia</div>
+            <div class="arrow">→</div>
+            <div class="side bad">citizen reads</div>
+          </div>
+          <div style="margin: 22px 0; border-top: 1px dashed var(--tl);"></div>
+          <div class="pipe">
+            <div class="side good">Arus</div>
+            <div class="arrow" style="color: var(--green)">⇄</div>
+            <div class="side good">citizen <em>is</em></div>
+          </div>
+          <div style="color: var(--tl); font-size: 12px; margin-top: 16px; letter-spacing: 1.5px;">INFORMATION PIPES <strong style="color:var(--accent)">vs</strong> EMBODIED DRILL</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 4: Solution — three modes ── -->
+    <section class="slide" data-idx="4">
+      <div class="chrome">
+        <div><span class="tag">04</span> · THE SOLUTION</div>
+        <div>ONE ENGINE · THREE LENSES</div>
+      </div>
+      <div class="body">
+        <div class="eyebrow">The drill comes home</div>
+        <h2>Three lenses<span class="accent">, one engine</span>.</h2>
+        <div class="lead">Same deterministic simulation. Three different angles on learning how a real dispatcher thinks.</div>
+        <div class="modes">
+          <div class="mode play">
+            <div class="icon">🕹</div>
+            <h3>PLAY</h3>
+            <p>You <em>are</em> Datuk Nadia at NADMA.</p>
+            <ul>
+              <li>8 incoming calls in 7 minutes</li>
+              <li>4 gauges: lives · assets · trust · time</li>
+              <li>Manual drone dispatch on the 3D map</li>
+              <li>Bilingual BM/EN throughout</li>
+            </ul>
+          </div>
+          <div class="mode coach">
+            <div class="icon">🧭</div>
+            <h3>COACH</h3>
+            <p>Same game · AI mentor whispers.</p>
+            <ul>
+              <li>2-stage Google ADK agent</li>
+              <li>Stage 1: Assessor · 9 MCP tools</li>
+              <li>Stage 2: Recommender · ghost drone on map</li>
+              <li>Bilingual chain-of-thought streamed live</li>
+            </ul>
+          </div>
+          <div class="mode auto">
+            <div class="icon">🛰</div>
+            <h3>WATCH AI</h3>
+            <p>Hands-free. You watch.</p>
+            <ul>
+              <li>5-stage SequentialAgent pipeline</li>
+              <li>Assess → Strategise → Dispatch → Analyse → Brief</li>
+              <li>Real MCP tool calls every ~40s</li>
+              <li>Bilingual agency brief written at the end</li>
+            </ul>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Slide 4: Architecture (image) -->
-    <section class="slide image" data-idx="4">
-      <div class="content">
-        <img src="s02.png" alt="Architecture diagram"/>
-        <div class="caption">
-          <h2>One engine<span class="accent"> · three lenses</span>.</h2>
-          <p>Deterministic simulation at the core. Gemini 2.5 Pro at the boundary — not in the loop. Google ADK + MCP power the agentic modes. Real MetMalaysia feed.</p>
+    <!-- ── 5: Architecture SVG ── -->
+    <section class="slide" data-idx="5">
+      <div class="chrome">
+        <div><span class="tag">05</span> · ARCHITECTURE</div>
+        <div>DETERMINISTIC · OFF-LOOP LLM · REAL METMALAYSIA</div>
+      </div>
+      <div class="body">
+        <div class="eyebrow">Under the hood</div>
+        <h2>Gemini at the<span class="accent"> boundary</span>, not the loop.</h2>
+        <div class="archslot">
+          <svg viewBox="0 0 1200 520" width="100%" preserveAspectRatio="xMidYMid meet">
+            <defs>
+              <marker id="arr" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#60a5fa"/>
+              </marker>
+            </defs>
+            <!-- edges -->
+            <g stroke="#60a5fa" stroke-width="2.5" fill="none" opacity="0.85">
+              <path d="M 140 260 L 320 260" marker-end="url(#arr)"/>
+              <path d="M 480 260 L 660 180" marker-end="url(#arr)"/>
+              <path d="M 480 260 L 660 340" marker-end="url(#arr)"/>
+              <path d="M 820 180 L 1000 180" marker-end="url(#arr)"/>
+              <path d="M 820 340 L 1000 180" marker-end="url(#arr)"/>
+              <path d="M 820 340 L 1000 340" marker-end="url(#arr)"/>
+            </g>
+            <!-- nodes -->
+            <g font-family="Inter" font-size="16" font-weight="700" fill="#ffffff" text-anchor="middle">
+              <g>
+                <rect x="20" y="220" width="120" height="80" rx="14" fill="#111827" stroke="#60a5fa" stroke-width="2.5"/>
+                <text x="80" y="248" font-size="14">React</text>
+                <text x="80" y="272" font-size="11" fill="#cbd5e1" font-weight="400">R3F · Zustand</text>
+                <text x="80" y="290" font-size="10" fill="#7f8fa6" font-weight="500">tactical map</text>
+              </g>
+              <g>
+                <rect x="320" y="220" width="160" height="80" rx="14" fill="#111827" stroke="#14b8a6" stroke-width="2.5"/>
+                <text x="400" y="248" font-size="16">FastAPI</text>
+                <text x="400" y="272" font-size="11" fill="#cbd5e1" font-weight="400">Cloud Run · asia-SE</text>
+                <text x="400" y="290" font-size="10" fill="#7f8fa6" font-weight="500">WS + REST</text>
+              </g>
+              <g>
+                <rect x="660" y="140" width="160" height="80" rx="14" fill="#111827" stroke="#34d399" stroke-width="2.5"/>
+                <text x="740" y="168" font-size="16">Game Engine</text>
+                <text x="740" y="192" font-size="11" fill="#cbd5e1" font-weight="400">A* · 20×20 grid</text>
+                <text x="740" y="210" font-size="10" fill="#7f8fa6" font-weight="500">deterministic</text>
+              </g>
+              <g>
+                <rect x="660" y="300" width="160" height="80" rx="14" fill="#111827" stroke="#facc15" stroke-width="2.5"/>
+                <text x="740" y="328" font-size="15">Gemini 2.5 Pro</text>
+                <text x="740" y="352" font-size="11" fill="#cbd5e1" font-weight="400">narrator · debrief</text>
+                <text x="740" y="370" font-size="10" fill="#7f8fa6" font-weight="500">off the loop</text>
+              </g>
+              <g>
+                <rect x="1000" y="140" width="160" height="80" rx="14" fill="#111827" stroke="#a78bfa" stroke-width="2.5"/>
+                <text x="1080" y="168" font-size="16">Google ADK</text>
+                <text x="1080" y="192" font-size="11" fill="#cbd5e1" font-weight="400">SequentialAgent</text>
+                <text x="1080" y="210" font-size="10" fill="#7f8fa6" font-weight="500">COACH · AUTO</text>
+              </g>
+              <g>
+                <rect x="1000" y="300" width="160" height="80" rx="14" fill="#111827" stroke="#f472b6" stroke-width="2.5"/>
+                <text x="1080" y="328" font-size="16">MCP</text>
+                <text x="1080" y="352" font-size="11" fill="#cbd5e1" font-weight="400">9 fleet tools</text>
+                <text x="1080" y="370" font-size="10" fill="#7f8fa6" font-weight="500">list_changed</text>
+              </g>
+            </g>
+            <!-- bottom legend -->
+            <g font-family="JetBrains Mono" font-size="12" fill="#7f8fa6">
+              <text x="600" y="470" text-anchor="middle" letter-spacing="2.5">
+                <tspan fill="#34d399">REPRODUCIBLE</tspan>  ·  <tspan fill="#facc15">LLM OFF THE LOOP</tspan>  ·  <tspan fill="#60a5fa">LIVE METMALAYSIA FEED</tspan>
+              </text>
+            </g>
+          </svg>
         </div>
       </div>
     </section>
 
-    <!-- Slide 5: Engine internals (image) -->
-    <section class="slide image" data-idx="5">
-      <div class="content">
-        <img src="s02b.png" alt="Engine internals — 20x20 grid, kampung names, A* paths, MCP tools"/>
-        <div class="caption">
-          <h2>The 3D map<span class="accent"> is the engine</span>.</h2>
-          <p>20×20 grid. Real kampung from Kelantan and Johor (via <code>locality.py</code>). A* pathfinding for drones. 9 MCP tools discovered at runtime via <code>tools/list_changed</code>. Reproducible. Off-loop LLM.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- Slide 6: Tech stack -->
+    <!-- ── 6: Engine grid ── -->
     <section class="slide" data-idx="6">
-      <div class="content">
-        <div class="note">What it's built on</div>
-        <h2>Stack<span class="accent"> — Google-native throughout</span>.</h2>
-        <table>
-          <tr><td class="l">Frontend</td><td>React 18 · React Three Fiber · Zustand · Tailwind · Vite</td></tr>
-          <tr><td class="l">Backend</td><td>FastAPI · WebSocket · Python 3.12 · NumPy · SciPy</td></tr>
-          <tr><td class="l">Simulation</td><td>GridWorld (20×20, A* pathfinding) · deterministic engine · real kampung names</td></tr>
-          <tr><td class="l">AI tier</td><td>Gemini 2.5 Pro (narrator, debrief) · Veo 3.0 (demo b-roll) · Gemini 2.5 TTS (voiceover)</td></tr>
-          <tr><td class="l">Agents</td><td>Google ADK 1.27.1 · SequentialAgent (AUTO) · LlmAgent (COACH)</td></tr>
-          <tr><td class="l">Tools</td><td>MCP 1.26.0 · fastmcp 3.1.1 · 9 fleet tools · <code>tools/list_changed</code> discovery</td></tr>
-          <tr><td class="l">Deploy</td><td>Google Cloud Run (asia-southeast1) · Artifact Registry · Secret Manager</td></tr>
-          <tr><td class="l">Built in</td><td>Google Antigravity · entire hackathon window (2026-03-15 → 2026-04-24)</td></tr>
-        </table>
+      <div class="chrome">
+        <div><span class="tag">06</span> · ENGINE INTERNALS</div>
+        <div>20 × 20 · A* · REAL KAMPUNG</div>
       </div>
-    </section>
-
-    <!-- Slide 7: COACH/AUTO (image) -->
-    <section class="slide image" data-idx="7">
-      <div class="content">
-        <img src="s04.png" alt="COACH and WATCH AI columns"/>
-        <div class="caption">
-          <h2>Two agents<span class="accent"> · same engine</span>.</h2>
-          <p>COACH is the 2-stage helper. WATCH AI is the 5-stage autonomous commander. Both discover MCP tools at runtime — no hard-coded drone IDs — and fail gracefully when degraded.</p>
+      <div class="body">
+        <div class="eyebrow">The 3D map <span class="accent">is</span> the engine</div>
+        <h2>Not decoration<span class="accent">. Data.</span></h2>
+        <div class="enginegrid">
+          <div class="gridbox" id="gridboxEl">
+            <div class="g" id="gridCells"></div>
+          </div>
+          <div class="info">
+            <h3>What you're seeing</h3>
+            <p><strong>20 × 20</strong> typed-cell grid. Each cell carries a terrain type, water level, resident count, and evac capacity — stored as plain data, not an LLM hallucination.</p>
+            <p><code>locality.py</code> maps every cell index to a real Malaysian kampung name from Kelantan and Johor. When a card says "Incoming: Taman Sri Muda", the coordinate (6, 8) is real.</p>
+            <p><strong>A* over road cells</strong> computes drone paths. When BOMBA dispatches to rescue, Alpha drone actually walks the shortest path.</p>
+            <p><code>9 MCP tools</code> are discovered by both ADK agents at runtime via <code>tools/list_changed</code> — no hard-coded drone IDs anywhere.</p>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- Slide 8: Debrief (image) -->
-    <section class="slide image" data-idx="8">
-      <div class="content">
-        <img src="s05.png" alt="Debrief bars comparing user numbers to real 2021"/>
-        <div class="caption">
-          <h2>Your numbers<span class="accent"> vs 2021</span>.</h2>
-          <p>Gemini 2.5 Pro writes personalised commentary in the player's language, referencing their actual choices. Ends with three real links — Portal Bencana, InfoBanjir, MetMalaysia.</p>
+    <!-- ── 7: Tech stack ── -->
+    <section class="slide" data-idx="7">
+      <div class="chrome">
+        <div><span class="tag">07</span> · TECH STACK</div>
+        <div>GOOGLE-NATIVE THROUGHOUT</div>
+      </div>
+      <div class="body">
+        <div class="eyebrow">What it's built on</div>
+        <h2>Google tooling,<span class="accent"> top to bottom</span>.</h2>
+        <div class="stack">
+          <div class="srow"><div class="k">Frontend</div><div class="v">React 18 · React Three Fiber · Zustand · Tailwind · Vite</div><div class="v2">typescript</div></div>
+          <div class="srow"><div class="k">Backend</div><div class="v">FastAPI · WebSocket · Python 3.12 · NumPy · SciPy</div><div class="v2">py 3.12</div></div>
+          <div class="srow"><div class="k">Simulation</div><div class="v">GridWorld 20×20 · A* pathfinding · deterministic engine</div><div class="v2">100% pure</div></div>
+          <div class="srow"><div class="k">AI tier</div><div class="v">Gemini 2.5 Pro (narrator + debrief)</div><div class="v2">8k out</div></div>
+          <div class="srow"><div class="k">Agents</div><div class="v">Google ADK 1.27 · SequentialAgent · LlmAgent</div><div class="v2">2 + 5 stages</div></div>
+          <div class="srow"><div class="k">Tools</div><div class="v">MCP 1.26 · fastmcp 3.1 · 9 fleet tools · <code>tools/list_changed</code></div><div class="v2">:8001</div></div>
+          <div class="srow"><div class="k">Demo video</div><div class="v">Remotion 4 · Veo 3.0 Fast · Gemini 2.5 Pro TTS · Playwright</div><div class="v2">300s / 1080p</div></div>
+          <div class="srow"><div class="k">Deploy</div><div class="v">Cloud Run · Artifact Registry · Secret Manager · asia-southeast1</div><div class="v2">0 idle</div></div>
+          <div class="srow"><div class="k">Built in</div><div class="v">Google Antigravity — the entire hackathon window</div><div class="v2">2026-03-15</div></div>
         </div>
       </div>
     </section>
 
-    <!-- Slide 9: Antigravity (image) -->
-    <section class="slide image" data-idx="9">
-      <div class="content">
-        <img src="s06.png" alt="Antigravity IDE with Arus code and Gemini 3.1 Pro panel"/>
-        <div class="caption">
-          <h2>Built in<span class="accent"> Google Antigravity</span>.</h2>
-          <p>Entire hackathon window inside one IDE. Gemini 3.1 Pro (High) in the right panel. 26 commits · 1.2k LOC · narrator, cards, and this voiceover all drafted with Gemini.</p>
+    <!-- ── 8: COACH vs AUTO ── -->
+    <section class="slide" data-idx="8">
+      <div class="chrome">
+        <div><span class="tag">08</span> · AGENTS</div>
+        <div>COACH · 2-STAGE  /  AUTO · 5-STAGE</div>
+      </div>
+      <div class="body">
+        <div class="eyebrow">Two lenses on agentic work</div>
+        <h2>On your shoulder<span class="accent"> · or </span>hands free.</h2>
+        <div class="agents">
+          <div class="agent coach">
+            <div class="tag">2-STAGE ADK · PER CARD</div>
+            <h3>COACH</h3>
+            <div class="flow">
+              <div class="step"><div class="n">1</div><div class="t"><h4>Assessor</h4><p>Queries 9 MCP fleet tools for current state</p></div></div>
+              <div class="arrow">↓ stream CoT</div>
+              <div class="step"><div class="n">2</div><div class="t"><h4>Recommender</h4><p>Picks best option · places ghost drone · bilingual rationale</p></div></div>
+            </div>
+            <p style="color: var(--tl); font-size: 14px; margin-top: 18px; font-family: 'JetBrains Mono', monospace;">Follow, or override.</p>
+          </div>
+          <div class="agent auto">
+            <div class="tag">5-STAGE ADK · EVERY ~40s</div>
+            <h3>WATCH AI</h3>
+            <div class="flow">
+              <div class="step"><div class="n">1</div><div class="t"><h4>Assess</h4><p>Reads fleet state</p></div></div>
+              <div class="step"><div class="n">2</div><div class="t"><h4>Strategise</h4><p>Ranks options</p></div></div>
+              <div class="step"><div class="n">3</div><div class="t"><h4>Dispatch</h4><p>Calls fleet.dispatch</p></div></div>
+              <div class="step"><div class="n">4</div><div class="t"><h4>Analyse</h4><p>Resolves deltas</p></div></div>
+              <div class="step"><div class="n">5</div><div class="t"><h4>Brief</h4><p>BM + EN report</p></div></div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- Slide 10: Impact / SDG -->
+    <!-- ── 9: Debrief bars ── -->
+    <section class="slide" data-idx="9">
+      <div class="chrome">
+        <div><span class="tag">09</span> · DEBRIEF</div>
+        <div>YOUR NUMBERS · VS 2021</div>
+      </div>
+      <div class="body">
+        <div class="eyebrow">The loop that closes</div>
+        <h2>Your drill, beside<span class="accent"> 2021 reality</span>.</h2>
+        <div class="bars">
+          <div class="bar g" style="--i:0">
+            <div class="label"><div><span class="l">You saved</span><span class="sub">(of 22 in the scenario)</span></div><div class="v">21</div></div>
+            <div class="track-b"><div class="fill"></div></div>
+          </div>
+          <div class="bar r" style="--i:1">
+            <div class="label"><div><span class="l">Real 2021 — evacuated within 16 h</span><span class="sub">before rescue reached Sri Muda</span></div><div class="v">0</div></div>
+            <div class="track-b"><div class="fill"></div></div>
+          </div>
+          <div class="bar a" style="--i:2">
+            <div class="label"><div><span class="l">Total displaced, Klang Valley</span><span class="sub">MDPI 2025 post-mortem</span></div><div class="v">40,000</div></div>
+            <div class="track-b"><div class="fill"></div></div>
+          </div>
+          <div class="bar v" style="--i:3">
+            <div class="label"><div><span class="l">Class-action claimants</span><span class="sub">MYR 3.7 million lawsuit</span></div><div class="v">1,500</div></div>
+            <div class="track-b"><div class="fill"></div></div>
+          </div>
+        </div>
+        <div class="commentary">
+          <div class="tag">GEMINI 2.5 PRO · PERSONALISED COMMENTARY</div>
+          <p>"Your swift decision to deploy BOMBA to Taman Sri Muda despite a 25-minute ETA reflects a proactive approach — the same dilemma NADMA dispatchers faced when the Klang River crossed danger level on the night of 18 December 2021…"</p>
+        </div>
+        <div class="links">
+          <a class="link-pill" href="https://portalbencana.nadma.gov.my/en/" target="_blank">→ Portal Bencana</a>
+          <a class="link-pill" href="https://publicinfobanjir.water.gov.my/" target="_blank">→ Public InfoBanjir</a>
+          <a class="link-pill" href="https://api.data.gov.my/weather/warning" target="_blank">→ MetMalaysia warnings</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 10: Antigravity (real screenshot with pins) ── -->
     <section class="slide" data-idx="10">
-      <div class="content">
-        <div class="note">The impact</div>
-        <h2>SDG-aligned, civically<span class="accent"> grounded</span>.</h2>
-        <div class="cols">
-          <div class="card"><h4><span class="dot" style="background: var(--accent)"></span>SDG 4 · Quality Education</h4><p>The drill is a teaching tool. Players walk out understanding the four-gauge cost of every rescue.</p></div>
-          <div class="card"><h4><span class="dot" style="background: var(--green)"></span>SDG 11 · Sustainable Cities</h4><p>Fits Malaysia's MyDIGITAL Budget 2026 DPD posture on urban disaster preparedness.</p></div>
-          <div class="card"><h4><span class="dot" style="background: var(--blue)"></span>SDG 13 · Climate Action</h4><p>Monsoon 2021 was the immediate cause. The drill ships citizens into MetMalaysia warnings.</p></div>
-          <div class="card"><h4><span class="dot" style="background: var(--amber)"></span>SDG 17 · Partnerships</h4><p>Four agencies (BOMBA · NADMA · APM · MMEA) are first-class actors in every scenario card.</p></div>
+      <div class="chrome">
+        <div><span class="tag">10</span> · BUILT IN ANTIGRAVITY</div>
+        <div>2026-03-15 → 2026-04-24</div>
+      </div>
+      <div class="body">
+        <div class="eyebrow">Every line, one IDE</div>
+        <h2>Entire hackathon,<span class="accent"> in Antigravity</span>.</h2>
+        <div class="annot">
+          <img src="s06.png" alt="Antigravity IDE with narrator.py and Gemini 3.1 Pro panel"/>
+          <div class="pin" style="left:10%;top:22%;">📁 arus / backend / game / cards.yaml</div>
+          <div class="pin" style="left:45%;top:50%;">def build_narrator_intro(scenario: Scenario)</div>
+          <div class="pin" style="right:3%;top:30%;">Gemini 3.1 Pro · High · in IDE</div>
+          <div class="pin" style="left:10%;bottom:12%;">26 commits · 1.2k LOC · full hackathon window</div>
         </div>
       </div>
     </section>
 
-    <!-- Slide 11: What's next -->
+    <!-- ── 11: Roadmap ── -->
     <section class="slide" data-idx="11">
-      <div class="content">
-        <div class="note">After the hackathon</div>
-        <h2>Scaling out<span class="accent"> · Sabah · Sarawak</span>.</h2>
-        <ul>
-          <li>New scenario YAMLs for 2022 Yan floods (Kedah), 2024 Kelantan, 2015 Kuala Krai — pluggable, no engine changes</li>
-          <li>COACH-mode A/B experiments: does streaming reasoning change decision quality? Measure via session choices</li>
-          <li>NADMA partnership: drill as a pre-monsoon awareness tool in schools</li>
-          <li>Multilingual push: Tamil, Mandarin, Iban via Gemini's existing multilingual TTS + cards translation</li>
-          <li>Open-source the MCP tool layer — anyone can plug new agent fleets into the engine</li>
-        </ul>
+      <div class="chrome">
+        <div><span class="tag">11</span> · ROADMAP</div>
+        <div>HARDENING · PARTNERSHIP · PLATFORM</div>
+      </div>
+      <div class="body">
+        <div class="eyebrow">After the hackathon</div>
+        <h2>From drill to<span class="accent"> platform</span>.</h2>
+        <div class="roadmap">
+          <div class="mile done">
+            <div class="when">v1.0 · SUBMITTED 2026-04-24</div>
+            <h4>Citizen drill shipped</h4>
+            <p>One scenario · three modes · bilingual · Cloud Run live · full debrief with real 2021 comparison · live MetMalaysia feed.</p>
+          </div>
+          <div class="mile now">
+            <div class="when">v1.1 · MAY 2026</div>
+            <h4>Hardening + Kedah scenario</h4>
+            <p>2022 Yan floods scenario pack · Redis session store for concurrency · COACH-mode telemetry on override rates · accessibility audit.</p>
+          </div>
+          <div class="mile">
+            <div class="when">v1.5 · Q3 2026</div>
+            <h4>Partnership + education</h4>
+            <p>Pilot with NADMA + MOE in 3 Selangor schools · teacher dashboard · multilingual (Tamil, Mandarin, Iban) · CESCG '27 paper.</p>
+          </div>
+          <div class="mile">
+            <div class="when">v2 · Q4 2026 → 2027</div>
+            <h4>Open platform</h4>
+            <p>Open-source MCP tool layer · in-browser scenario editor · live Portal Bencana + InfoBanjir integration · MMEA sensor telemetry.</p>
+          </div>
+          <div class="mile">
+            <div class="when">v3 · 2027+</div>
+            <h4>Cross-hazard</h4>
+            <p>Same engine, new cards: wildfire (haze), earthquake (Ranau 2015), landslide. ASEAN DRR NGO partnerships. Insurance premium tie-in.</p>
+          </div>
+        </div>
       </div>
     </section>
 
-    <!-- Slide 12: Close -->
-    <section class="slide center" data-idx="12">
-      <div class="full-bg" style="background-image: linear-gradient(rgba(10,14,26,0.5), rgba(10,14,26,0.7)), url('s07.png')"></div>
-      <div class="content">
-        <h1 style="text-align:center; letter-spacing: -3px;">Citizens<span class="accent"> first.</span></h1>
-        <p class="tagline" style="text-align:center; margin: 0 auto 32px;">Deployed on Cloud Run · asia-southeast1. Built in Google Antigravity. Powered by Gemini 2.5 Pro.</p>
-        <div style="font-family: 'JetBrains Mono', monospace; font-size: 22px; color: var(--blue); border: 2px solid var(--blue); display: inline-block; padding: 14px 28px; border-radius: 10px; margin-top: 16px;">
-          arus-1030181742799.asia-southeast1.run.app
+    <!-- ── 12: Close with QR ── -->
+    <section class="slide close" data-idx="12">
+      <div class="chrome">
+        <div><span class="tag">12</span> · THE ASK</div>
+        <div>TRY IT ON YOUR PHONE</div>
+      </div>
+      <div class="body" style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
+        <div class="huge">Citizens<span class="accent"> first.</span></div>
+        <div class="sub">Deployed on Cloud Run · Asia South-East. Built in Google Antigravity. Powered by Gemini 2.5 Pro.</div>
+        <div class="urlbox">arus-1030181742799.asia-southeast1.run.app</div>
+        <div class="qr">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=https%3A%2F%2Farus-1030181742799.asia-southeast1.run.app" alt="QR code to live app"/>
         </div>
-        <div style="margin-top: 40px;">
-          <a class="btn" href="https://arus-1030181742799.asia-southeast1.run.app" target="_blank">▶ Play one round</a>
-          <a class="btn ghost" href="../" target="_blank">Docs site</a>
-          <a class="btn ghost" href="../video/arus-demo-5min.mp4" target="_blank">Demo video</a>
-        </div>
-        <div style="margin-top: 50px; color: var(--tl); font-size: 11px; letter-spacing: 2.5px;">
-          LIU WEI · SOLO · weiliudev0607@gmail.com · SunflowersLwtech
-        </div>
+        <div class="footerline">LIU WEI · SOLO · weiliudev0607@gmail.com · github.com/SunflowersLwtech · MYAI FUTURE HACKATHON 2026</div>
       </div>
     </section>
 
   </div>
 </div>
 
-<button class="arrow-btn l" id="prev" aria-label="Previous slide">‹</button>
-<button class="arrow-btn r" id="next" aria-label="Next slide">›</button>
-
-<nav class="nav">
-  <div class="dots" id="dots"></div>
-</nav>
-
-<div class="hint">← → / SWIPE / TAP</div>
+<button class="arrow l" id="prev" aria-label="Previous">‹</button>
+<button class="arrow r" id="next" aria-label="Next">›</button>
+<div class="dots" id="dots"></div>
+<div class="hint">← → · SWIPE · CLICK</div>
 
 <script>
   const track = document.getElementById('track');
   const slides = track.querySelectorAll('.slide');
-  const dotsWrap = document.getElementById('dots');
-  const slideNumEl = document.getElementById('slideNum');
-  const prevBtn = document.getElementById('prev');
-  const nextBtn = document.getElementById('next');
   const total = slides.length;
+  const dots = document.getElementById('dots');
+  const prev = document.getElementById('prev');
+  const next = document.getElementById('next');
+
+  // build dots
+  slides.forEach((s, i) => {
+    const d = document.createElement('div');
+    d.className = 'd';
+    d.addEventListener('click', () => go(i));
+    dots.appendChild(d);
+  });
 
   let idx = 0;
-  const initFromHash = () => {
+  const urlHash = () => {
     const h = parseInt((location.hash || '#1').slice(1), 10);
     if (h >= 1 && h <= total) idx = h - 1;
   };
-  initFromHash();
+  urlHash();
 
-  // Build dots
-  slides.forEach((_, i) => {
-    const d = document.createElement('div');
-    d.className = 'd' + (i === idx ? ' active' : '');
-    d.addEventListener('click', () => go(i));
-    dotsWrap.appendChild(d);
-  });
+  // animated counters
+  const runCounters = (slide) => {
+    const cs = slide.querySelectorAll('.counter');
+    cs.forEach((c) => {
+      if (c.dataset.done) return;
+      const to = +c.dataset.to;
+      const suf = c.dataset.suffix || '';
+      const duration = 1300;
+      const start = performance.now();
+      const step = (t) => {
+        const p = Math.min(1, (t - start) / duration);
+        const e = 1 - Math.pow(1 - p, 4);
+        const v = Math.round(to * e);
+        c.textContent = v.toLocaleString() + suf;
+        if (p < 1) requestAnimationFrame(step);
+        else c.dataset.done = '1';
+      };
+      requestAnimationFrame(step);
+    });
+  };
 
   const render = () => {
     track.style.transform = `translateX(-${idx * 100}vw)`;
-    slideNumEl.textContent = `${String(idx + 1).padStart(2, '0')} / ${String(total).padStart(2, '0')}`;
-    dotsWrap.querySelectorAll('.d').forEach((d, i) => {
-      d.classList.toggle('active', i === idx);
-    });
+    dots.querySelectorAll('.d').forEach((d, i) => d.classList.toggle('active', i === idx));
+    slides.forEach((s, i) => s.classList.toggle('active', i === idx));
+    // restart counters on slide 2 only if visible
+    runCounters(slides[idx]);
     location.hash = '#' + (idx + 1);
   };
   const go = (n) => { idx = Math.max(0, Math.min(total - 1, n)); render(); };
+
+  // inject grid cells (slide 6)
+  const gridCells = document.getElementById('gridCells');
+  if (gridCells) {
+    const classes = (() => {
+      const g = [];
+      for (let y = 0; y < 20; y++) {
+        for (let x = 0; x < 20; x++) {
+          // flood from top-right, kampung scatter, evac scatter
+          const fd = Math.hypot(x - 17, y - 2) / 22;
+          const r = Math.abs(Math.sin(x * 12.345 + y * 67.89) * 43758.5453 % 1);
+          let cls = '';
+          if (fd < 0.45 && r > 0.3) cls = 'w';
+          else if (r < 0.08 && fd > 0.3) cls = 'r';
+          else if (Math.abs(Math.sin(x*2 + y*3)*100 % 1) > 0.94) cls = 'k';
+          else if (Math.abs(Math.sin(x*3 + y*2)*100 % 1) > 0.985) cls = 'e';
+          g.push(cls);
+        }
+      }
+      return g;
+    })();
+    const frag = document.createDocumentFragment();
+    classes.forEach((c) => {
+      const d = document.createElement('div');
+      d.className = 'c' + (c ? ' ' + c : '');
+      frag.appendChild(d);
+    });
+    gridCells.appendChild(frag);
+  }
+
   render();
 
-  prevBtn.addEventListener('click', () => go(idx - 1));
-  nextBtn.addEventListener('click', () => go(idx + 1));
+  prev.addEventListener('click', () => go(idx - 1));
+  next.addEventListener('click', () => go(idx + 1));
 
   document.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); go(idx + 1); }
     else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); go(idx - 1); }
-    else if (e.key === 'Home') { go(0); }
-    else if (e.key === 'End') { go(total - 1); }
+    else if (e.key === 'Home') go(0);
+    else if (e.key === 'End') go(total - 1);
   });
 
   // touch swipe
-  let tsX = 0, teX = 0;
-  document.addEventListener('touchstart', (e) => { tsX = e.changedTouches[0].clientX; });
+  let tx = 0;
+  document.addEventListener('touchstart', (e) => { tx = e.changedTouches[0].clientX; }, {passive: true});
   document.addEventListener('touchend', (e) => {
-    teX = e.changedTouches[0].clientX;
-    const dx = teX - tsX;
+    const dx = e.changedTouches[0].clientX - tx;
     if (Math.abs(dx) > 50) go(dx < 0 ? idx + 1 : idx - 1);
-  });
+  }, {passive: true});
 
-  window.addEventListener('hashchange', initFromHash);
-  window.addEventListener('resize', render);
+  window.addEventListener('hashchange', () => { urlHash(); render(); });
 </script>
 
 </body>
