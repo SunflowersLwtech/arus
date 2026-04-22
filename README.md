@@ -9,7 +9,8 @@
 **and watch an AI expert think through the same tradeoffs in real time.**
 
 [![Google Antigravity](https://img.shields.io/badge/Built_in_Antigravity-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://antigravity.google.com)
-[![Gemini 2.5 Flash](https://img.shields.io/badge/Gemini_2.5_Flash-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white)](https://ai.google.dev/)
+[![Gemini 2.5 Pro](https://img.shields.io/badge/Gemini_2.5_Pro-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white)](https://ai.google.dev/)
+[![Veo 3.0](https://img.shields.io/badge/Veo_3.0-FF6B6B?style=for-the-badge&logo=googlegemini&logoColor=white)](https://ai.google.dev/gemini-api/docs/video)
 [![Google ADK](https://img.shields.io/badge/Google_ADK-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://google.github.io/adk-docs/)
 [![MCP](https://img.shields.io/badge/MCP_Protocol-00D4FF?style=for-the-badge)](https://modelcontextprotocol.io/)
 [![Cloud Run](https://img.shields.io/badge/Cloud_Run-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white)](https://cloud.google.com/run)
@@ -17,7 +18,9 @@
 
 **MyAI Future Hackathon 2026 · Track 2 — Citizens First (GovTech)**
 
-🔴 **Play now** · [`arus-1030181742799.asia-southeast1.run.app`](https://arus-1030181742799.asia-southeast1.run.app) · 🎥 [3-min demo](./docs/slides/arus-demo.mp4) · 📊 [15-page deck](./docs/slides/arus-deck.pdf) · 👨‍⚖️ [for judges](./docs/FOR-JUDGES.md)
+🔴 **Play now** · [`arus-1030181742799.asia-southeast1.run.app`](https://arus-1030181742799.asia-southeast1.run.app)
+
+🎥 [Watch 5-min demo](https://sunflowerslwtech.github.io/arus/video/arus-demo-5min.mp4) · 🖼 [Site](https://sunflowerslwtech.github.io/arus/) · 📊 [Slides](https://sunflowerslwtech.github.io/arus/slides/) · 📘 [Docs](https://sunflowerslwtech.github.io/arus/docs/) · 👨‍⚖️ [For judges](./docs/FOR-JUDGES.md)
 
 </div>
 
@@ -131,6 +134,46 @@ no hard-coded drone IDs. Add a drone mid-mission and both agents adapt
 the next cycle. This is a wire-protocol moat that most hackathon
 submissions won't have.
 
+## Architecture at a glance
+
+The simulation engine is the anchor — deterministic, reproducible,
+LLM-off-loop — and six typed component panes hang off it.
+
+![Architecture — one engine, three lenses](./docs/img/architecture.png)
+
+## The 3D map is the engine
+
+No decoration: the map is a live render of the `GridWorld` object. Real
+kampung names come from [`backend/core/locality.py`](./backend/core/locality.py),
+drones move along A* paths computed against the current water mask,
+cards dispatch to real grid coordinates.
+
+![Engine internals — 20×20 grid, A* paths, MCP tool list](./docs/img/engine-internals.png)
+
+## The two agents, side-by-side
+
+COACH streams its reasoning on every card and drops a yellow ghost drone
+on the map at the suggested coordinate. AUTO takes the wheel entirely
+and runs a 5-stage pipeline end-to-end.
+
+![COACH vs WATCH AI — two agentic lenses](./docs/img/coach-auto.png)
+
+## Debrief is not a score screen
+
+Your numbers sit beside real 2021 numbers, Gemini writes a personalised
+commentary that quotes your actual choices, and three live links drop the
+player into the civic tools they'd use if the water rose tomorrow.
+
+![Debrief — your vs real, Gemini commentary, extension links](./docs/img/debrief.png)
+
+## Built entirely in Google Antigravity
+
+The full hackathon window (2026-03-15 → 2026-04-24) lived inside one
+IDE. Gemini 3.1 Pro on the right panel wrote drafts; Gemini 2.5 Pro in
+`backend/services/narrator.py` writes the in-app narration.
+
+![Antigravity IDE — Arus code + Gemini 3.1 Pro side panel](./docs/img/antigravity.png)
+
 ## 30-second evaluation
 
 Judges — **open the live URL on any phone** and pick a mode. That's the
@@ -224,20 +267,26 @@ _(as required by the hackathon rules — disclosed in full.)_
 |---|---|---|
 | **Google Antigravity** | Primary IDE for the entire hackathon window (2026-03-15 → 2026-04-24) | Mandated by rule |
 | **Google AI Studio** | Prompt design for `narrator.py` + `agents/prompts.yaml` (7 agent stages) | Prompt engineering |
-| **Gemini 2.5 Flash** | Narrator (intro + debrief) + COACH 2-stage agent + AUTO 5-stage commander + Vision endpoint | LLM backbone |
+| **Gemini 2.5 Pro** | Narrator intro + debrief (structured BM/EN output) | LLM backbone |
+| **Gemini 3.1 Pro (High)** | Antigravity IDE co-pilot across the hackathon window | Code authoring |
+| **Gemini 2.5 Pro / Flash preview TTS** | Demo narration (Charon + Kore voices) | Audio synthesis |
+| **Veo 3.0 Fast** | Cinematic b-roll for the 5-min demo video (flood aerials, NADMA ops room, BOMBA rescue) | Video synthesis |
 | **Google ADK 1.27.1** | `SequentialAgent` / `LlmAgent` orchestration for COACH + AUTO pipelines | Agentic framework |
 | **MCP 1.26.0 + fastmcp 3.1.1** | 9-tool fleet server on port 8001, wire-protocol tool discovery | Open protocol |
 | **Google Cloud Run** | Deployment (asia-southeast1) | Mandated by rule |
 | **Google Secret Manager** | `GOOGLE_API_KEY` storage | Standard hygiene |
 | **Google Artifact Registry** | Container image registry | Cloud Build target |
+| **Remotion 4** | 5-min demo video scene authoring (title cards, architecture, debrief bars) | Programmatic video |
+| **Playwright** | Headed browser capture of a full round's gameplay for the demo | Browser recording |
 
 > **AI-assistance disclosure**: Arus — Banjir Drill was built end-to-end
 > inside Google Antigravity during the hackathon window (2026-03-15 →
-> 2026-04-24) with Gemini 2.5 Flash assistance. Prompt design iterated
-> in Google AI Studio. No Codex / Cursor / VS Code / Gemini CLI
+> 2026-04-24) with Gemini 2.5 Pro (in-app narration), Gemini 3.1 Pro
+> (IDE co-pilot) and Veo 3.0 Fast (demo b-roll) assistance. Prompt design
+> iterated in Google AI Studio. No Codex / Cursor / VS Code / Gemini CLI
 > involvement.
 
-## Project evolution
+## Project evolution — the three architectures
 
 The repository went through three architectures in the hackathon window:
 
@@ -251,6 +300,58 @@ The repository went through three architectures in the hackathon window:
   a demo-able technical-depth mode). MCP + ADK brought back, game
   mechanics extended with scout scoring and dispatch-duration
   degradation so the map genuinely matters.
+
+## Roadmap
+
+**v1.0 · now (2026-04-24 submission)** — this repo. One scenario,
+three modes, bilingual BM/EN, Cloud Run live, MetMalaysia feed,
+personalised debrief. Built entirely in Antigravity.
+
+**v1.1 · May 2026** — *hardening + one more scenario.*
+- New scenario pack: 2022 Yan floods (Kedah) — different topology, padi
+  fields in card bodies. Scenario is a YAML swap, no engine changes.
+- Redis session store for concurrent play (Cloud Run single-instance
+  limitation lifted).
+- COACH-mode telemetry — log whether the recommended option was taken
+  vs overridden, grouped by card; measures whether streaming reasoning
+  changes decision quality.
+- Accessibility audit — screen-reader descriptions on every card, high-
+  contrast theme, focus ring polish.
+
+**v1.5 · Q3 2026 · partnership + education**
+- Pilot with NADMA / MOE as a pre-monsoon awareness tool in 3 Selangor
+  schools. Teacher dashboard: class leaderboard, aggregated debrief
+  summaries.
+- Multilingual push — Tamil, Mandarin, Iban via Gemini's native
+  multilingual TTS and cards translation.
+- "Drills that come home" — submission to CESCG '27 describing the
+  pattern (deterministic engine + Gemini boundary + ADK agents + MCP
+  wire protocol) as a reusable civic-simulation architecture.
+- Open-sourcing the `cards.yaml` schema — anyone can author a local
+  scenario from a text file.
+
+**v2 · Q4 2026 → Q1 2027 · platform**
+- Open MCP tool layer — third parties plug in their own agent fleets
+  against the Arus engine. A `locality.py` for Sabah and Sarawak.
+- In-browser scenario editor — teachers author their own local drills
+  without ever touching YAML.
+- Integration with real Portal Bencana + InfoBanjir feeds — live-data
+  drills at monsoon peak, not scripted scenarios.
+- MMEA buoy integration — real sensor telemetry drives in-session
+  water-level calculations for coastal drills.
+
+**v3 · 2027+ · cross-hazard**
+- Same engine, different card library: wildfire (Kalimantan
+  transboundary haze), earthquake (2015 Ranau), and landslide drills.
+- Regional expansion via partnerships with local Disaster Risk
+  Reduction NGOs across ASEAN.
+- Insurance-industry tie-in (PRUDENTIAL / Etiqa parametric flood
+  policies) using session scoring as a preparedness signal.
+
+See [`hackathon/reports/SUBMIT-ME.md`](../hackathon/reports/SUBMIT-ME.md)
+for the submission-window rationale, and the
+[docs site roadmap](https://sunflowerslwtech.github.io/arus/docs/#roadmap)
+for the full technical roadmap with architectural changes per milestone.
 
 ## Repo layout (v3)
 
