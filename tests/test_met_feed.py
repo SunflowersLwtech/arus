@@ -1,8 +1,8 @@
 """Smoke tests for the MetMalaysia feed.
 
-Note: these tests actually hit the upstream api.data.gov.my. Since we are
-within a hackathon window and the upstream is public + unauthenticated,
-we keep them real. A CI job running without internet would skip this.
+Note: these tests actually hit the upstream api.data.gov.my. Since the
+upstream is public + unauthenticated, we keep them real. A CI job
+running without internet would skip this.
 """
 from __future__ import annotations
 

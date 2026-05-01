@@ -36,4 +36,4 @@ Generated: 2026-04-22 via Gemini 2.5 Flash TTS (voice=Kore, EN).
 
 ## Upload
 
-YouTube unlisted. Title: `Arus — Banjir Drill: Play NADMA for 7 minutes (MyAI Future Hackathon 2026)`.
+YouTube unlisted. Title: `Arus — Banjir Drill: Play NADMA for 7 minutes`.

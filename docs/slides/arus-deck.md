@@ -51,7 +51,7 @@ style: |
 
 <!-- _class: "cover lead" -->
 
-<span class="eyebrow">Project 2030 · MyAI Future Hackathon · Track 2 Citizens First</span>
+<span class="eyebrow">Citizens First · Malaysian Flood Coordination</span>
 
 # Arus
 
@@ -509,7 +509,7 @@ AI that moves Malaysia's rescue — faster than any human dispatcher can.
 </div>
 
 <p class="muted" style="margin-top: 60px; font-size: 18px;">
-  Built solo by <span class="cyan">Liu Wei</span> · Project 2030 · MyAI Future Hackathon · Track 2 · 2026-04-21
+  Built solo by <span class="cyan">Liu Wei</span> · 2026-04-21
 </p>
 
 <p class="muted" style="margin-top: 40px; font-size: 16px;">

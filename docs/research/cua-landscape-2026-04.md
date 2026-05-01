@@ -23,7 +23,7 @@ To directly address the requirements for Q2 2026 deployment, this executive summ
 *   **Latency and Cost per Task:** Synchronous desktop automation remains hampered by high latency. Average loops take 2-8 seconds per step. Proprietary costs are steep (e.g., Claude Opus 4.6 costs $5.00 per 1M input tokens; OpenAI Operator costs $200/month). Conversely, local open-source setups (e.g., Browser-Use + LLaMA 3) operate at near-zero variable cost. 
 *   **Security & Sandboxing:** Vision-based CUAs are highly susceptible to Visual Prompt Injection and Branch Steering. Mitigation strictly requires cloud Virtual Machine (VM) sandboxing, architectural dual-LLM isolation, and secure tunneling (ZTNA) for local data access.
 *   **Production Shortlist:** The highest-ranked candidates for Q2 2026 are the Claude 4 API (Enterprise OS), Coasty (Outsourced automation), Browser-Use (Cost-effective open-source), and Google Gemini 3.1 Pro (Mobile/Workspace). 
-*   **Hackathon Recommendation:** For a rapid macOS and Android automation project, orchestrate the Claude 4.6 API (desktop) and AskUI via AndroidWorld emulator (mobile) using LangGraph for stateful execution.
+*   **Rapid-Build Recommendation:** For a short-cycle macOS and Android automation project, orchestrate the Claude 4.6 API (desktop) and AskUI via AndroidWorld emulator (mobile) using LangGraph for stateful execution.
 
 ***
 
@@ -279,9 +279,9 @@ Managing a CUA requires robust orchestration to handle state, memory, and error 
     *   *Best for:* Native Android automation and complex Google Workspace data integration.
     *   *Anti-use case:* Cross-platform Windows/macOS desktop navigation.
 
-### 8.2 Concrete Recommendation: Hackathon Project (macOS + Android Automation)
+### 8.2 Concrete Recommendation: Short-Cycle Project (macOS + Android Automation)
 
-**The Objective:** Build a desktop automation tool that synchronizes workflows across a macOS desktop and an Android device within a 48-hour hackathon window.
+**The Objective:** Build a desktop automation tool that synchronizes workflows across a macOS desktop and an Android device within a 48-hour build window.
 
 **The Architecture:**
 This project utilizes a hybrid approach. It leverages the Anthropic Claude 4.6 API for robust macOS visual extraction, AskUI for precise Android mobile actuation, and LangGraph as the stateful memory orchestrator bridging the two environments.

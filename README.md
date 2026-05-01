@@ -16,11 +16,9 @@
 [![Cloud Run](https://img.shields.io/badge/Cloud_Run-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white)](https://cloud.google.com/run)
 [![MetMalaysia](https://img.shields.io/badge/data.gov.my-LIVE_FEED-E63946?style=for-the-badge)](https://api.data.gov.my/weather/warning)
 
-**MyAI Future Hackathon 2026 · Track 2 — Citizens First (GovTech)**
-
 🔴 **Play now** · [`arus-1030181742799.asia-southeast1.run.app`](https://arus-1030181742799.asia-southeast1.run.app)
 
-🎥 [Watch 5-min demo](https://sunflowerslwtech.github.io/arus/video/arus-demo-5min.mp4) · 🖼 [Site](https://sunflowerslwtech.github.io/arus/) · 📊 [Slides](https://sunflowerslwtech.github.io/arus/slides/) · 📘 [Docs](https://sunflowerslwtech.github.io/arus/docs/) · 👨‍⚖️ [For judges](./docs/FOR-JUDGES.md)
+🎥 [Watch 5-min demo](https://sunflowerslwtech.github.io/arus/video/arus-demo-5min.mp4) · 🖼 [Site](https://sunflowerslwtech.github.io/arus/) · 📊 [Slides](https://sunflowerslwtech.github.io/arus/slides/) · 📘 [Docs](https://sunflowerslwtech.github.io/arus/docs/)
 
 </div>
 
@@ -65,9 +63,9 @@ Portal Bencana, InfoBanjir and MetMalaysia's warning API are linked at
 the end of every session so the citizen carries the lesson into real
 preparedness.
 
-## Why Track 2 (Citizens First)
+## Why citizen-facing
 
-Track 2's reference apps are MyJPJ and MySejahtera — **citizen-facing
+Reference apps in this space are MyJPJ and MySejahtera — **citizen-facing
 digital services**. Arus — Banjir Drill is a digital public-education
 service that aligns directly with MyDIGITAL's Budget 2026 "Accelerating
 Digital Transformation for All" agenda and the six _teras_ of the
@@ -131,8 +129,8 @@ argues this as the 2026 pattern for LLM-infused games.
 **Why MCP matters**: both the COACH agent and the AUTO commander
 discover fleet tools at runtime via MCP's `tools/list_changed` signal —
 no hard-coded drone IDs. Add a drone mid-mission and both agents adapt
-the next cycle. This is a wire-protocol moat that most hackathon
-submissions won't have.
+the next cycle. This is a wire-protocol moat — fleet composition can
+change at runtime without redeploying the agent.
 
 ## Architecture at a glance
 
@@ -168,7 +166,7 @@ player into the civic tools they'd use if the water rose tomorrow.
 
 ## Built entirely in Google Antigravity
 
-The full hackathon window (2026-03-15 → 2026-04-24) lived inside one
+The full build window (2026-03-15 → 2026-04-24) lived inside one
 IDE. Gemini 3.1 Pro on the right panel wrote drafts; Gemini 2.5 Pro in
 `backend/services/narrator.py` writes the in-app narration.
 
@@ -176,7 +174,7 @@ IDE. Gemini 3.1 Pro on the right panel wrote drafts; Gemini 2.5 Pro in
 
 ## 30-second evaluation
 
-Judges — **open the live URL on any phone** and pick a mode. That's the
+**Open the live URL on any phone** and pick a mode. That's the
 evaluation.
 
 ```
@@ -208,19 +206,15 @@ https://arus-1030181742799.asia-southeast1.run.app
 | LLM for writing, deterministic for gameplay | CESCG 2025 LIGS | Gemini narrator off-loop; engine tick is pure code |
 | Shareable score | Wordle (NYT) | Planned (Day 3 stretch) |
 
-Sources consolidated in [docs/FOR-JUDGES.md](./docs/FOR-JUDGES.md).
-
 ## Classroom deployment path
 
-Banjir Drill is designed for direct citizen access (Track 2 / B2C).
+Banjir Drill is designed for direct citizen access (B2C).
 Teachers who want to embed it as a structured assessment can integrate
 via the `GET /api/game/debrief` endpoint, which returns a fully
 structured JSON debrief (gauges, grade, choice history, Gemini
 commentary in BM + EN, real-event statistics). The payload is
-LMS-friendly and has been designed with Cervantes (Cambridge EduX
-hackathon formative-assessment platform) as the reference integration
-target — assignment launch via query params (`?session_for=<teacher_id>`)
-plus score writeback is a post-hackathon add-on.
+LMS-friendly — assignment launch via query params
+(`?session_for=<teacher_id>`) plus score writeback is on the roadmap.
 
 ## Quick start (local)
 
@@ -259,42 +253,36 @@ gcloud builds submit --config=cloudbuild.yaml --region=asia-southeast1
 
 Live build target: `asia-southeast1` · single instance · `--set-secrets=GOOGLE_API_KEY=arus-gemini-key:latest`.
 
-## AI tools used
-
-_(as required by the hackathon rules — disclosed in full.)_
+## Stack
 
 | Tool | Where | Why |
 |---|---|---|
-| **Google Antigravity** | Primary IDE for the entire hackathon window (2026-03-15 → 2026-04-24) | Mandated by rule |
 | **Google AI Studio** | Prompt design for `narrator.py` + `agents/prompts.yaml` (7 agent stages) | Prompt engineering |
 | **Gemini 2.5 Pro** | Narrator intro + debrief (structured BM/EN output) | LLM backbone |
-| **Gemini 3.1 Pro (High)** | Antigravity IDE co-pilot across the hackathon window | Code authoring |
+| **Gemini 3.1 Pro (High)** | Antigravity IDE co-pilot throughout development | Code authoring |
 | **Gemini 2.5 Pro / Flash preview TTS** | Demo narration (Charon + Kore voices) | Audio synthesis |
 | **Veo 3.0 Fast** | Cinematic b-roll for the 5-min demo video (flood aerials, NADMA ops room, BOMBA rescue) | Video synthesis |
 | **Google ADK 1.27.1** | `SequentialAgent` / `LlmAgent` orchestration for COACH + AUTO pipelines | Agentic framework |
 | **MCP 1.26.0 + fastmcp 3.1.1** | 9-tool fleet server on port 8001, wire-protocol tool discovery | Open protocol |
-| **Google Cloud Run** | Deployment (asia-southeast1) | Mandated by rule |
+| **Google Cloud Run** | Deployment (asia-southeast1) | Single-region container target |
 | **Google Secret Manager** | `GOOGLE_API_KEY` storage | Standard hygiene |
 | **Google Artifact Registry** | Container image registry | Cloud Build target |
 | **Remotion 4** | 5-min demo video scene authoring (title cards, architecture, debrief bars) | Programmatic video |
 | **Playwright** | Headed browser capture of a full round's gameplay for the demo | Browser recording |
 
 > **AI-assistance disclosure**: Arus — Banjir Drill was built end-to-end
-> inside Google Antigravity during the hackathon window (2026-03-15 →
-> 2026-04-24) with Gemini 2.5 Pro (in-app narration), Gemini 3.1 Pro
-> (IDE co-pilot) and Veo 3.0 Fast (demo b-roll) assistance. Prompt design
-> iterated in Google AI Studio. No Codex / Cursor / VS Code / Gemini CLI
-> involvement.
+> inside Google Antigravity (2026-03-15 → 2026-04-24) with Gemini 2.5
+> Pro (in-app narration), Gemini 3.1 Pro (IDE co-pilot) and Veo 3.0 Fast
+> (demo b-roll) assistance. Prompt design iterated in Google AI Studio.
 
 ## Project evolution — the three architectures
 
-The repository went through three architectures in the hackathon window:
+The repository went through three architectures:
 
 - **v1** — autonomous 5-stage ADK coordinator. Preserved at git tag
-  `v1-coordinator`. Track 2 alignment was weak (B2G backend).
+  `v1-coordinator`. B2G backend with weak citizen-facing surface.
 - **v2** — player-driven card game (Banjir Drill). Citizen-facing
-  (good Track 2 fit) but the 3D map was decorative and judges read
-  it as a quiz.
+  but the 3D map was decorative and read as a quiz.
 - **v3** (current) — the PLAY card loop, plus **COACH** (2-stage ADK
   advisor that streams CoT on every card) and **AUTO** (v1 revived as
   a demo-able technical-depth mode). MCP + ADK brought back, game
@@ -303,7 +291,7 @@ The repository went through three architectures in the hackathon window:
 
 ## Roadmap
 
-**v1.0 · now (2026-04-24 submission)** — this repo. One scenario,
+**v1.0 · now (2026-04-24 release)** — this repo. One scenario,
 three modes, bilingual BM/EN, Cloud Run live, MetMalaysia feed,
 personalised debrief. Built entirely in Antigravity.
 
@@ -348,9 +336,7 @@ personalised debrief. Built entirely in Antigravity.
 - Insurance-industry tie-in (PRUDENTIAL / Etiqa parametric flood
   policies) using session scoring as a preparedness signal.
 
-See [`hackathon/reports/SUBMIT-ME.md`](../hackathon/reports/SUBMIT-ME.md)
-for the submission-window rationale, and the
-[docs site roadmap](https://sunflowerslwtech.github.io/arus/docs/#roadmap)
+See the [docs site roadmap](https://sunflowerslwtech.github.io/arus/docs/#roadmap)
 for the full technical roadmap with architectural changes per milestone.
 
 ## Repo layout (v3)
@@ -391,7 +377,7 @@ arus/
 │   ├── hooks/                     useWebSocket, useGameApi
 │   └── stores/missionStore.js     Zustand
 ├── cloudbuild.yaml · Dockerfile · requirements.txt
-├── docs/FOR-JUDGES.md · docs/slides/ · docs/architecture.svg
+├── docs/slides/ · docs/architecture.svg
 └── README.md
 ```
 
